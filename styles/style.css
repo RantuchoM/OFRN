@@ -73,11 +73,11 @@ header {
   flex-direction: column;
   align-items: center;
 }
-.cantidades{
+.cantidades, #encabezadoImprimir{
   font-size: 20px;
 }
 
-#cantidades{
+#cantidades, #encabezadoImprimir{
   text-align: center;
   background-color: #a1a1a1;
 }
@@ -172,6 +172,9 @@ summary {
   margin-bottom: 10px;
   cursor: pointer;
 }
+#encabezadoImprimir{
+  display:none;
+}
 
 /* Media query for mobile devices */
 @media only screen and (max-width: 600px) {
@@ -192,6 +195,10 @@ summary {
   }
   #printableArea, #printableArea * {
       visibility: visible;
+      
+  }
+  #encabezadoImprimir{
+    display:block;
   }
     #printableArea {
         -webkit-print-color-adjust: exact;

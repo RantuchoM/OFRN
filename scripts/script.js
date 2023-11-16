@@ -17,27 +17,27 @@ function initClient() {
     discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
   }).then(() => {
     // Call the function to fetch data
-    getData().then(() =>{getNames()});
-    
+    getData().then(() => { getNames() });
+
   });
 }
 
 
 function getNames() {
   //console.log("getDropdownData")
-const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
-fetch(url)
-.then(response => response.text())
-.then(html => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  console.log(extractColumnData(doc, 3))
-  names = extractColumnData(doc, 3);
-  names.shift()
-  names.sort() // Extract data from the 4th column
-  resumenPersonas();
-})
-.catch(error => console.error('Error fetching data:', error));
+  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      console.log(extractColumnData(doc, 3))
+      names = extractColumnData(doc, 3);
+      names.shift()
+      names.sort() // Extract data from the 4th column
+      resumenPersonas();
+    })
+    .catch(error => console.error('Error fetching data:', error));
 
 }
 function resumenPersonas() {
@@ -108,7 +108,18 @@ function resumenPersonas() {
     detailsContainer.append(detailsSummary);
   });
 }
+function extractColumnData(doc, columnIndex) {
+  const tableRows = doc.querySelectorAll('table tr');
+  const columnData = [];
 
+  tableRows.forEach(function (row) {
+    const columns = row.querySelectorAll('td');
+    const columnValue = columns[columnIndex].textContent.trim();
+    columnData.push(columnValue);
+  });
+
+  return columnData;
+}
 
 
 // Attach the event handlers to the checkbox and date input change events
@@ -147,14 +158,14 @@ function extractData(doc, startColumn, endColumn) {
   const extractedData = [];
 
   if (tableRows.length < 1) {
-      console.error('No data found in the table.');
-      return extractedData;
+    console.error('No data found in the table.');
+    return extractedData;
   }
 
   headers = tableRows[0];
   //console.log(tableRows)
 
-//
+  //
   /*for (let i = 1; i < tableRows.length; i++) {
       const rowData = Array.from(tableRows[i].querySelectorAll('td')).map(td => td.textContent.trim());
       const extractedRow = rowData.slice(startColumn - 1, endColumn);
@@ -175,9 +186,9 @@ function showData(data, startColumn, endColumn) {
   var thead = $('#table-data thead');
   var headerRowHTML = '<tr>';
   headers.forEach(function (header) {
-    if(header == "Nombres"){}
-    else{
-    headerRowHTML += '<th>' + header + '</th>';
+    if (header == "Nombres") { }
+    else {
+      headerRowHTML += '<th>' + header + '</th>';
     }
   });
   headerRowHTML += '</tr>';
@@ -190,7 +201,7 @@ function showData(data, startColumn, endColumn) {
     var rowHTML = '<tr>';
 
     rowData.forEach(function (value, columnIndex) {
-      
+
       if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
         // Assuming data[headers[columnIndex]] contains the link
         rowHTML += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
@@ -231,7 +242,7 @@ function filterData() {
   dataArray.forEach(function (data) {
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
     var columnaEnsambles = data[6];
-    var columnaProgramas = data[0]; 
+    var columnaProgramas = data[0];
 
     if (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
@@ -272,7 +283,28 @@ function filterData() {
       row += '</tr>';
       tbody.append(row);
     }
+    // Check if #encabezadoImprimir exists before manipulating it
+    var encabezadoImprimir = $('#encabezadoImprimir');
+    if (encabezadoImprimir.length > 0) {
+      // Build the header content based on dropdownValue, fromDate, and untilDate
+      var headerContent = 'Cronograma de: ' + dropdownValue;
+
+      if (fromDate) {
+        headerContent += ' desde: ' + formatDate(fromDate+ 'T00:00');
+      }
+
+      if (untilDate) {
+        headerContent += ' hasta: ' + formatDate(untilDate+ 'T00:00');
+      }
+
+      // Set the content of #encabezadoImprimir
+      encabezadoImprimir.html(headerContent);
+    }
   });
+  function formatDate(dateString) {
+    var options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('es-ES', options);
+  }
 
   // Update the counts in the HTML
   $('#cant-elem').text('Cantidad de Programas: ' + uniqueElements.size);
@@ -280,61 +312,61 @@ function filterData() {
   const createResizableTable = function (table) {
     const cols = table.querySelectorAll('th');
     [].forEach.call(cols, function (col) {
-    // Add a resizer element to the column
-    const resizer = document.createElement('div');
-    resizer.classList.add('resizer');
-    
-    // Set the height
-    resizer.style.height = `${table.offsetHeight}px`;
-    
-    col.appendChild(resizer);
-    
-    createResizableColumn(col, resizer);
+      // Add a resizer element to the column
+      const resizer = document.createElement('div');
+      resizer.classList.add('resizer');
+
+      // Set the height
+      resizer.style.height = `${table.offsetHeight}px`;
+
+      col.appendChild(resizer);
+
+      createResizableColumn(col, resizer);
     });
-    };
-    
-    const createResizableColumn = function (col, resizer) {
+  };
+
+  const createResizableColumn = function (col, resizer) {
     let x = 0;
     let w = 0;
-    
+
     const mouseDownHandler = function (e) {
-    x = e.clientX;
-    
-    const styles = window.getComputedStyle(col);
-    w = parseInt(styles.width, 10);
-    
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
-    
-    resizer.classList.add('resizing');
+      x = e.clientX;
+
+      const styles = window.getComputedStyle(col);
+      w = parseInt(styles.width, 10);
+
+      document.addEventListener('mousemove', mouseMoveHandler);
+      document.addEventListener('mouseup', mouseUpHandler);
+
+      resizer.classList.add('resizing');
     };
-    
+
     const mouseMoveHandler = function (e) {
-    const dx = e.clientX - x;
-    col.style.width = `${w + dx}px`;
+      const dx = e.clientX - x;
+      col.style.width = `${w + dx}px`;
     };
-    
+
     const mouseUpHandler = function () {
-    resizer.classList.remove('resizing');
-    document.removeEventListener('mousemove', mouseMoveHandler);
-    document.removeEventListener('mouseup', mouseUpHandler);
+      resizer.classList.remove('resizing');
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
     };
-    
+
     resizer.addEventListener('mousedown', mouseDownHandler);
-    };
-    
-    createResizableTable(document.getElementById('table-data'));
-    
-  
+  };
+
+  createResizableTable(document.getElementById('table-data'));
+
+
 }
 
 
 
 // Helper function to check if a string starts with any of the selected values
 function contieneValor(str, selectedValues) {
-    return selectedValues.some(function (value) {
-        return str.includes(value);
-    });
+  return selectedValues.some(function (value) {
+    return str.includes(value);
+  });
 }
 
 // Helper function to check if a date is in the specified range
@@ -356,20 +388,20 @@ function isDateInRange(dateString, fromDate, untilDate) {
 
 // Function to check all checkboxes
 function checkAll() {
-    var checkboxes = document.querySelectorAll('.filter-checkbox');
-    checkboxes.forEach(function (checkbox) {
-        checkbox.checked = true;
-    });
-    filterData();
+  var checkboxes = document.querySelectorAll('.filter-checkbox');
+  checkboxes.forEach(function (checkbox) {
+    checkbox.checked = true;
+  });
+  filterData();
 }
 
 // Function to uncheck all checkboxes
 function uncheckAll() {
-    var checkboxes = document.querySelectorAll('.filter-checkbox');
-    checkboxes.forEach(function (checkbox) {
-        checkbox.checked = false;
-    });
-    filterData();
+  var checkboxes = document.querySelectorAll('.filter-checkbox');
+  checkboxes.forEach(function (checkbox) {
+    checkbox.checked = false;
+  });
+  filterData();
 }
 
 // Invoke the getData function
@@ -378,51 +410,51 @@ document.addEventListener('DOMContentLoaded', loadClient);
 
 document.addEventListener('DOMContentLoaded', function () {
   const createResizableTable = function (table) {
-  const cols = table.querySelectorAll('th');
-  [].forEach.call(cols, function (col) {
-  // Add a resizer element to the column
-  const resizer = document.createElement('div');
-  resizer.classList.add('resizer');
-  
-  // Set the height
-  resizer.style.height = `${table.offsetHeight}px`;
-  
-  col.appendChild(resizer);
-  
-  createResizableColumn(col, resizer);
-  });
+    const cols = table.querySelectorAll('th');
+    [].forEach.call(cols, function (col) {
+      // Add a resizer element to the column
+      const resizer = document.createElement('div');
+      resizer.classList.add('resizer');
+
+      // Set the height
+      resizer.style.height = `${table.offsetHeight}px`;
+
+      col.appendChild(resizer);
+
+      createResizableColumn(col, resizer);
+    });
   };
-  
+
   const createResizableColumn = function (col, resizer) {
-  let x = 0;
-  let w = 0;
-  
-  const mouseDownHandler = function (e) {
-  x = e.clientX;
-  
-  const styles = window.getComputedStyle(col);
-  w = parseInt(styles.width, 10);
-  
-  document.addEventListener('mousemove', mouseMoveHandler);
-  document.addEventListener('mouseup', mouseUpHandler);
-  
-  resizer.classList.add('resizing');
+    let x = 0;
+    let w = 0;
+
+    const mouseDownHandler = function (e) {
+      x = e.clientX;
+
+      const styles = window.getComputedStyle(col);
+      w = parseInt(styles.width, 10);
+
+      document.addEventListener('mousemove', mouseMoveHandler);
+      document.addEventListener('mouseup', mouseUpHandler);
+
+      resizer.classList.add('resizing');
+    };
+
+    const mouseMoveHandler = function (e) {
+      const dx = e.clientX - x;
+      col.style.width = `${w + dx}px`;
+    };
+
+    const mouseUpHandler = function () {
+      resizer.classList.remove('resizing');
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+    };
+
+    resizer.addEventListener('mousedown', mouseDownHandler);
   };
-  
-  const mouseMoveHandler = function (e) {
-  const dx = e.clientX - x;
-  col.style.width = `${w + dx}px`;
-  };
-  
-  const mouseUpHandler = function () {
-  resizer.classList.remove('resizing');
-  document.removeEventListener('mousemove', mouseMoveHandler);
-  document.removeEventListener('mouseup', mouseUpHandler);
-  };
-  
-  resizer.addEventListener('mousedown', mouseDownHandler);
-  };
-  
+
   createResizableTable(document.getElementById('table-data'));
-  });
+});
 

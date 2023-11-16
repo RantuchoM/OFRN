@@ -30,11 +30,30 @@ function crearCheckboxes(){
   checkboxData.forEach(function (checkbox) {
     var checkboxElement = document.createElement("label");
     checkboxElement.style.backgroundColor = checkbox.color;
-    checkboxElement.innerHTML = `<input type="checkbox" class="filter-checkbox" value="${checkbox.key}"> ${checkbox.key}`;
-    
-    // Append the checkbox to the container
+
+    // Create a checkbox input
+    var checkboxInput = document.createElement("input");
+    checkboxInput.type = "checkbox";
+    checkboxInput.className = "filter-checkbox";
+    checkboxInput.value = checkbox.key;
+
+    // Check the checkbox if the corresponding parameter is present in the URL
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get(checkbox.key) === "true") {
+      checkboxInput.checked = true;
+    }
+
+    // Add the checkbox input to the label
+    checkboxElement.appendChild(checkboxInput);
+
+    // Add the checkbox text after the input
+    var checkboxText = document.createTextNode(` ${checkbox.key}`);
+    checkboxElement.appendChild(checkboxText);
+
+    // Append the checkbox label to the container
     ensembleCheckboxes.appendChild(checkboxElement);
   });
+
 }
 function fechaDeHoy()
 {
