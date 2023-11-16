@@ -184,11 +184,11 @@ height: 30px
   #printableArea, #printableArea * {
       visibility: visible;
   }
-  #printableArea {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      position: absolute;
-      left: 0;
-      top: 0;
-  }
+    #printableArea {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="scripts/importar.js"></script>
-    <title>Fechas por Persona</title>
+    <title>OFRN - Resumen Participantes</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
@@ -14,16 +14,10 @@
                 
             </nav>  
             <br>
-            <h1>Fechas OFRN por Persona</h1>
+            <h1>Fechas OFRN - Resumen Participantes</h1>
         </header>
         
-
-        <div id="ensembleCheckboxes" class="ensemble-grid">
-            
-        </div>
-        
-        <br>
-        <div id="filtros">
+        <div id="filtros" style="display:none">
             <button onclick="checkAll()">Marcar todas</button>
             <button onclick="uncheckAll()">Desmarcar todas</button>
             <div>
@@ -35,11 +29,23 @@
             </div>
             <label id="dropdown-container"></label>
         </div>
-        <div id="cantidades">
+        <div id="cantidades" style="display:none">
         <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres" class="cantidades">Cantidad de Presentaciones: </label>
         </div>
+        <div >
+            <table id="table-data" class="table" style="display:none">
+                <thead>
+                    <!-- Headers will be populated dynamically using JavaScript -->
+                </thead>
+                <tbody>
+                    <!-- Table data will be populated dynamically using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+       
         <div id="printableArea">
-            <table id="table-data" class="table">
+            <table id="people-details" class="table">
                 <thead>
                     <!-- Headers will be populated dynamically using JavaScript -->
                 </thead>
@@ -52,7 +58,7 @@
 
     
     
-
+    <script></script>
 </body>
 </html>
 

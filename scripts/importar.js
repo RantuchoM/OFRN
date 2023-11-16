@@ -5,5 +5,7 @@ document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.
 document.write('<script src="scripts/completar.js" defer></script>')
 document.write('<script src="scripts/script.js" defer></script>');
 document.write('<script src="scripts/dropdown.js" defer></script>');
+//document.write('<script src="scripts/resumen.js" defer></script>');
+
 
 

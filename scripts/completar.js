@@ -40,6 +40,39 @@ function fechaDeHoy()
 {
     document.getElementById('fromDate').valueAsDate = new Date();
 }
+
+function crearMenu() {
+  // Define the menu items as an array of objects with 'text' and 'href' properties
+  var menuItems = [
+    { text: 'Por Ensamble', href: 'index.html' },
+    { text: 'Por Persona', href: 'porPersona.html' },
+    { text: 'Resumen Personas', href: 'resumenPersonas.html' }
+    
+   
+    // Add more items as needed
+  ];
+
+  // Get the <nav> element
+  var navElement = document.querySelector('nav');
+
+  // Iterate over the menu items and create <a> elements
+  menuItems.forEach(function (menuItem) {
+    var aElement = document.createElement('a');
+
+    // Set the 'href' and 'text' properties based on the current menu item
+    aElement.href = menuItem.href;
+    aElement.textContent = menuItem.text;
+
+    // Append the <a> element to the <nav> element
+    navElement.appendChild(aElement);
+
+    // Add a line break between the <a> elements if needed
+    navElement.appendChild(document.createElement('br'));
+  });
+}
+
+// Call the crearMenu() function to add the menu items to the <nav>
+crearMenu();
 crearCheckboxes();
 fechaDeHoy();
 

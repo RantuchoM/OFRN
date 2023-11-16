@@ -3,6 +3,7 @@
 // Define dataArray and headers globally
 var dataArray;
 var headers;
+var names;
 
 
 function loadClient() {
@@ -16,23 +17,99 @@ function initClient() {
     discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
   }).then(() => {
     // Call the function to fetch data
-    getData();
+    getData().then(() =>{getNames()});
+    
   });
 }
 
-function fetchData2() {
-  // Make a request to the Google Sheets API to get values from the "Listado!L:R" range
-  gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: '1-pzeyaROPbpJq1r0snrHPfuyjUz3oyfjHxryQdhswwQ',
-    range: 'Listado!L:s',
-  }).then(response => {
-    const values = response.result.values;
-    console.log('Data from "Listado!L:R":', values);
-    // Process the data as needed
-  }, error => {
-    console.error('Error fetching data:', error);
+
+function getNames() {
+  //console.log("getDropdownData")
+const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
+fetch(url)
+.then(response => response.text())
+.then(html => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  console.log(extractColumnData(doc, 3))
+  names = extractColumnData(doc, 3);
+  names.shift()
+  names.sort() // Extract data from the 4th column
+  resumenPersonas();
+})
+.catch(error => console.error('Error fetching data:', error));
+
+}
+function resumenPersonas() {
+  var detailsContainer = $('#people-details');
+  if (!detailsContainer.length) {
+    console.error("Container not found");
+    return;
+  }
+
+  detailsContainer.empty();
+  console.log(names);
+
+  names.forEach(function (name) {
+    // Filtered rows for the current name
+    var filteredRows = dataArray.filter(function (data) {
+      return data[7].includes(name);
+    });
+
+    // Extract unique values from the first column
+    var uniquePrograms = new Set(filteredRows.map(function (data) {
+      return data[0];
+    }));
+
+    // Summary construction
+    var detailsSummary = '<details id="' + name + '"><summary>' + name +
+      ' - Cantidad de Programas: ' + uniquePrograms.size +
+      ' - Cantidad de Presentaciones: ' + filteredRows.length +
+      '</summary>';
+    detailsSummary += '<table>';
+
+    // Iterate over filtered rows
+    filteredRows.forEach(function (data) {
+      var row = '<tr';
+
+      if (data[6].startsWith('Sinf')) {
+        row += ' style="background-color: #dabcff;"';
+      } else if (data[6].startsWith('CFVal')) {
+        row += ' style="background-color: #E1C16E;"';
+      } else if (data[6].startsWith('CFMon')) {
+        row += ' style="background-color: #A8A8A8;"';
+      } else if (data[6].startsWith('CFMar')) {
+        row += ' style="background-color: #89CFF0;"';
+      } else if (data[6].startsWith('CFCuer')) {
+        row += ' style="background-color: #ffccff;"';
+      }
+
+      row += '>';
+
+      // Iterate over each value in the row (columns 1 to 7)
+      for (var columnIndex = 0; columnIndex < 7; columnIndex++) {
+        var columnValue = data[columnIndex];
+
+        if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
+          // Assuming data[headers[columnIndex]] contains the link
+          row += '<td><a href="' + columnValue + '" target="_blank">Drive</a></td>';
+        } else {
+          row += '<td>' + columnValue + '</td>';
+        }
+      }
+
+      row += '</tr>';
+      detailsSummary += row;
+    });
+
+    detailsSummary += '</table>';
+    detailsSummary += '</details>';
+
+    detailsContainer.append(detailsSummary);
   });
 }
+
+
 
 // Attach the event handlers to the checkbox and date input change events
 document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
@@ -42,22 +119,27 @@ document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
 document.querySelectorAll('.filter-date').forEach(function (dateInput) {
   dateInput.addEventListener('change', filterData);
 });
+//people = getDropdownData();
 
 // Function to fetch data from Google Sheets
 function getData() {
-  gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: '1-pzeyaROPbpJq1r0snrHPfuyjUz3oyfjHxryQdhswwQ',
-    range: 'Listado!L:S',
-  }).then(response => {
+  return new Promise((resolve, reject) => {
+    gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: '1-pzeyaROPbpJq1r0snrHPfuyjUz3oyfjHxryQdhswwQ',
+      range: 'Listado!L:S',
+    }).then(response => {
       const values = response.result.values;
-      dataArray = extractData(values, 12, 19); // Extract and assign data globally
-      headers = dataArray[0]
-      //console.log(dataArray[0])
-      dataArray.shift()
-      showData(dataArray, 12, 18); // Pass the data to showData function with startColumn and endColumn
-      filterData(); // Call filterData after data is processed
-    })
-    .catch(error => console.error('Error fetching data:', error));
+      dataArray = extractData(values, 12, 19);
+      headers = dataArray[0];
+      dataArray.shift();
+      showData(dataArray, 12, 18);
+      filterData();
+      resolve(dataArray);
+    }).catch(error => {
+      console.error('Error fetching data:', error);
+      reject(error);
+    });
+  });
 }
 // Function to extract data from the HTML response
 function extractData(doc, startColumn, endColumn) {
@@ -343,3 +425,4 @@ document.addEventListener('DOMContentLoaded', function () {
   
   createResizableTable(document.getElementById('table-data'));
   });
+

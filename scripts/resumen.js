@@ -1,0 +1,116 @@
+var data;
+var dataArray; // Ensure dataArray is defined globally
+
+function getDropdownData() {
+  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true';
+
+  return fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      data = extractColumnData(doc, 3);
+      console.log(data);
+      return data;
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+      throw error;
+    });
+}
+
+function getData() {
+  return new Promise((resolve, reject) => {
+    gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: '1-pzeyaROPbpJq1r0snrHPfuyjUz3oyfjHxryQdhswwQ',
+      range: 'Listado!L:S',
+    }).then(response => {
+        const values = response.result.values;
+        dataArray = extractData(values, 12, 19); // Extract and assign data globally
+        //headers = dataArray[0];
+        dataArray.shift();
+        //showData(dataArray, 12, 18); // Pass the data to showData function with startColumn and endColumn
+        //filterData(); // Call filterData after data is processed
+        resolve(); // Resolve the promise when data is processed
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        reject(error); // Reject the promise on error
+      });
+  });
+}
+
+function resumenPersonas() {
+  var detailsContainer = $('#people-details');
+  if (!detailsContainer.length) {
+    console.error("Container not found");
+    return;
+  }
+
+  detailsContainer.empty();
+
+  // Ensure dataArray is defined in the scope or passed as a parameter
+  data.forEach(function (name) {
+    var detailsSummary = '<details id="' + name + '"><summary>' + name + '</summary>';
+    detailsSummary += '<table>';
+
+    dataArray.forEach(function (data) {
+      var linkColumn = '<td><a href="' + data[5] + '" target="_blank">Drive</a></td>';
+
+      if (data[7].includes(name)) {
+        var row = '<tr';
+
+        if (data[6].startsWith('Sinf')) {
+          row += ' style="background-color: #dabcff;"';
+        } else if (data[6].startsWith('CFVal')) {
+          row += ' style="background-color: #E1C16E;"';
+        } else if (data[6].startsWith('CFMon')) {
+          row += ' style="background-color: #A8A8A8;"';
+        } else if (data[6].startsWith('CFMar')) {
+          row += ' style="background-color: #89CFF0;"';
+        } else if (data[6].startsWith('CFCuer')) {
+          row += ' style="background-color: #ffccff;"';
+        }
+
+        row += '>';
+        row += linkColumn;
+        row += '</tr>';
+
+        detailsSummary += row;
+      }
+    });
+
+    detailsSummary += '</table>';
+    detailsSummary += '</details>';
+
+    detailsContainer.append(detailsSummary);
+  });
+}
+
+getDropdownData().then(function() {
+  // Ensure dataArray is set after the data is fetched
+  getData().then(function() {
+    resumenPersonas();
+  }).catch(error => {
+    // Handle the error if needed
+    console.error('Error in getData:', error);
+  });
+}).catch(error => {
+  // Handle the error if needed
+  console.error('Error in getDropdownData:', error);
+});
+function loadClient2() {
+    gapi.load('client', initClient);
+  }
+  
+  function initClient2() {
+    // Initialize the API client with your API key
+    gapi.client.init({
+      apiKey: 'AIzaSyAxQ63EFfI-ackr9PrPOxJepog7DDh5_dE',
+      discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+    }).then(() => {
+      // Call the function to fetch data
+      getData();
+    });
+  }
+document.addEventListener('DOMContentLoaded', loadClient2);

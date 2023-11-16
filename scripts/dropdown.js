@@ -1,5 +1,5 @@
 function getDropdownData() {
-    console.log("getDropdownData")
+    //console.log("getDropdownData")
 const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
 fetch(url)
   .then(response => response.text())
@@ -10,6 +10,7 @@ fetch(url)
     createDropdown(data);
   })
   .catch(error => console.error('Error fetching data:', error));
+  return data;
 }
 // Function to extract data from the specified column
 function extractColumnData(doc, columnIndex) {
