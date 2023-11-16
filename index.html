@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Fechas 2024</title>
     <link rel="stylesheet" href="styles/style.css">
     
@@ -45,12 +46,13 @@
 
         <button onclick="checkAll()">Marcar todas</button>
         <button onclick="uncheckAll()">Desmarcar todas</button>
-
-        <label for="fromDate">Fecha desde:</label>
-        <input type="date" id="fromDate" class="filter-date">
-
-        <label for="untilDate">Fecha hasta: </label>
-        <input type="date" id="untilDate" class="filter-date">
+        <div>
+            <label for="fromDate">Fecha desde:</label>
+            <input type="date" id="fromDate" class="filter-date">
+            
+            <label for="untilDate">Fecha hasta: </label>
+            <input type="date" id="untilDate" class="filter-date">
+        </div>
         <div id="dropdown-container"></div>
         <div id="cantidades">
             <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres" class="cantidades">Cantidad de Presentaciones: </label>

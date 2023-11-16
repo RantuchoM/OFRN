@@ -1,3 +1,11 @@
+body {
+  margin: 0;
+  padding: 0;
+  
+  display: flex;
+  flex-direction: column;
+
+}
 h1 {
   text-align: center;
   color: #333; /* Choose your preferred text color */
@@ -14,7 +22,7 @@ header {
   background-color: rgb(100, 204, 105); /* Choose your preferred background color */
   color: #fff; /* Choose your preferred text color */
   text-align: center;
-  padding: 20px;
+  
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -64,6 +72,7 @@ height: 30px
 #table-data {
   border-collapse: collapse;
   width: 100%;
+  overflow: auto;
 }
 
 .ensemble-grid {
@@ -108,4 +117,17 @@ height: 30px
 
 #table-data th {
   background-color: #f2f2f2;
+}
+
+/* Media query for mobile devices */
+@media only screen and (max-width: 600px) {
+  body {
+    margin: 0;
+    padding: 0;
+    
+    display: flex;
+    flex-direction: row;
+  
+  }
+
 }
