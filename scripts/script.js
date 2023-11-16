@@ -136,6 +136,7 @@ function filterData() {
   var fromDate = $('#fromDate').val();
   var untilDate = $('#untilDate').val();
   var tbody = $('#table-data tbody');
+  var uniqueElements = new Set(); // To store unique elements in the first column
 
   // Clear existing rows
   tbody.empty();
@@ -147,25 +148,28 @@ function filterData() {
   // Filter and display rows based on checkboxes, date range, and dropdown value
   dataArray.forEach(function (data) {
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
-    var firstColumnValue = data[0]; // Assuming date is in the first column
-    console.log(`Dropdown: ${dropdownValue}`)
+    var columnaEnsambles = data[6];
+    var columnaProgramas = data[0]; 
+
     if (
-      (selectedValues.length === 0 || startsWithSelectedValue(firstColumnValue, selectedValues)) &&
+      (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
       (!dropdownValue || data[7].includes(dropdownValue))
     ) {
+      uniqueElements.add(columnaProgramas); // Add to the set of unique elements
+
       var row = '<tr';
 
       // Add background color based on the value in the first column
-      if (firstColumnValue.startsWith('Sinf')) {
+      if (columnaEnsambles.startsWith('Sinf')) {
         row += ' style="background-color: #dabcff;"';
-      } else if (firstColumnValue.startsWith('CFVal')) {
+      } else if (columnaEnsambles.startsWith('CFVal')) {
         row += ' style="background-color: #E1C16E;"';
-      } else if (firstColumnValue.startsWith('CFMon')) {
+      } else if (columnaEnsambles.startsWith('CFMon')) {
         row += ' style="background-color: #A8A8A8;"';
-      } else if (firstColumnValue.startsWith('CFMar')) {
+      } else if (columnaEnsambles.startsWith('CFMar')) {
         row += ' style="background-color: #89CFF0;"';
-      } else if (firstColumnValue.startsWith('CFCuer')) {
+      } else if (columnaEnsambles.startsWith('CFCuer')) {
         row += ' style="background-color: #ffccff;"';
       }
 
@@ -187,13 +191,18 @@ function filterData() {
       tbody.append(row);
     }
   });
+
+  // Update the counts in the HTML
+  $('#cant-elem').text('Cantidad de Programas: ' + uniqueElements.size);
+  $('#cant-pres').text(' -- Cantidad de Presentaciones: ' + tbody.find('tr').length);
 }
 
 
+
 // Helper function to check if a string starts with any of the selected values
-function startsWithSelectedValue(str, selectedValues) {
+function contieneValor(str, selectedValues) {
     return selectedValues.some(function (value) {
-        return str.startsWith(value);
+        return str.includes(value);
     });
 }
 

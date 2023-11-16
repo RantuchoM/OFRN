@@ -1,3 +1,66 @@
+h1 {
+  text-align: center;
+  color: #333; /* Choose your preferred text color */
+  font-size: 3em; /* Adjust the font size as needed */
+  margin-top: 50px; /* Adjust the top margin as needed */
+  margin-bottom: 30px; /* Adjust the bottom margin as needed */
+  font-weight: bold; /* Set font weight to bold or normal as needed */
+  text-transform: uppercase; /* Convert text to uppercase if desired */
+  letter-spacing: 2px; /* Adjust letter spacing as needed */
+  /* Add other styling properties as needed */
+  
+}
+header {
+  background-color: rgb(100, 204, 105); /* Choose your preferred background color */
+  color: #fff; /* Choose your preferred text color */
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cantidades{
+  font-size: 20px;
+}
+
+#cantidades{
+  text-align: center;
+  background-color: #a1a1a1;
+}
+
+nav{
+  order: -1; /* Move the nav to the top of the header */
+  display: flex;
+  justify-content: space-around;
+}
+nav a, footer a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--nav-hover-link-color);
+  background-color: rgb(195, 163, 253);
+  text-decoration: none;
+  padding-left: 2em;
+  padding-right: 2em;
+  height: 100%
+
+}
+a{
+  color: black
+}
+header nav a:hover, footer a:hover {
+  background-color: var(--nav-hover-background-color);
+  color: var(--nav-hover-link-color);
+}
+footer nav{
+  margin-left: auto;
+}
+footer nav a img{
+height: 30px
+}
+
 #table-data {
   border-collapse: collapse;
   width: 100%;
@@ -5,11 +68,39 @@
 
 .ensemble-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0px;
+  font-size: 20px;
+  border-color: black;
+  border-style: ridge;
+  border-collapse: collapse;
+  border-width: 0.10px;
+  justify-items: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 70%; /* Adjust the width as needed */
+  margin: 0 auto; /* Center the grid horizontally */
 }
 
-#table-data th, #table-data td {
+.ensemble-grid label {
+  border-color: black;
+  border-style: ridge;
+  border-collapse: collapse;
+  border-width: 0.05px;
+  text-align: center; /* Center the text inside the label */
+  width: 100%; /* Ensure labels take up the full width of the grid cell */
+  display: flex;
+  align-items: center; /* Center items vertically */
+  justify-content: center; /* Center items horizontally */
+}
+
+.filter-checkbox {
+  margin: 0;
+  padding: 0;
+  margin-right: 10px; /* Add some right margin to separate checkbox from text */
+}
+
+#table-data th,
+#table-data td {
   border: 1px solid #808080;
   text-align: left;
   padding: 8px;

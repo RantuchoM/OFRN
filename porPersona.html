@@ -8,15 +8,21 @@
 </head>
 <body>
     <div>
-        <h1>Fechas OFRN</h1>
-        <p><a href='index.html'>Original</a></p>
+        <header>
+            <nav>
+                <a href='index.html'>Original</a>
+            </nav>  
+            <br>
+            <h1>Fechas OFRN por Persona</h1>
+        </header>
+        
 
         <div id="ensembleCheckboxes" class="ensemble-grid">
-            <label><input type="checkbox" class="filter-checkbox" value="CFVal"> CFVal</label>
-            <label><input type="checkbox" class="filter-checkbox" value="CFMon"> CFMon</label>
-            <label><input type="checkbox" class="filter-checkbox" value="CFMar"> CFMar</label>
-            <label><input type="checkbox" class="filter-checkbox" value="CFCuer"> CFCuer</label>
-            <label><input type="checkbox" class="filter-checkbox" value="Sinf"> Sinf</label>
+            <label style="background-color: #E1C16E"><input type="checkbox" class="filter-checkbox" value="CFVal"> CFVal</label>
+            <label style="background-color: #A8A8A8;"><input type="checkbox" class="filter-checkbox" value="CFMon"> CFMon</label>
+            <label style="background-color: #89CFF0;"><input type="checkbox" class="filter-checkbox" value="CFMar"> CFMar</label>
+            <label style="background-color: #ffccff;"><input type="checkbox" class="filter-checkbox" value="CFCuer"> CFCuer</label>
+            <label style="background-color: #dabcff;"><input type="checkbox" class="filter-checkbox" value="Sinf"> Sinf</label>
             <label><input type="checkbox" class="filter-checkbox" value="ECAS"> ECAS</label>
             <label><input type="checkbox" class="filter-checkbox" value="CAV"> CAV</label>
             <label><input type="checkbox" class="filter-checkbox" value="PILTRI"> PILTRI</label>
@@ -28,6 +34,10 @@
             <label><input type="checkbox" class="filter-checkbox" value="VS"> VS</label>
             <label><input type="checkbox" class="filter-checkbox" value="BRAT"> BRAT</label>
             <label><input type="checkbox" class="filter-checkbox" value="ABRON"> ABRON</label>
+            <label><input type="checkbox" class="filter-checkbox" value="ABRON"> Cuerdas</label>
+            <label><input type="checkbox" class="filter-checkbox" value="ABRON"> Maderas</label>
+            <label><input type="checkbox" class="filter-checkbox" value="ABRON"> Bronces</label>
+            <label><input type="checkbox" class="filter-checkbox" value="ABRON"> Percusión</label>
         </div>
         
         <br>
@@ -40,7 +50,10 @@
 
         <label for="untilDate">Fecha hasta: </label>
         <input type="date" id="untilDate" class="filter-date">
-        <div id="dropdown-container"></div>
+        <label id="dropdown-container"></label>
+        <div id="cantidades">
+        <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres" class="cantidades">Cantidad de Presentaciones: </label>
+        </div>
         <table id="table-data">
             <thead>
                 <!-- Headers will be populated dynamically using JavaScript -->
