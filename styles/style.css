@@ -1,16 +1,20 @@
-#table-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  table {
-    border-collapse: collapse;
-    width: 100%;
-  }
-  
-  th, td {
-    border: 1px solid black;
-    padding: 5px;
-  }
-  
+#table-data {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.ensemble-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+#table-data th, #table-data td {
+  border: 1px solid #808080;
+  text-align: left;
+  padding: 8px;
+}
+
+#table-data th {
+  background-color: #f2f2f2;
+}
