@@ -36,6 +36,14 @@ function extractColumnData(doc, columnIndex) {
 function createDropdown(data) {
     const dropdownContainer = document.getElementById('dropdown-container');
     const dropdown = document.createElement('select');
+
+    // Add a placeholder option
+    const placeholderOption = document.createElement('option');
+    placeholderOption.text = "Nombre y Apellido"; // Set your desired placeholder text
+    placeholderOption.value = ""; // Set an empty value for the placeholder
+    placeholderOption.disabled = true; // Disable the placeholder option
+    placeholderOption.selected = true; // Select the placeholder option by default
+    dropdown.add(placeholderOption);
   
     // Sort the data alphabetically
     data.sort();

@@ -1,6 +1,7 @@
 body {
   margin: 0;
   padding: 0;
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
   
   display: flex;
   flex-direction: column;
@@ -17,6 +18,50 @@ h1 {
   letter-spacing: 2px; /* Adjust letter spacing as needed */
   /* Add other styling properties as needed */
   
+}
+.table {
+  border-collapse: collapse;
+  }
+  .table,
+  .table th,
+  .table td {
+  border: 1px solid #ccc;
+  }
+  .table th,
+  .table td {
+  padding: 0.5rem;
+  }
+  .table th {
+  position: relative;
+  }
+  .resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  cursor: col-resize;
+  user-select: none;
+  }
+  .resizer:hover,
+  .resizing {
+  border-right: 2px solid blue;
+  }
+  
+  .resizable {
+  border: 1px solid gray;
+  height: 100px;
+  width: 100px;
+  position: relative;
+  }
+button{
+  font-family: inherit;
+  font-size: 1em;
+}
+#filtros{
+  font-size: 18px;
+  text-align: center;
+  box-sizing: border-box;
+  align-items: center;
 }
 header {
   background-color: rgb(100, 204, 105); /* Choose your preferred background color */
@@ -130,4 +175,20 @@ height: 30px
   
   }
 
+}
+
+@media print {
+  body * {
+      visibility: hidden;
+  }
+  #printableArea, #printableArea * {
+      visibility: visible;
+  }
+  #printableArea {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      position: absolute;
+      left: 0;
+      top: 0;
+  }
 }
