@@ -5,6 +5,9 @@ body {
   
   display: flex;
   flex-direction: column;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 
 }
 h1 {
@@ -57,11 +60,30 @@ button{
   font-family: inherit;
   font-size: 1em;
 }
+.domingo{
+  color: blue;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: rgb(32, 99, 145); /* Button color */
+  color: #fff; /* Text color */
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Add a smooth transition on hover */
+
+  /* Hover state */
+  &:hover {
+    background-color: #2980b9; /* Darker button color on hover */
+  }
+}
 #filtros{
   font-size: 18px;
   text-align: center;
   box-sizing: border-box;
   align-items: center;
+  background-color:   rgb(212, 198, 180);
 }
 header {
   background-color: rgb(100, 204, 105); /* Choose your preferred background color */
@@ -151,6 +173,9 @@ height: 30px
   margin: 0;
   padding: 0;
   margin-right: 10px; /* Add some right margin to separate checkbox from text */
+}
+#filtros * {
+  margin: 5px;
 }
 
 #table-data th,

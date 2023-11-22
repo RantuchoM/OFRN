@@ -31,7 +31,7 @@ function getNames() {
     .then(html => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      console.log(extractColumnData(doc, 3))
+      //console.log(extractColumnData(doc, 3))
       names = extractColumnData(doc, 3);
       names.shift()
       names.sort() // Extract data from the 4th column
@@ -130,26 +130,40 @@ document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
 document.querySelectorAll('.filter-date').forEach(function (dateInput) {
   dateInput.addEventListener('change', filterData);
 });
+document.querySelector('#completarDiasCheckbox').addEventListener('change', filterData)
 //people = getDropdownData();
 
 // Function to fetch data from Google Sheets
 function getData() {
   return new Promise((resolve, reject) => {
     gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: '1-pzeyaROPbpJq1r0snrHPfuyjUz3oyfjHxryQdhswwQ',
-      range: 'Listado!L:S',
+      spreadsheetId: '1l4t9hnGrJhpxWii8WbqxO9yWd_oOLaxx3BT8oxGFHFw',
+      range: 'Listado!E:L',
     }).then(response => {
       const values = response.result.values;
       dataArray = extractData(values, 12, 19);
       headers = dataArray[0];
       dataArray.shift();
+      dataArray = dataArray.filter(row => row[0].length>1);
+      console.log("Última fila: "+dataArray[dataArray.length -1][0])
+      for (i = 0; i < dataArray.length; i++) {
+        var dateParts = dataArray[i][1].split("/");
+        var formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+        dataArray[i][1] = new Date(formattedDate + 'T00:00')
+      }
+      console.log(dataArray)
+      
+      
       showData(dataArray, 12, 18);
       filterData();
+      //convert the values to valid dates
+
       resolve(dataArray);
     }).catch(error => {
       console.error('Error fetching data:', error);
       reject(error);
     });
+    
   });
 }
 // Function to extract data from the HTML response
@@ -217,11 +231,13 @@ function showData(data, startColumn, endColumn) {
 
 
 // Function to filter data based on checkboxes and date range
+
 function filterData() {
   // Ensure headers and dataArray are defined
   if (!headers || !dataArray) {
     return;
   }
+  console.log("filterData");
 
   var selectedValues = $('.filter-checkbox:checked').map(function () {
     return $(this).val();
@@ -229,7 +245,9 @@ function filterData() {
   var fromDate = $('#fromDate').val();
   var untilDate = $('#untilDate').val();
   var tbody = $('#table-data tbody');
-  var uniqueElements = new Set(); // To store unique elements in the first column
+  var completarDiasCheckbox = document.getElementById('completarDiasCheckbox');
+  var completarDias = completarDiasCheckbox.checked;
+  completarDiasCheckbox.checked = false;
 
   // Clear existing rows
   tbody.empty();
@@ -239,76 +257,141 @@ function filterData() {
   var dropdownValue = dropdownContainer.length > 0 ? dropdownContainer.find('select').val() : null;
 
   // Filter and display rows based on checkboxes, date range, and dropdown value
-  dataArray.forEach(function (data) {
+  var filteredData = dataArray.filter(function (data) {
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
     var columnaEnsambles = data[6];
-    var columnaProgramas = data[0];
-
-    if (
+    return (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
       (!dropdownValue || data[7].includes(dropdownValue))
-    ) {
-      uniqueElements.add(columnaProgramas); // Add to the set of unique elements
+    );
+  });
+  var cantidadPresentaciones = filteredData.length
+  var uniquePrograms = new Set(filteredData.map(function (data) {
+    return data[0];
+  }));
 
-      var row = '<tr';
+  // Generate empty rows for days with no activity
+  // ... (your existing code)
 
-      // Add background color based on the value in the first column
-      if (columnaEnsambles.startsWith('Sinf')) {
-        row += ' style="background-color: #dabcff;"';
-      } else if (columnaEnsambles.startsWith('CFVal')) {
-        row += ' style="background-color: #E1C16E;"';
-      } else if (columnaEnsambles.startsWith('CFMon')) {
-        row += ' style="background-color: #A8A8A8;"';
-      } else if (columnaEnsambles.startsWith('CFMar')) {
-        row += ' style="background-color: #89CFF0;"';
-      } else if (columnaEnsambles.startsWith('CFCuer')) {
-        row += ' style="background-color: #ffccff;"';
-      }
+  if (completarDias) {
+    
+    var currentDate = fromDate ? new Date(fromDate + 'T00:00') : dataArray[0][1];
+    var endDate = untilDate ? new Date(untilDate + 'T00:00') : dataArray[dataArray.length - 1][1];
+    console.log(dataArray[dataArray.length - 1][1])
+    console.log("Current: "+currentDate)
+    console.log("End: "+endDate)
+    var daysInRange = Math.floor((endDate - currentDate) / (24 * 60 * 60 * 1000)) + 1;
 
-      row += '>';
+    // Get the div element for displaying messages
+    var errorMessageElement = document.getElementById('errorMessage');
 
-      data.forEach(function (value, columnIndex) {
-        if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-          // Assuming data[headers[columnIndex]] contains the link
-          row += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
-        } else if (columnIndex == 7) {
-          // Check if it's the 8th column (assuming 0-based index)
-          //row += '<td>' + value + '</td>';
-        } else {
-          row += '<td>' + value + '</td>';
+    if (daysInRange > 60) {
+      // Display a message to the user
+      errorMessageElement.textContent = 'Reducí el rango a 60 días o menos';
+    } else {
+      // Clear any previous messages
+      errorMessageElement.textContent = '';
+
+      // Continue with the rest of your existing code
+      while (currentDate <= endDate) {
+        var formattedDate = formatDate(currentDate);
+
+        // Check if the formatted date is not in filteredData
+        var dayWithoutActivity = filteredData.every(function (data) {
+          return formatDate(data[1]) !== formattedDate;
+        });
+
+        if (dayWithoutActivity) {
+          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '']);
         }
+
+        currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+      }
+
+      // Sort the combined array by date
+      filteredData.sort(function (a, b) {
+        return a[1] - b[1];
       });
-
-      row += '</tr>';
-      tbody.append(row);
     }
-    // Check if #encabezadoImprimir exists before manipulating it
-    var encabezadoImprimir = $('#encabezadoImprimir');
-    if (encabezadoImprimir.length > 0) {
-      // Build the header content based on dropdownValue, fromDate, and untilDate
-      var headerContent = 'Cronograma de: ' + dropdownValue;
+  }
 
-      if (fromDate) {
-        headerContent += ' desde: ' + formatDate(fromDate+ 'T00:00');
-      }
 
-      if (untilDate) {
-        headerContent += ' hasta: ' + formatDate(untilDate+ 'T00:00');
-      }
 
-      // Set the content of #encabezadoImprimir
-      encabezadoImprimir.html(headerContent);
+  /*
+    // Sort the combined array by date
+    filteredData.sort(function (a, b) {
+        return new Date(a[1]) - new Date(b[1]);
+    });*/
+
+  // Create the table with the final array
+  // Create the table with the final array
+  filteredData.forEach(function (data) {
+    var row = '<tr';
+
+    // Add background color based on the value in the first column
+    var columnaEnsambles = data[0]; // Assuming the second column contains 'Ensambles'
+    if (columnaEnsambles.startsWith('Sinf')) {
+      row += ' style="background-color: #dabcff;"';
+    } else if (columnaEnsambles.startsWith('CFVal')) {
+      row += ' style="background-color: #E1C16E;"';
+    } else if (columnaEnsambles.startsWith('CFMon')) {
+      row += ' style="background-color: #A8A8A8;"';
+    } else if (columnaEnsambles.startsWith('CFMar')) {
+      row += ' style="background-color: #89CFF0;"';
+    } else if (columnaEnsambles.startsWith('CFCuer')) {
+      row += ' style="background-color: #ffccff;"';
     }
+    else if (columnaEnsambles.startsWith('Día sin')) {
+      row += ' style="background-color: #808080;"';
+    }
+
+    row += '>';
+
+    data.forEach(function (value, columnIndex) {
+      if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
+        // Assuming data[headers[columnIndex]] contains the link
+      if(data[0] == "Día sin actividad"){}
+        else{row += '<td><a href="' + value + '" target="_blank">Drive</a></td>';}
+      } else if (columnIndex == 7) {
+        // Check if it's the 8th column (assuming 0-based index)
+        //row += '<td>' + value + '</td>';
+      } else if (columnIndex == 1) {
+        if(longDate(value).charAt(0) =="D"){
+          row += '<td class = "domingo">' + longDate(value) + '</td>'
+        }
+        else{
+        row += '<td>' + longDate(value) + '</td>';}
+      } else {
+        row += '<td>' + value + '</td>';
+      }
+    });
+
+    row += '</tr>';
+    tbody.append(row);
   });
   function formatDate(dateString) {
     var options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('es-ES', options);
   }
 
+  function longDate(date) {
+    var options = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+    var formattedDate = date.toLocaleDateString('es-ES', options);
+
+    // Extract and format day, month, and year
+    var parts = formattedDate.split(' ');
+    var dayOfWeek = parts[0].charAt(0).toUpperCase() + parts[0].slice(1); // Capitalize the first letter
+    var day = parts[1].padStart(2, '0'); // Ensure two digits for the day
+    var monthAbbreviation = parts[3];
+    var year = parts[5];
+
+    return `${dayOfWeek} ${day}/${monthAbbreviation}/${year}`;
+  }
+
   // Update the counts in the HTML
-  $('#cant-elem').text('Cantidad de Programas: ' + uniqueElements.size);
-  $('#cant-pres').text(' -- Cantidad de Presentaciones: ' + tbody.find('tr').length);
+  $('#cant-elem').text('Cantidad de Programas: ' + uniquePrograms.size);
+  $('#cant-pres').text(' -- Cantidad de Presentaciones: ' + cantidadPresentaciones);
   const createResizableTable = function (table) {
     const cols = table.querySelectorAll('th');
     [].forEach.call(cols, function (col) {
@@ -362,6 +445,7 @@ function filterData() {
 
 
 
+
 // Helper function to check if a string starts with any of the selected values
 function contieneValor(str, selectedValues) {
   return selectedValues.some(function (value) {
@@ -370,18 +454,13 @@ function contieneValor(str, selectedValues) {
 }
 
 // Helper function to check if a date is in the specified range
-function isDateInRange(dateString, fromDate, untilDate) {
-  if (!dateString) {
+function isDateInRange(date, fromDate, untilDate) {
+  if (!date) {
     return true; // Date is not specified, consider it in range
   }
 
-  // Convert the date string to a Date object
-  var dateParts = dateString.split("/");
-  var formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
-  var date = new Date(formattedDate);
-
-  var from = fromDate ? new Date(fromDate) : null;
-  var until = untilDate ? new Date(untilDate) : null;
+  var from = fromDate ? new Date(fromDate + 'T00:00') : null;
+  var until = untilDate ? new Date(untilDate + 'T00:00') : null;
 
   return (!from || date >= from) && (!until || date <= until);
 }

@@ -59,6 +59,74 @@ function fechaDeHoy()
 {
     document.getElementById('fromDate').valueAsDate = new Date();
 }
+// Function to create and append a button
+function createButton(text, onclickFunction) {
+  var button = document.createElement('button');
+  button.textContent = text;
+  button.onclick = onclickFunction;
+  document.getElementById('fechas').appendChild(button);
+}
+
+// Function to set the date range for "Esta semana"
+function setThisWeek() {
+  var today = new Date();
+  var currentDay = today.getDay();
+  var diff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // Adjust for Sunday
+  var monday = new Date(today.setDate(diff));
+  
+  var sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  document.getElementById('fromDate').valueAsDate = monday;
+  document.getElementById('untilDate').valueAsDate = sunday;
+  filterData();
+}
+
+// Function to set the date range for "Próxima semana"
+function setNextWeek() {
+  var today = new Date();
+  var currentDay = today.getDay();
+  var diff = today.getDate() - currentDay + (currentDay === 0 ? 1 : 8); // Adjust for Sunday
+  var nextMonday = new Date(today.setDate(diff));
+  
+  var nextSunday = new Date(nextMonday);
+  nextSunday.setDate(nextMonday.getDate() + 6);
+
+  document.getElementById('fromDate').valueAsDate = nextMonday;
+  document.getElementById('untilDate').valueAsDate = nextSunday;
+  filterData();
+}
+
+// Function to set the date range for "Próximos 30 días"
+function setNext30Days() {
+  var today = new Date();
+  var next30Days = new Date(today); // Create a copy of the 'today' date
+  next30Days.setDate(today.getDate() + 30);
+
+  document.getElementById('fromDate').valueAsDate = today;
+  document.getElementById('untilDate').valueAsDate = next30Days;
+  filterData();
+}
+// Create and append buttons
+createButton("Esta semana", setThisWeek);
+createButton("Próxima semana", setNextWeek);
+createButton("Próximos 30 días", setNext30Days);
+// Function to create the "Completar Días" checkbox
+function createCompletarDiasCheckbox() {
+  var completarDiasCheckbox = document.createElement('input');
+  completarDiasCheckbox.type = 'checkbox';
+  completarDiasCheckbox.id = 'completarDiasCheckbox';
+  
+  
+  var label = document.createElement('label');
+  label.htmlFor = 'completarDiasCheckbox';
+  label.appendChild(document.createTextNode('Completar Días'));
+
+  var checkboxContainer = document.getElementById('filtros');
+  checkboxContainer.appendChild(completarDiasCheckbox);
+  
+  checkboxContainer.appendChild(label);
+}
 
 function crearMenu() {
   // Define the menu items as an array of objects with 'text' and 'href' properties
@@ -95,3 +163,6 @@ crearMenu();
 crearCheckboxes();
 fechaDeHoy();
 
+
+// Call the function to create the "Completar Días" checkbox
+createCompletarDiasCheckbox();

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Google Sheets Cell</title>
+</head>
+
+<body>
+    <label for="new-value">New Value:</label>
+    <input type="text" id="new-value" placeholder="Enter new value">
+    <button onclick="updateCell()">Update Cell</button>
+
+    <script>
+        const API_KEY = 'AIzaSyAxQ63EFfI-ackr9PrPOxJepog7DDh5_dE';
+        const SHEET_ID = '1SphIU0w8GQWR_rZ3NwTf0ajECLgMkTNoYRfDS0Nj6Iw';
+        const RANGE = 'Sheet2!A1';
+
+        function updateCell() {
+            const newValue = document.getElementById('new-value').value;
+
+            if (!newValue) {
+                alert('Please enter a new value.');
+                return;
+            }
+            console.log(newValue)
+
+            const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?valueInputOption=RAW&key=${API_KEY}`;
+
+            fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    values: [[newValue]],
+                }),
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Cell updated successfully:', result);
+                    alert('Cell updated successfully!');
+                })
+                .catch(error => {
+                    console.error('Error updating cell:', error);
+                    alert('Error updating cell. Please check the console for details.');
+                });
+        }
+
+    </script>
+</body>
+
+</html>
