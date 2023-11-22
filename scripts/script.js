@@ -303,7 +303,7 @@ function filterData() {
         });
 
         if (dayWithoutActivity) {
-          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '']);
+          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '','','']);
         }
 
         currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
