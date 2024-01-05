@@ -108,8 +108,19 @@ function resumenPersonas() {
     detailsSummary += '</table>';
     detailsSummary += '</details>';
 
-    detailsContainer.append(detailsSummary);
+    // Create a temporary div element to hold the HTML content
+    var tempDiv = document.createElement('div');
+    tempDiv.innerHTML = detailsSummary;
+    
+    // Pass the div element to the applyBackgroundColorToFirstColumn function
+    applyBackgroundColorToFirstColumn(tempDiv);
+    
+    // Append the modified HTML to the detailsContainer
+    detailsContainer.append(tempDiv.innerHTML);
+    
+    
   });
+  
 }
 function extractColumnData(doc, columnIndex) {
   const tableRows = doc.querySelectorAll('table tr');
@@ -450,8 +461,8 @@ function filterData() {
 
 }
 
-function applyBackgroundColorToFirstColumn() {
-  var table = document.getElementById('table-data');
+function applyBackgroundColorToFirstColumn(table) {
+  table = table || document.getElementById('table-data');
   var rows = table.getElementsByTagName('tr');
 
   // Iterate over rows (skip the header row)
