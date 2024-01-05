@@ -328,7 +328,6 @@ function filterData() {
     });*/
 
   // Create the table with the final array
-  // Create the table with the final array
   filteredData.forEach(function (data) {
     var row = '<tr';
 
@@ -344,8 +343,7 @@ function filterData() {
       row += ' style="background-color: #89CFF0;"';
     } else if (columnaEnsambles.startsWith('CFCuer')) {
       row += ' style="background-color: #ffccff;"';
-    }
-    else if (columnaEnsambles.startsWith('Día sin')) {
+    } else if (columnaEnsambles.startsWith('Día sin')) {
       row += ' style="background-color: #808080;"';
     }
 
@@ -374,6 +372,11 @@ function filterData() {
     row += '</tr>';
     tbody.append(row);
   });
+
+  // Apply background color to the first column based on conditions
+  if (dropdownValue) {
+    applyBackgroundColorToFirstColumn();
+  }
   function formatDate(dateString) {
     var options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('es-ES', options);
@@ -447,7 +450,30 @@ function filterData() {
 
 }
 
+function applyBackgroundColorToFirstColumn() {
+  var table = document.getElementById('table-data');
+  var rows = table.getElementsByTagName('tr');
 
+  // Iterate over rows (skip the header row)
+  for (var i = 1; i < rows.length; i++) {
+    var currentRow = rows[i];
+    var currentFirstColumn = currentRow.cells[0].textContent;
+
+    // Check if the value in the second column is repeated, but the value in the first column is different
+    for (var j = i + 1; j < rows.length; j++) {
+      var nextRow = rows[j];
+      var nextFirstColumn = nextRow.cells[0].textContent;
+      var nextSecondColumn = nextRow.cells[1].textContent;
+
+      if (nextSecondColumn === currentRow.cells[1].textContent && nextFirstColumn !== currentFirstColumn) {
+        currentRow.cells[0].style.backgroundColor = 'orange';
+        currentRow.cells[0].style.fontWeight = 'bold';
+        nextRow.cells[0].style.backgroundColor = 'orange';
+        nextRow.cells[0].style.fontWeight = 'bold';
+      }
+    }
+  }
+}
 function formatDate(dateString) {
   var options = { day: '2-digit', month: 'short', year: 'numeric' };
   return new Date(dateString).toLocaleDateString('es-ES', options);
