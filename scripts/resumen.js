@@ -1,5 +1,5 @@
-var data;
-var dataArray; // Ensure dataArray is defined globally
+var dataRes;
+var dataArrayRes; // Ensure dataArray is defined globally
 
 function getDropdownData() {
   const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true';
@@ -9,9 +9,9 @@ function getDropdownData() {
     .then(html => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      data = extractColumnData(doc, 3);
-      console.log(data);
-      return data;
+      dataRes = extractColumnData(doc, 3);
+      console.log(dataRes);
+      return dataRes;
     })
     .catch(error => {
       console.error('Error fetching data:', error);
@@ -19,16 +19,22 @@ function getDropdownData() {
     });
 }
 
-function getData() {
+function getDataRes() {
   return new Promise((resolve, reject) => {
     gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: '1-pzeyaROPbpJq1r0snrHPfuyjUz3oyfjHxryQdhswwQ',
       range: 'Listado!L:S',
     }).then(response => {
         const values = response.result.values;
-        dataArray = extractData(values, 12, 19); // Extract and assign data globally
+        dataArrayRes = extractData(values, 12, 19); // Extract and assign data globally
         //headers = dataArray[0];
-        dataArray.shift();
+        dataArrayRes.shift();
+        console.log(dataArray.length);
+        for (i = 0; i < dataArrayRes.length; i++) {
+          var dateParts = dataArrayRes[i][1].split("/");
+          var formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+          dataArrayRes[i][1] = "Hola" //new Date(formattedDate + 'T00:00');
+        }
         //showData(dataArray, 12, 18); // Pass the data to showData function with startColumn and endColumn
         //filterData(); // Call filterData after data is processed
         resolve(); // Resolve the promise when data is processed
@@ -38,6 +44,27 @@ function getData() {
         reject(error); // Reject the promise on error
       });
   });
+}
+function formatDate(date) {
+  const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
+  return formatCustom(date, options);
+}
+
+function formatCustom(date, options) {
+  const day = padZero(date.getDate());
+  const month = getMonthName(date.getMonth() + 1);
+  const year = date.getFullYear();
+
+  return `${options.weekday ? getDayName(date.getDay()) + ', ' : ''}${day} ${month} ${year}`;
+}
+
+function padZero(value) {
+  return value < 10 ? '0' + value : value;
+}
+
+function getDayName(day) {
+  const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  return days[day];
 }
 
 function resumenPersonas() {
@@ -56,6 +83,7 @@ function resumenPersonas() {
 
     dataArray.forEach(function (data) {
       var linkColumn = '<td><a href="' + data[5] + '" target="_blank">Drive</a></td>';
+      var dateColumn = '<td>' + formatDate(data[1]) + '</td>'; // Apply formatDate to the second column
 
       if (data[7].includes(name)) {
         var row = '<tr';
@@ -74,6 +102,7 @@ function resumenPersonas() {
 
         row += '>';
         row += linkColumn;
+        row += dateColumn; // Add the formatted date column
         row += '</tr>';
 
         detailsSummary += row;
@@ -87,9 +116,11 @@ function resumenPersonas() {
   });
 }
 
+
+
 getDropdownData().then(function() {
   // Ensure dataArray is set after the data is fetched
-  getData().then(function() {
+  getDataRes().then(function() {
     resumenPersonas();
   }).catch(error => {
     // Handle the error if needed
@@ -110,7 +141,7 @@ function loadClient2() {
       discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
     }).then(() => {
       // Call the function to fetch data
-      getData();
+      getDataRes();
     });
   }
 document.addEventListener('DOMContentLoaded', loadClient2);

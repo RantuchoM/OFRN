@@ -89,8 +89,11 @@ function resumenPersonas() {
       // Iterate over each value in the row (columns 1 to 7)
       for (var columnIndex = 0; columnIndex < 7; columnIndex++) {
         var columnValue = data[columnIndex];
-
-        if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
+        if(columnIndex === 1) {
+          row += '<td>' + formatDate(columnValue) + '</td>';
+        }
+        
+        else if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
           // Assuming data[headers[columnIndex]] contains the link
           row += '<td><a href="' + columnValue + '" target="_blank">Drive</a></td>';
         } else {
@@ -144,16 +147,16 @@ function getData() {
       dataArray = extractData(values, 12, 19);
       headers = dataArray[0];
       dataArray.shift();
-      dataArray = dataArray.filter(row => row[0].length>1);
-      console.log("Última fila: "+dataArray[dataArray.length -1][0])
+      dataArray = dataArray.filter(row => row[0].length > 1);
+      console.log("Última fila: " + dataArray[dataArray.length - 1][0])
       for (i = 0; i < dataArray.length; i++) {
         var dateParts = dataArray[i][1].split("/");
         var formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
         dataArray[i][1] = new Date(formattedDate + 'T00:00')
       }
       console.log(dataArray)
-      
-      
+
+
       showData(dataArray, 12, 18);
       filterData();
       //convert the values to valid dates
@@ -163,7 +166,7 @@ function getData() {
       console.error('Error fetching data:', error);
       reject(error);
     });
-    
+
   });
 }
 // Function to extract data from the HTML response
@@ -275,12 +278,12 @@ function filterData() {
   // ... (your existing code)
 
   if (completarDias) {
-    
+
     var currentDate = fromDate ? new Date(fromDate + 'T00:00') : dataArray[0][1];
     var endDate = untilDate ? new Date(untilDate + 'T00:00') : dataArray[dataArray.length - 1][1];
     console.log(dataArray[dataArray.length - 1][1])
-    console.log("Current: "+currentDate)
-    console.log("End: "+endDate)
+    console.log("Current: " + currentDate)
+    console.log("End: " + endDate)
     var daysInRange = Math.floor((endDate - currentDate) / (24 * 60 * 60 * 1000)) + 1;
 
     // Get the div element for displaying messages
@@ -303,7 +306,7 @@ function filterData() {
         });
 
         if (dayWithoutActivity) {
-          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '','','']);
+          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '', '', '']);
         }
 
         currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
@@ -351,17 +354,18 @@ function filterData() {
     data.forEach(function (value, columnIndex) {
       if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
         // Assuming data[headers[columnIndex]] contains the link
-      if(data[0] == "Día sin actividad"){}
-        else{row += '<td><a href="' + value + '" target="_blank">Drive</a></td>';}
+        if (data[0] == "Día sin actividad") { }
+        else { row += '<td><a href="' + value + '" target="_blank">Drive</a></td>'; }
       } else if (columnIndex == 7) {
         // Check if it's the 8th column (assuming 0-based index)
         //row += '<td>' + value + '</td>';
       } else if (columnIndex == 1) {
-        if(longDate(value).charAt(0) =="D"){
+        if (longDate(value).charAt(0) == "D") {
           row += '<td class = "domingo">' + longDate(value) + '</td>'
         }
-        else{
-        row += '<td>' + longDate(value) + '</td>';}
+        else {
+          row += '<td>' + longDate(value) + '</td>';
+        }
       } else {
         row += '<td>' + value + '</td>';
       }
@@ -444,7 +448,10 @@ function filterData() {
 }
 
 
-
+function formatDate(dateString) {
+  var options = { day: '2-digit', month: 'short', year: 'numeric' };
+  return new Date(dateString).toLocaleDateString('es-ES', options);
+}
 
 // Helper function to check if a string starts with any of the selected values
 function contieneValor(str, selectedValues) {
