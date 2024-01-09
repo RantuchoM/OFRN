@@ -78,6 +78,38 @@ button {
     background-color: #2980b9; /* Darker button color on hover */
   }
 }
+/* Add this CSS to your stylesheet or within a <style> tag */
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  /*display: inline-block;*/
+}
+
+/* Tooltip text */
+.tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip container when hovering over it */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
 #filtros{
   font-size: 18px;
   text-align: center;

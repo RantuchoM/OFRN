@@ -17,7 +17,10 @@ function initClient() {
     discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
   }).then(() => {
     // Call the function to fetch data
-    getData().then(() => { getNames() });
+    getData().then(() => {
+      // Now that the data is loaded, call the function to get names
+      getNames();
+    });
 
   });
 }
@@ -205,6 +208,7 @@ function extractData(doc, startColumn, endColumn) {
 
 // Function to show data received from the server
 function showData(data, startColumn, endColumn) {
+
   if (!data || data.length === 0) {
     console.error('No data to display.');
     return;
@@ -221,6 +225,44 @@ function showData(data, startColumn, endColumn) {
   });
   headerRowHTML += '</tr>';
   thead.html(headerRowHTML);
+  // Add a row for input fields
+  var inputRowHTML = '<tr>';
+  var tbody = $('#table-data tbody');
+  headers.forEach(function (header) {
+    if (header == "Nombres") { }
+    else {
+      inputRowHTML += '<td class="tooltip"><input type="text" class="filter-input" data-column="' + header + '"><div class="tooltiptext">Escribí los valores que quieras que aparezcan en esta columna, separados por guiones</div></td>';
+    }
+  });
+  inputRowHTML += '</tr>';
+  thead.append(inputRowHTML);
+
+  // Dynamically populate the table data
+  
+  for (let i = 1; i < data.length; i++) {
+    const rowData = data[i].slice(startColumn - 1, endColumn);
+    var rowHTML = '<tr>';
+
+    rowData.forEach(function (value, columnIndex) {
+
+      if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
+        // Assuming data[headers[columnIndex]] contains the link
+        rowHTML += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
+      } else {
+        rowHTML += '<td>' + value + '</td>';
+      }
+    });
+
+    rowHTML += '</tr>';
+    tbody.append(rowHTML);
+  }
+
+  
+
+  // Attach event handlers to the input fields for dynamic filtering
+  $('.filter-input').on('input', function () {
+    filterData();
+  });
 
   // Dynamically populate the table data
   var tbody = $('#table-data tbody');
@@ -251,11 +293,11 @@ function filterData() {
   if (!headers || !dataArray) {
     return;
   }
-  console.log("filterData");
 
   var selectedValues = $('.filter-checkbox:checked').map(function () {
     return $(this).val();
   }).get();
+
   var fromDate = $('#fromDate').val();
   var untilDate = $('#untilDate').val();
   var tbody = $('#table-data tbody');
@@ -270,20 +312,31 @@ function filterData() {
   var dropdownContainer = $('#dropdown-container');
   var dropdownValue = dropdownContainer.length > 0 ? dropdownContainer.find('select').val() : null;
 
-  // Filter and display rows based on checkboxes, date range, and dropdown value
+  // Get values from filter input textboxes
+  var filterValues = {};
+  $('.filter-input').each(function () {
+    var column = $(this).data('column');
+    var value = $(this).val().trim();
+    filterValues[column] = value.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+  });
+
+  // Filter and display rows based on checkboxes, date range, dropdown value, and filter input textboxes
   var filteredData = dataArray.filter(function (data) {
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
     var columnaEnsambles = data[6];
+    
     return (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
-      (!dropdownValue || data[7].includes(dropdownValue))
+      (!dropdownValue || data[7].includes(dropdownValue)) &&
+      (passFilter(data, filterValues))
     );
   });
-  var cantidadPresentaciones = filteredData.length
+  var cantidadPresentaciones = filteredData.length;
   var uniquePrograms = new Set(filteredData.map(function (data) {
     return data[0];
   }));
+
 
   // Generate empty rows for days with no activity
   // ... (your existing code)
@@ -461,6 +514,25 @@ function filterData() {
 
 }
 
+// Helper function to check if data passes filter input textboxes
+function passFilter(data, filterValues) {
+  for (var column in filterValues) {
+    var columnIndex = headers.indexOf(column);
+    if (columnIndex !== -1 && data[columnIndex]) {
+      var cellValue = data[columnIndex].toString().toLowerCase(); // Ensure the value is a string
+      var filterValue = filterValues[column].toLowerCase(); // Convert to lowercase for case-insensitive comparison
+
+      // Split filterValue by dash to get multiple values
+      var filterList = filterValue.split('-').map(value => value.trim());
+
+      // Check if any of the filter values match the cell value
+      if (!filterList.some(filter => cellValue.includes(filter))) {
+        return false; // Data doesn't pass the filter for this column
+      }
+    }
+  }
+  return true; // Data passes all filter input textboxes
+}
 function applyBackgroundColorToFirstColumn(table) {
   table = table || document.getElementById('table-data');
   var rows = table.getElementsByTagName('tr');
