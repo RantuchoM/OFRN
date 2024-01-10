@@ -173,6 +173,9 @@ height: 30px
   width: 100%;
   overflow: auto;
 }
+#table-container {
+  width: 100%;
+}
 
 .ensemble-grid {
   display: grid;
@@ -200,7 +203,10 @@ height: 30px
   align-items: center; /* Center items vertically */
   justify-content: center; /* Center items horizontally */
 }
-
+.filter-input {
+  z-index: 1;
+  width: 90%; /* Ensure the input boxes take up the full width of the cell */
+}
 .filter-checkbox {
   margin: 0;
   padding: 0;
@@ -216,7 +222,9 @@ height: 30px
   text-align: left;
   padding: 8px;
 }
-
+#table-data th{
+  text-align: center;
+}
 #table-data th {
   background-color: #f2f2f2;
 }

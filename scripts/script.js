@@ -446,19 +446,7 @@ function filterData() {
     return new Date(dateString).toLocaleDateString('es-ES', options);
   }
 
-  function longDate(date) {
-    var options = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
-    var formattedDate = date.toLocaleDateString('es-ES', options);
-
-    // Extract and format day, month, and year
-    var parts = formattedDate.split(' ');
-    var dayOfWeek = parts[0].charAt(0).toUpperCase() + parts[0].slice(1); // Capitalize the first letter
-    var day = parts[1].padStart(2, '0'); // Ensure two digits for the day
-    var monthAbbreviation = parts[3];
-    var year = parts[5];
-
-    return `${dayOfWeek} ${day}/${monthAbbreviation}/${year}`;
-  }
+  
 
   // Update the counts in the HTML
   $('#cant-elem').text('Cantidad de Programas: ' + uniquePrograms.size);
@@ -513,14 +501,35 @@ function filterData() {
 
 
 }
+function longDate(date) {
+  var options = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+  var formattedDate = date.toLocaleDateString('es-ES', options);
 
+  // Extract and format day, month, and year
+  var parts = formattedDate.split(' ');
+  var dayOfWeek = parts[0].charAt(0).toUpperCase() + parts[0].slice(1); // Capitalize the first letter
+  var day = parts[1].padStart(2, '0'); // Ensure two digits for the day
+  var monthAbbreviation = parts[3];
+  var year = parts[5];
+
+  return `${dayOfWeek} ${day}/${monthAbbreviation}/${year}`;
+}
 // Helper function to check if data passes filter input textboxes
 function passFilter(data, filterValues) {
   for (var column in filterValues) {
     var columnIndex = headers.indexOf(column);
     if (columnIndex !== -1 && data[columnIndex]) {
-      var cellValue = data[columnIndex].toString().toLowerCase(); // Ensure the value is a string
+      var cellValue = data[columnIndex];
       var filterValue = filterValues[column].toLowerCase(); // Convert to lowercase for case-insensitive comparison
+
+      // Check if the column represents a date
+      if (columnIndex === 1) {
+        // If it's a date column, convert the cell value to the longDate string
+        cellValue = longDate(cellValue).toString().toLowerCase();
+      } else {
+        // If it's not a date column, convert the value to a string
+        cellValue = cellValue.toString().toLowerCase();
+      }
 
       // Split filterValue by dash to get multiple values
       var filterList = filterValue.split('-').map(value => value.trim());
@@ -601,6 +610,13 @@ function uncheckAll() {
 
 // Invoke the getData function
 //getData();
+$(function() {
+  $(".resizable").resizable({
+    handles: "e", // Only allow resizing from the east (right) side of the column
+    minWidth: 50,  // Minimum width for the column
+    maxWidth: 500   // Maximum width for the column
+  });
+});
 document.addEventListener('DOMContentLoaded', loadClient);
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -625,14 +641,18 @@ document.addEventListener('DOMContentLoaded', function () {
     let w = 0;
 
     const mouseDownHandler = function (e) {
+      // Check if the mouse click occurred on an input element
+      if (e.target.tagName.toLowerCase() === 'input') {
+        return;
+      }
+    
       x = e.clientX;
-
       const styles = window.getComputedStyle(col);
       w = parseInt(styles.width, 10);
-
+    
       document.addEventListener('mousemove', mouseMoveHandler);
       document.addEventListener('mouseup', mouseUpHandler);
-
+    
       resizer.classList.add('resizing');
     };
 
@@ -652,4 +672,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
   createResizableTable(document.getElementById('table-data'));
 });
-
