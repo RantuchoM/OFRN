@@ -1,27 +1,27 @@
-function crearCheckboxes(){
+function crearCheckboxes() {
 
-    var checkboxData = [
-        { key: "CFVal", color: "#E1C16E" },
-        { key: "CFMon", color: "#A8A8A8" },
-        { key: "CFMar", color: "#89CFF0" },
-        { key: "CFCuer", color: "#ffccff" },
-        { key: "Sinf", color: "#dabcff" },
-        { key: "ECAS", color: "" }, // Replace with the actual background color
-        { key: "CAV", color: "" }, // Replace with the actual background color
-        { key: "PILTRI", color: "" }, // Replace with the actual background color
-        { key: "TREPUN", color: "" }, // Replace with the actual background color
-        { key: "ES", color: "" }, // Replace with the actual background color
-        { key: "VN", color: "" }, // Replace with the actual background color
-        { key: "PV", color: "" }, // Replace with the actual background color
-        { key: "CPAT", color: "" }, // Replace with the actual background color
-        { key: "VS", color: "" }, // Replace with the actual background color
-        { key: "BRAT", color: "" }, // Replace with the actual background color
-        { key: "ABRON", color: "" }, // Replace with the actual background color
-        { key: "Cuerdas", color: "" }, // Replace with the actual background color
-        { key: "Maderas", color: "" }, // Replace with the actual background color
-        { key: "Bronces", color: "" }, // Replace with the actual background color
-        { key: "Percusión", color: "" } // Replace with the actual background color
-      ];
+  var checkboxData = [
+    { key: "CFVal", color: "#E1C16E" },
+    { key: "CFMon", color: "#A8A8A8" },
+    { key: "CFMar", color: "#89CFF0" },
+    { key: "CFCuer", color: "#ffccff" },
+    { key: "Sinf", color: "#dabcff" },
+    { key: "ECAS", color: "" }, // Replace with the actual background color
+    { key: "CAV", color: "" }, // Replace with the actual background color
+    { key: "PILTRI", color: "" }, // Replace with the actual background color
+    { key: "TREPUN", color: "" }, // Replace with the actual background color
+    { key: "ES", color: "" }, // Replace with the actual background color
+    { key: "VN", color: "" }, // Replace with the actual background color
+    { key: "PV", color: "" }, // Replace with the actual background color
+    { key: "CPAT", color: "" }, // Replace with the actual background color
+    { key: "VS", color: "" }, // Replace with the actual background color
+    { key: "BRAT", color: "" }, // Replace with the actual background color
+    { key: "ABRON", color: "" }, // Replace with the actual background color
+    { key: "Cuerdas", color: "" }, // Replace with the actual background color
+    { key: "Maderas", color: "" }, // Replace with the actual background color
+    { key: "Bronces", color: "" }, // Replace with the actual background color
+    { key: "Percusión", color: "" } // Replace with the actual background color
+  ];
 
   // Reference the ensembleCheckboxes container
   var ensembleCheckboxes = document.getElementById("ensembleCheckboxes");
@@ -55,9 +55,8 @@ function crearCheckboxes(){
   });
 
 }
-function fechaDeHoy()
-{
-    document.getElementById('fromDate').valueAsDate = new Date();
+function fechaDeHoy() {
+  document.getElementById('fromDate').valueAsDate = new Date();
 }
 // Function to create and append a button
 function createButton(text, onclickFunction) {
@@ -73,7 +72,7 @@ function setThisWeek() {
   var currentDay = today.getDay();
   var diff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // Adjust for Sunday
   var monday = new Date(today.setDate(diff));
-  
+
   var sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
 
@@ -88,7 +87,7 @@ function setNextWeek() {
   var currentDay = today.getDay();
   var diff = today.getDate() - currentDay + (currentDay === 0 ? 1 : 8); // Adjust for Sunday
   var nextMonday = new Date(today.setDate(diff));
-  
+
   var nextSunday = new Date(nextMonday);
   nextSunday.setDate(nextMonday.getDate() + 6);
 
@@ -116,15 +115,15 @@ function createCompletarDiasCheckbox() {
   var completarDiasCheckbox = document.createElement('input');
   completarDiasCheckbox.type = 'checkbox';
   completarDiasCheckbox.id = 'completarDiasCheckbox';
-  
-  
+
+
   var label = document.createElement('label');
   label.htmlFor = 'completarDiasCheckbox';
   label.appendChild(document.createTextNode('Completar Días'));
 
   var checkboxContainer = document.getElementById('filtros');
   checkboxContainer.appendChild(completarDiasCheckbox);
-  
+
   checkboxContainer.appendChild(label);
 }
 
@@ -134,8 +133,8 @@ function crearMenu() {
     { text: 'Por Ensamble', href: 'index.html' },
     { text: 'Por Persona', href: 'porPersona.html' },
     { text: 'Resumen Personas', href: 'resumenPersonas.html' }
-    
-   
+
+
     // Add more items as needed
   ];
 
