@@ -478,6 +478,7 @@ async function filterData() {
   // Check if "nombre" parameter exists in the URL
   const urlParams = new URLSearchParams(window.location.search);
   const nombreParam = urlParams.get('nombre');
+  console.log(nombreParam);
 
   if (!nombreParam) {
     // Proceed with the original functionality
