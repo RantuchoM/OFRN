@@ -1,83 +1,104 @@
 body {
   margin: 0;
   padding: 0;
-  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-  
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
   display: flex;
   flex-direction: column;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-
 }
+
 h1 {
   text-align: center;
-  color: #333; /* Choose your preferred text color */
-  font-size: 3em; /* Adjust the font size as needed */
-  margin-top: 50px; /* Adjust the top margin as needed */
-  margin-bottom: 30px; /* Adjust the bottom margin as needed */
-  font-weight: bold; /* Set font weight to bold or normal as needed */
-  text-transform: uppercase; /* Convert text to uppercase if desired */
-  letter-spacing: 2px; /* Adjust letter spacing as needed */
-  /* Add other styling properties as needed */
+  color: #333;
+  /* Choose your preferred text color */
+  font-size: 3em;
+  /* Adjust the font size as needed */
+  margin-top: 50px;
+  /* Adjust the top margin as needed */
+  margin-bottom: 30px;
+  /* Adjust the bottom margin as needed */
+  font-weight: bold;
+  /* Set font weight to bold or normal as needed */
+  text-transform: uppercase;
+  /* Convert text to uppercase if desired */
+  letter-spacing: 2px;
   
+  /* Adjust letter spacing as needed */
+  /* Add other styling properties as needed */
+
 }
+
 .table {
   border-collapse: collapse;
-  }
-  .table,
-  .table th,
-  .table td {
+}
+
+.table,
+.table th,
+.table td {
   border: 1px solid #ccc;
-  }
-  .table th,
-  .table td {
+}
+
+.table th,
+.table td {
   padding: 0.5rem;
-  }
-  .table th {
+}
+
+.table th {
   position: relative;
-  }
-  .resizer {
+}
+
+.resizer {
   position: absolute;
   top: 0;
   right: 0;
   width: 5px;
   cursor: col-resize;
   user-select: none;
-  }
-  .resizer:hover,
-  .resizing {
+}
+
+.resizer:hover,
+.resizing {
   border-right: 2px solid blue;
-  }
-  
-  .resizable {
+}
+
+.resizable {
   border: 1px solid gray;
   height: 100px;
   width: 100px;
   position: relative;
-  }
-button{
+}
+
+button {
   font-family: inherit;
   font-size: 1em;
 }
-.domingo{
+
+.domingo {
   color: blue;
 }
+
 button {
   padding: 10px 20px;
   font-size: 16px;
   border: none;
   border-radius: 5px;
-  background-color: rgb(32, 99, 145); /* Button color */
-  color: #fff; /* Text color */
+  background-color: rgb(32, 99, 145);
+  /* Button color */
+  color: #fff;
+  /* Text color */
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Add a smooth transition on hover */
+  transition: background-color 0.3s ease;
+  /* Add a smooth transition on hover */
 
   /* Hover state */
   &:hover {
-    background-color: #2980b9; /* Darker button color on hover */
+    background-color: #2980b9;
+    /* Darker button color on hover */
   }
 }
+
 /* Add this CSS to your stylesheet or within a <style> tag */
 
 /* Tooltip container */
@@ -110,38 +131,53 @@ button {
   opacity: 1;
 }
 
-#filtros{
+#filtros {
   font-size: 18px;
   text-align: center;
   box-sizing: border-box;
   align-items: center;
-  background-color:   rgb(212, 198, 180);
+  background-color: rgb(212, 198, 180);
 }
+
 header {
-  background-color: rgb(100, 204, 105); /* Choose your preferred background color */
-  color: #fff; /* Choose your preferred text color */
+  /* background-color: rgb(100, 204, 105); */
+  color: #fff;
   text-align: center;
-  
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
-.cantidades, #encabezadoImprimir{
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  margin-right: 10px;
+}
+
+.cantidades,
+#encabezadoImprimir {
   font-size: 20px;
 }
 
-#cantidades, #encabezadoImprimir{
+#cantidades,
+#encabezadoImprimir {
   text-align: center;
   background-color: #a1a1a1;
 }
 
-nav{
-  order: -1; /* Move the nav to the top of the header */
+nav {
+  order: -1;
+  /* Move the nav to the top of the header */
   display: flex;
   justify-content: space-around;
 }
-nav a, footer a {
+
+nav a,
+footer a {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,20 +188,24 @@ nav a, footer a {
   padding-left: 2em;
   padding-right: 2em;
   height: 100%
-
 }
-a{
+
+a {
   color: black
 }
-header nav a:hover, footer a:hover {
+
+header nav a:hover,
+footer a:hover {
   background-color: var(--nav-hover-background-color);
   color: var(--nav-hover-link-color);
 }
-footer nav{
+
+footer nav {
   margin-left: auto;
 }
-footer nav a img{
-height: 30px
+
+footer nav a img {
+  height: 30px
 }
 
 #table-data {
@@ -173,6 +213,7 @@ height: 30px
   width: 100%;
   overflow: auto;
 }
+
 #table-container {
   width: 100%;
 }
@@ -186,10 +227,14 @@ height: 30px
   border-style: ridge;
   border-collapse: collapse;
   border-width: 0.10px;
-  justify-items: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  width: 70%; /* Adjust the width as needed */
-  margin: 0 auto; /* Center the grid horizontally */
+  justify-items: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
+  width: 70%;
+  /* Adjust the width as needed */
+  margin: 0 auto;
+  /* Center the grid horizontally */
 }
 
 .ensemble-grid label {
@@ -197,21 +242,30 @@ height: 30px
   border-style: ridge;
   border-collapse: collapse;
   border-width: 0.05px;
-  text-align: center; /* Center the text inside the label */
-  width: 100%; /* Ensure labels take up the full width of the grid cell */
+  text-align: center;
+  /* Center the text inside the label */
+  width: 100%;
+  /* Ensure labels take up the full width of the grid cell */
   display: flex;
-  align-items: center; /* Center items vertically */
-  justify-content: center; /* Center items horizontally */
+  align-items: center;
+  /* Center items vertically */
+  justify-content: center;
+  /* Center items horizontally */
 }
+
 .filter-input {
   z-index: 1;
-  width: 90%; /* Ensure the input boxes take up the full width of the cell */
+  width: 90%;
+  /* Ensure the input boxes take up the full width of the cell */
 }
+
 .filter-checkbox {
   margin: 0;
   padding: 0;
-  margin-right: 10px; /* Add some right margin to separate checkbox from text */
+  margin-right: 10px;
+  /* Add some right margin to separate checkbox from text */
 }
+
 #filtros * {
   margin: 5px;
 }
@@ -222,23 +276,27 @@ height: 30px
   text-align: left;
   padding: 8px;
 }
-#table-data th{
+
+#table-data th {
   text-align: center;
 }
+
 #table-data th {
   background-color: #f2f2f2;
 }
+
 summary {
   background-color: #f0f0f0;
   font-size: 20px;
-  
+
   padding: 10px;
   border: 1px solid #ccc;
   margin-bottom: 10px;
   cursor: pointer;
 }
-#encabezadoImprimir{
-  display:none;
+
+#encabezadoImprimir {
+  display: none;
 }
 
 /* Media query for mobile devices */
@@ -246,30 +304,34 @@ summary {
   body {
     margin: 0;
     padding: 0;
-    
+
     display: flex;
     flex-direction: row;
-  
+
   }
 
 }
 
 @media print {
   body * {
-      visibility: hidden;
+    visibility: hidden;
   }
-  #printableArea, #printableArea * {
-      visibility: visible;
-      
+
+  #printableArea,
+  #printableArea * {
+    visibility: visible;
+
   }
-  #encabezadoImprimir{
-    display:block;
+
+  #encabezadoImprimir {
+    display: block;
   }
-    #printableArea {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
+
+  #printableArea {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
 }

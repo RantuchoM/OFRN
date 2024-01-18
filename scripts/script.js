@@ -290,162 +290,6 @@ function showData(data, startColumn, endColumn) {
   }
 }
 
-function filterDataByNombre(nombre) {
-  // Ensure headers and dataArray are defined
-  if (!headers || !dataArray) {
-    return;
-  }
-
-  var selectedValues = $('.filter-checkbox:checked').map(function () {
-    return $(this).val();
-  }).get();
-
-  var fromDate = $('#fromDate').val();
-  var untilDate = $('#untilDate').val();
-  var tbody = $('#table-data tbody');
-  var completarDiasCheckbox = document.getElementById('completarDiasCheckbox');
-  var completarDias = completarDiasCheckbox.checked;
-  completarDiasCheckbox.checked = false;
-
-  // Clear existing rows
-  tbody.empty();
-
-  // Filter data based on the "nombre" parameter
-  var filteredData = dataArray.filter(function (data) {
-    return data[3] === nombre; // Assuming the column index for "nombre" is 3
-  });
-
-  var cantidadPresentaciones = filteredData.length;
-  var uniquePrograms = new Set(filteredData.map(function (data) {
-    return data[0];
-  }));
-
-  // Generate empty rows for days with no activity
-  if (completarDias) {
-    var currentDate = fromDate ? new Date(fromDate + 'T00:00') : filteredData[0][1];
-    var endDate = untilDate ? new Date(untilDate + 'T00:00') : filteredData[filteredData.length - 1][1];
-
-    var daysInRange = Math.floor((endDate - currentDate) / (24 * 60 * 60 * 1000)) + 1;
-
-    var errorMessageElement = document.getElementById('errorMessage');
-
-    if (daysInRange > 60) {
-      errorMessageElement.textContent = 'Reducí el rango a 60 días o menos';
-    } else {
-      errorMessageElement.textContent = '';
-
-      while (currentDate <= endDate) {
-        var formattedDate = formatDate(currentDate);
-
-        var dayWithoutActivity = filteredData.every(function (data) {
-          return formatDate(data[1]) !== formattedDate;
-        });
-
-        if (dayWithoutActivity) {
-          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '', '', '']);
-        }
-
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-
-      filteredData.sort(function (a, b) {
-        return a[1] - b[1];
-      });
-    }
-  }
-
-  // Create the table with the final array
-  filteredData.forEach(function (data) {
-    var row = '<tr';
-
-    var columnaEnsambles = data[0];
-    if (columnaEnsambles.startsWith('Sinf')) {
-      row += ' style="background-color: #dabcff;"';
-    } else if (columnaEnsambles.startsWith('CFVal')) {
-      row += ' style="background-color: #E1C16E;"';
-    } else if (columnaEnsambles.startsWith('CFMon')) {
-      row += ' style="background-color: #A8A8A8;"';
-    } else if (columnaEnsambles.startsWith('CFMar')) {
-      row += ' style="background-color: #89CFF0;"';
-    } else if (columnaEnsambles.startsWith('CFCuer')) {
-      row += ' style="background-color: #ffccff;"';
-    } else if (columnaEnsambles.startsWith('Día sin')) {
-      row += ' style="background-color: #808080;"';
-    }
-
-    row += '>';
-
-    data.forEach(function (value, columnIndex) {
-      if (columnIndex === 5) {
-        if (data[0] == "Día sin actividad") { }
-        else { row += '<td><a href="' + value + '" target="_blank">Drive</a></td>'; }
-      } else if (columnIndex == 7) {
-        //row += '<td>' + value + '</td>';
-      } else if (columnIndex == 1) {
-        if (longDate(value).charAt(0) == "D") {
-          row += '<td class = "domingo">' + longDate(value) + '</td>'
-        } else {
-          row += '<td>' + longDate(value) + '</td>';
-        }
-      } else {
-        row += '<td>' + value + '</td>';
-      }
-    });
-
-    row += '</tr>';
-    tbody.append(row);
-  });
-
-  applyBackgroundColorToFirstColumn();
-
-  function formatDate(dateString) {
-    var options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('es-ES', options);
-  }
-
-  $('#cant-elem').text('Cantidad de Programas: ' + uniquePrograms.size);
-  $('#cant-pres').text(' -- Cantidad de Presentaciones: ' + cantidadPresentaciones);
-
-  const createResizableTable = function (table) {
-    const cols = table.querySelectorAll('th');
-    [].forEach.call(cols, function (col) {
-      const resizer = document.createElement('div');
-      resizer.classList.add('resizer');
-      resizer.style.height = `${table.offsetHeight}px`;
-      col.appendChild(resizer);
-      createResizableColumn(col, resizer);
-    });
-  };
-
-  const createResizableColumn = function (col, resizer) {
-    let x = 0;
-    let w = 0;
-
-    const mouseDownHandler = function (e) {
-      x = e.clientX;
-      const styles = window.getComputedStyle(col);
-      w = parseInt(styles.width, 10);
-      document.addEventListener('mousemove', mouseMoveHandler);
-      document.addEventListener('mouseup', mouseUpHandler);
-      resizer.classList.add('resizing');
-    };
-
-    const mouseMoveHandler = function (e) {
-      const dx = e.clientX - x;
-      col.style.width = `${w + dx}px`;
-    };
-
-    const mouseUpHandler = function () {
-      resizer.classList.remove('resizing');
-      document.removeEventListener('mousemove', mouseMoveHandler);
-      document.removeEventListener('mouseup', mouseUpHandler);
-    };
-
-    resizer.addEventListener('mousedown', mouseDownHandler);
-  };
-
-  createResizableTable(document.getElementById('table-data'));
-}
 
 // Function to filter data based on checkboxes and date range
 
@@ -502,14 +346,16 @@ async function filterData() {
   });
   console.log(`El valor2 del nombre es ${dropdownValue}`)
   // Filter and display rows based on checkboxes, date range, dropdown value, and filter input textboxes
+  console.log(dataArray);
   var filteredData = dataArray.filter(function (data) {
+
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
     var columnaEnsambles = data[6];
 
     return (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
-      (!dropdownValue || data[7].includes(dropdownValue)) &&
+      (!dropdownValue || (data[7] && data[7].includes(dropdownValue)))  &&
       (passFilter(data, filterValues))
     );
   });
@@ -695,7 +541,7 @@ function fetchSpreadsheetValue(nombreParam) {
         const valueInD = dataD[index];
 
         // Update the h1 element with the fetched valueInD
-        document.querySelector('h1').textContent += valueInD;
+        document.querySelector('h1').innerHTML = `Fechas OFRN de <br>${valueInD}`;
 
         return valueInD;
       } else {
