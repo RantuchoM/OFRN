@@ -596,7 +596,7 @@ function fetchSpreadsheetValue(nombreParam) {
 
         // Update the h1 element with the fetched valueInD
         document.querySelector('h1').innerHTML = `Fechas OFRN de <br>${valueInD}`;
-
+        document.getElementById("encabezadoImprimir").textContent = `Fechas OFRN de ${valueInD}`;
         return valueInD;
       } else {
         console.error('No matching value found in column AB.');

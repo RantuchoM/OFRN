@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <title>Fechas 2024 por Ensamble</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
+
 <body>
     <div>
         <header>
@@ -18,11 +20,11 @@
                 <h1>Fechas de </h1>
             </div>
         </header>
-         
+
         <div id="ensembleCheckboxes" class="ensemble-grid">
             <!-- I want to put here the other part dinamically-->
         </div>
-        
+
         <br>
         <div id="filtros">
             <button onclick="checkAll()">Marcar todas</button>
@@ -30,7 +32,7 @@
             <div id="fechas">
                 <label for="fromDate">Fecha desde:</label>
                 <input type="date" id="fromDate" class="filter-date">
-                
+
                 <label for="untilDate">Fecha hasta: </label>
                 <input type="date" id="untilDate" class="filter-date">
                 <div id="botonesFechas">
@@ -40,11 +42,13 @@
             </div>
             <label id="dropdown-container" style="display:none"></label>
         </div>
-        
+
         <div id="cantidades">
-            <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres" class="cantidades">Cantidad de Presentaciones: </label>
+            <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres"
+                class="cantidades">Cantidad de Presentaciones: </label>
         </div>
         <div id="printableArea">
+            <div id="encabezadoImprimir"></div>
             <table id="table-data" class="table">
                 <thead>
                     <!-- Headers will be populated dynamically using JavaScript -->
@@ -60,18 +64,18 @@
 <script>
     // Function to check if "nombre" parameter is provided
     function validateNombreParameter() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var nombre = urlParams.get('nombre');
+        var urlParams = new URLSearchParams(window.location.search);
+        var nombre = urlParams.get('nombre');
 
-            // Check if "nombre" parameter is not provided
-            if (!nombre) {
-                // Hide the main content
-                document.body.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Error: Parameter "nombre" is required.</div>';
-            }
+        // Check if "nombre" parameter is not provided
+        if (!nombre) {
+            // Hide the main content
+            document.body.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Error: Parameter "nombre" is required.</div>';
         }
+    }
 
-        // Call the function to validate "nombre" parameter
+    // Call the function to validate "nombre" parameter
     validateNombreParameter();
 </script>
-</html>
 
+</html>

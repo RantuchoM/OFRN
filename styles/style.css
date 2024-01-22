@@ -319,12 +319,10 @@ summary {
 
   header,
   header * {
-    visibility: visible;
+    visibility: hidden;
   }
 
-  header h1 {
-    visibility: visible;
-  }
+  
 
   #printableArea,
   #printableArea * {
