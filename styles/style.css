@@ -331,6 +331,7 @@ summary {
 
   #encabezadoImprimir {
     display: block;
+    font-size: 40px;
   }
 
   #printableArea {
