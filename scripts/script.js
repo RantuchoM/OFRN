@@ -146,13 +146,17 @@ function extractColumnData(doc, columnIndex) {
 
 // Attach the event handlers to the checkbox and date input change events
 document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
-  checkbox.addEventListener('change', filterData);
+  checkbox.addEventListener('change', function () { filterData(false); });
 });
+document.querySelector('#ocultarEnsayosCheckbox').addEventListener('change', function () { filterData(false); });
+
 
 document.querySelectorAll('.filter-date').forEach(function (dateInput) {
-  dateInput.addEventListener('change', filterData);
+  dateInput.addEventListener('change', function () { filterData(false); });
 });
-document.querySelector('#completarDiasCheckbox').addEventListener('change', filterData)
+document.querySelector('#completarDiasButton').addEventListener('click', function () {
+  filterData(true);
+});
 //people = getDropdownData();
 
 // Function to fetch data from Google Sheets
@@ -160,10 +164,11 @@ function getData() {
   return new Promise((resolve, reject) => {
     gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: '1l4t9hnGrJhpxWii8WbqxO9yWd_oOLaxx3BT8oxGFHFw',
-      range: 'Listado!E:L',
+      range: 'Listado!E:M',
     }).then(response => {
       const values = response.result.values;
-      dataArray = extractData(values, 12, 19);
+      console.log(values);
+      dataArray = extractData(values);
       headers = dataArray[0];
       dataArray.shift();
       dataArray = dataArray.filter(row => row[0].length > 1);
@@ -177,7 +182,7 @@ function getData() {
 
 
       showData(dataArray, 12, 18);
-      filterData();
+      filterData(false);
       //convert the values to valid dates
 
       resolve(dataArray);
@@ -189,7 +194,7 @@ function getData() {
   });
 }
 // Function to extract data from the HTML response
-function extractData(doc, startColumn, endColumn) {
+function extractData(doc) {
   const tableRows = doc;
   const extractedData = [];
 
@@ -294,7 +299,7 @@ function showData(data, startColumn, endColumn) {
 // Function to filter data based on checkboxes and date range
 
 
-async function filterData() {
+async function filterData(completarDias = false) {
   // Ensure headers and dataArray are defined
   if (!headers || !dataArray) {
     return;
@@ -307,9 +312,7 @@ async function filterData() {
   var fromDate = $('#fromDate').val();
   var untilDate = $('#untilDate').val();
   var tbody = $('#table-data tbody');
-  var completarDiasCheckbox = document.getElementById('completarDiasCheckbox');
-  var completarDias = completarDiasCheckbox.checked;
-  completarDiasCheckbox.checked = false;
+
 
   // Clear existing rows
   tbody.empty();
@@ -344,7 +347,12 @@ async function filterData() {
     var value = $(this).val().trim();
     filterValues[column] = value.toLowerCase(); // Convert to lowercase for case-insensitive comparison
   });
-  console.log(`El valor2 del nombre es ${dropdownValue}`)
+
+  console.log(`El valor2 del nombre es ${dropdownValue}`);
+
+  // Check if "Ocultar Ensayos" checkbox is checked
+  var ocultarEnsayosChecked = document.getElementById('ocultarEnsayosCheckbox').checked;
+
   // Filter and display rows based on checkboxes, date range, dropdown value, and filter input textboxes
   console.log(dataArray);
   var filteredData = dataArray.filter(function (data) {
@@ -352,18 +360,41 @@ async function filterData() {
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
     var columnaEnsambles = data[6];
 
+    // Check if "Ocultar Ensayos" checkbox is checked and if the word "ensayo" is present in column 6
+    var ocultarEnsayosCondition = !ocultarEnsayosChecked || !columnaEnsambles.toLowerCase().includes('ensayo');
+
     return (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
-      (!dropdownValue || (data[7] && data[7].includes(dropdownValue)))  &&
-      (passFilter(data, filterValues))
+      (!dropdownValue || (data[7] && data[7].includes(dropdownValue))) &&
+      (passFilter(data, filterValues)) &&
+      ocultarEnsayosCondition
     );
   });
-  var cantidadPresentaciones = filteredData.length;
-  var uniquePrograms = new Set(filteredData.map(function (data) {
-    return data[0];
-  }));
 
+  var cantidadPresentaciones = 0;
+  var cantidadEnsayos = 0;
+
+  var uniquePrograms = new Set(filteredData
+    .filter(function (data) {
+      return !data[0].includes('♪'); // Exclude values with "♪" in data[0]
+    })
+    .filter(function (data) {
+      return !data[6].toLowerCase().includes('ensayo'); // Exclude values with "♪" in data[0]
+    })
+    .map(function (data) {
+      return data[0];
+    }));
+
+  var filteredPresentaciones = filteredData.filter(function (data) {
+    var hasEnsayo = data[6].toLowerCase().includes('ensayo');
+    if (hasEnsayo) {
+      cantidadEnsayos++;
+    }
+    return !hasEnsayo;
+  });
+
+  cantidadPresentaciones = filteredPresentaciones.length;
 
   // Generate empty rows for days with no activity
 
@@ -439,7 +470,15 @@ async function filterData() {
       } else if (columnIndex == 7) {
         // Check if it's the 8th column (assuming 0-based index)
         //row += '<td>' + value + '</td>';
-      } else if (columnIndex == 1) {
+      } else if (columnIndex == 6) {
+        row += '<td';
+        if (value.toLowerCase().includes('ensayo')) {
+          row += ' style="background-color: #0000FF; color: #FFFFFF;"'; // Apply blue background for 'Ensayo' with white text
+        }
+        // Add the content of the cell
+        row += '>' + value + '</td>';
+      }
+      else if (columnIndex == 1) {
         if (longDate(value).charAt(0) == "D") {
           row += '<td class = "domingo">' + longDate(value) + '</td>'
         }
@@ -467,8 +506,9 @@ async function filterData() {
 
 
   // Update the counts in the HTML
-  $('#cant-elem').text('Cantidad de Programas: ' + uniquePrograms.size);
-  $('#cant-pres').text(' -- Cantidad de Presentaciones: ' + cantidadPresentaciones);
+  $('#cant-elem').text('Programas: ' + uniquePrograms.size);
+  $('#cant-pres').text(' -- Presentaciones: ' + cantidadPresentaciones + ' -- Ensayos: ' + cantidadEnsayos);
+
   const createResizableTable = function (table) {
     const cols = table.querySelectorAll('th');
     [].forEach.call(cols, function (col) {
@@ -726,4 +766,12 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   createResizableTable(document.getElementById('table-data'));
+});
+
+$(function () {
+  $(".resizable").resizable({
+    handles: "e", // Only allow resizing from the east (right) side of the column
+    minWidth: 50,  // Minimum width for the column
+    maxWidth: 500   // Maximum width for the column
+  });
 });

@@ -111,20 +111,27 @@ createButton("Esta semana", setThisWeek);
 createButton("Próxima semana", setNextWeek);
 createButton("Próximos 30 días", setNext30Days);
 // Function to create the "Completar Días" checkbox
-function createCompletarDiasCheckbox() {
-  var completarDiasCheckbox = document.createElement('input');
-  completarDiasCheckbox.type = 'checkbox';
-  completarDiasCheckbox.id = 'completarDiasCheckbox';
+function createCompletarDiasButton() {
+  var completarDiasButton = document.createElement('button');
+  completarDiasButton.type = 'button'; // Set the type to button
+  completarDiasButton.id = 'completarDiasButton';
+  completarDiasButton.textContent = 'Completar Días';
 
-
+  
+  var buttonContainer = document.getElementById('filtros');
+  buttonContainer.appendChild(completarDiasButton);
+}
+function createOcultarEnsayosCheckbox() {
+  var ocultarEnsayosCheckbox = document.createElement('input');
+  ocultarEnsayosCheckbox.type = 'checkbox';
+  ocultarEnsayosCheckbox.id = 'ocultarEnsayosCheckbox';
+  
   var label = document.createElement('label');
-  label.htmlFor = 'completarDiasCheckbox';
-  label.appendChild(document.createTextNode('Completar Días'));
+  label.appendChild(ocultarEnsayosCheckbox);
+  label.appendChild(document.createTextNode('Ocultar Ensayos'));
 
-  var checkboxContainer = document.getElementById('filtros');
-  checkboxContainer.appendChild(completarDiasCheckbox);
-
-  checkboxContainer.appendChild(label);
+  var buttonContainer = document.getElementById('filtros');
+  buttonContainer.appendChild(label);
 }
 
 function crearMenu() {
@@ -164,4 +171,5 @@ fechaDeHoy();
 
 
 // Call the function to create the "Completar Días" checkbox
-createCompletarDiasCheckbox();
+createCompletarDiasButton();
+createOcultarEnsayosCheckbox();
