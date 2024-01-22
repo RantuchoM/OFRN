@@ -273,7 +273,7 @@ footer nav a img {
 #table-data th,
 #table-data td {
   border: 1px solid #808080;
-  text-align: left;
+  /*text-align: left;*/
   padding: 8px;
 }
 
@@ -317,10 +317,18 @@ summary {
     visibility: hidden;
   }
 
+  header,
+  header * {
+    visibility: visible;
+  }
+
+  header h1 {
+    visibility: visible;
+  }
+
   #printableArea,
   #printableArea * {
     visibility: visible;
-
   }
 
   #encabezadoImprimir {

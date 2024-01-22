@@ -312,7 +312,7 @@ async function filterData(completarDias = false) {
   var fromDate = $('#fromDate').val();
   var untilDate = $('#untilDate').val();
   var tbody = $('#table-data tbody');
-
+  var currentMonth = null;
 
   // Clear existing rows
   tbody.empty();
@@ -442,6 +442,14 @@ async function filterData(completarDias = false) {
 
   // Create the table with the final array
   filteredData.forEach(function (data) {
+    var rowMonth = new Date(data[1]).getMonth();
+    if (currentMonth !== rowMonth) {
+      // Insert a separator row with the name of the month
+      var monthSeparatorRow = '<tr style="background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth)+'  '+new Date(data[1]).getFullYear() + '</td></tr>';
+      tbody.append(monthSeparatorRow);
+      currentMonth = rowMonth; // Update the current month
+    }
+
     var row = '<tr';
 
     // Add background color based on the value in the first column
@@ -560,7 +568,13 @@ async function filterData(completarDias = false) {
 
 }
 
-
+function getMonthName(month) {
+  var months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  return months[month];
+}
 // Updated function to fetch corresponding value from the spreadsheet and update h1 element
 function fetchSpreadsheetValue(nombreParam) {
   const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
@@ -649,18 +663,24 @@ function applyBackgroundColorToFirstColumn(table) {
     // Check if the value in the second column is repeated, but the value in the first column is different
     for (var j = i + 1; j < rows.length; j++) {
       var nextRow = rows[j];
-      var nextFirstColumn = nextRow.cells[0].textContent;
-      var nextSecondColumn = nextRow.cells[1].textContent;
 
-      if (nextSecondColumn === currentRow.cells[1].textContent && nextFirstColumn !== currentFirstColumn) {
-        currentRow.cells[0].style.backgroundColor = 'orange';
-        currentRow.cells[0].style.fontWeight = 'bold';
-        nextRow.cells[0].style.backgroundColor = 'orange';
-        nextRow.cells[0].style.fontWeight = 'bold';
+      // Check if the colspan is not equal to 9
+      if (currentRow.cells[0].colSpan !== 9 && nextRow.cells[0].colSpan !== 9) {
+        var nextFirstColumn = nextRow.cells[0].textContent;
+        var nextSecondColumn = nextRow.cells[1].textContent;
+
+        if (nextSecondColumn === currentRow.cells[1].textContent && nextFirstColumn !== currentFirstColumn) {
+          currentRow.cells[0].style.backgroundColor = 'orange';
+          currentRow.cells[0].style.fontWeight = 'bold';
+          nextRow.cells[0].style.backgroundColor = 'orange';
+          nextRow.cells[0].style.fontWeight = 'bold';
+        }
       }
     }
   }
 }
+
+
 function formatDate(dateString) {
   var options = { day: '2-digit', month: 'short', year: 'numeric' };
   return new Date(dateString).toLocaleDateString('es-ES', options);
