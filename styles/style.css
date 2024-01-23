@@ -24,7 +24,7 @@ h1 {
   text-transform: uppercase;
   /* Convert text to uppercase if desired */
   letter-spacing: 2px;
-  
+
   /* Adjust letter spacing as needed */
   /* Add other styling properties as needed */
 
@@ -317,12 +317,20 @@ summary {
     visibility: hidden;
   }
 
+  body {
+    height: auto;
+    min-height: 0;
+    margin: 2;
+    padding: 0;
+    overflow: hidden;
+  }
+
   header,
   header * {
     visibility: hidden;
   }
 
-  
+
 
   #printableArea,
   #printableArea * {
@@ -340,5 +348,26 @@ summary {
     position: absolute;
     left: 0;
     top: 0;
+    page-break-inside: avoid;
+    overflow: hidden;
+    /* Ensure no overflow */
   }
+
+  @page {
+    size: auto;
+    /* Set the paper size */
+    margin: 5mm;
+    /* Set margins to 0 to effectively hide headers and footers */
+  }
+
+  #filtros-texto {
+    display: none;
+  }
+  
+  .table,
+  .table th,
+  .table td {
+    font-size: 12px;
+  }
+
 }

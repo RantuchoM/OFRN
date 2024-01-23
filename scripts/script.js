@@ -236,7 +236,7 @@ function showData(data, startColumn, endColumn) {
   headerRowHTML += '</tr>';
   thead.html(headerRowHTML);
   // Add a row for input fields
-  var inputRowHTML = '<tr>';
+  var inputRowHTML = '<tr id="filtros-texto">';
   var tbody = $('#table-data tbody');
   headers.forEach(function (header) {
     if (header == "Nombres") { }
@@ -289,16 +289,15 @@ function showData(data, startColumn, endColumn) {
         rowHTML += '<td>' + value + '</td>';
       }
     });
-
     rowHTML += '</tr>';
     tbody.append(rowHTML);
   }
+
+
 }
 
 
 // Function to filter data based on checkboxes and date range
-
-
 async function filterData(completarDias = false) {
   // Ensure headers and dataArray are defined
   if (!headers || !dataArray) {
@@ -315,9 +314,9 @@ async function filterData(completarDias = false) {
   var currentMonth = null;
 
   // Clear existing rows
-  tbody.empty();
+  tbody.empty().css('width', 'auto');
 
-  // Get the dropdown value and check if the container exists
+
   // Get the dropdown value and check if the container exists
   var dropdownContainer = $('#dropdown-container');
   var dropdownValue = null;
@@ -330,6 +329,7 @@ async function filterData(completarDias = false) {
   if (!nombreParam) {
     // Proceed with the original functionality
     dropdownValue = dropdownContainer.length > 0 ? dropdownContainer.find('select').val() : null;
+    
   } else {
     // Fetch the corresponding value from the spreadsheet
     try {
@@ -347,7 +347,9 @@ async function filterData(completarDias = false) {
     var value = $(this).val().trim();
     filterValues[column] = value.toLowerCase(); // Convert to lowercase for case-insensitive comparison
   });
-
+  if(dropdownValue) {
+    document.getElementById("encabezadoImprimir").textContent = `Fechas OFRN de ${dropdownValue}`;
+  }
   console.log(`El valor2 del nombre es ${dropdownValue}`);
 
   // Check if "Ocultar Ensayos" checkbox is checked
@@ -410,7 +412,7 @@ async function filterData(completarDias = false) {
     // Get the div element for displaying messages
     var errorMessageElement = document.getElementById('errorMessage');
 
-    if (daysInRange > 60) {
+    if (daysInRange > 600) {
       // Display a message to the user
       errorMessageElement.textContent = 'Reducí el rango a 60 días o menos';
     } else {
@@ -427,7 +429,7 @@ async function filterData(completarDias = false) {
         });
 
         if (dayWithoutActivity) {
-          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '', '', '']);
+          filteredData.push(['Día sin actividad', new Date(currentDate), '', '', '', '', '', '', '', '']);
         }
 
         currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
@@ -445,7 +447,7 @@ async function filterData(completarDias = false) {
     var rowMonth = new Date(data[1]).getMonth();
     if (currentMonth !== rowMonth) {
       // Insert a separator row with the name of the month
-      var monthSeparatorRow = '<tr style="background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth)+'  '+new Date(data[1]).getFullYear() + '</td></tr>';
+      var monthSeparatorRow = '<tr style="background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
       tbody.append(monthSeparatorRow);
       currentMonth = rowMonth; // Update the current month
     }
@@ -516,19 +518,22 @@ async function filterData(completarDias = false) {
   // Update the counts in the HTML
   $('#cant-elem').text('Programas: ' + uniquePrograms.size);
   $('#cant-pres').text(' -- Presentaciones: ' + cantidadPresentaciones + ' -- Ensayos: ' + cantidadEnsayos);
+  $('#table-data').css('width', 'auto');
+  const destroyResizableTable = function (table) {
+    const resizers = table.querySelectorAll('.resizer');
+    resizers.forEach(function (resizer) {
+      resizer.parentNode.removeChild(resizer);
+    });
+  };
 
   const createResizableTable = function (table) {
+    destroyResizableTable(table); // Remove existing resizers
     const cols = table.querySelectorAll('th');
     [].forEach.call(cols, function (col) {
-      // Add a resizer element to the column
       const resizer = document.createElement('div');
       resizer.classList.add('resizer');
-
-      // Set the height
       resizer.style.height = `${table.offsetHeight}px`;
-
       col.appendChild(resizer);
-
       createResizableColumn(col, resizer);
     });
   };
@@ -563,8 +568,17 @@ async function filterData(completarDias = false) {
     resizer.addEventListener('mousedown', mouseDownHandler);
   };
 
-  createResizableTable(document.getElementById('table-data'));
+  // Clear any existing event listeners on the table headers
+  $('#table-data th .resizer').off('mousedown mousemove mouseup');
 
+  // Destroy existing resizable table
+  destroyResizableTable(document.getElementById('table-data'));
+
+  // Allow a slight delay for existing event listeners to be removed
+  setTimeout(function () {
+    // Create the resizable table after adjusting the width
+    createResizableTable(document.getElementById('table-data'));
+  }, 100);
 
 }
 
@@ -723,75 +737,4 @@ function uncheckAll() {
   filterData();
 }
 
-// Invoke the getData function
-//getData();
-$(function () {
-  $(".resizable").resizable({
-    handles: "e", // Only allow resizing from the east (right) side of the column
-    minWidth: 50,  // Minimum width for the column
-    maxWidth: 500   // Maximum width for the column
-  });
-});
 document.addEventListener('DOMContentLoaded', loadClient);
-
-document.addEventListener('DOMContentLoaded', function () {
-  const createResizableTable = function (table) {
-    const cols = table.querySelectorAll('th');
-    [].forEach.call(cols, function (col) {
-      // Add a resizer element to the column
-      const resizer = document.createElement('div');
-      resizer.classList.add('resizer');
-
-      // Set the height
-      resizer.style.height = `${table.offsetHeight}px`;
-
-      col.appendChild(resizer);
-
-      createResizableColumn(col, resizer);
-    });
-  };
-
-  const createResizableColumn = function (col, resizer) {
-    let x = 0;
-    let w = 0;
-
-    const mouseDownHandler = function (e) {
-      // Check if the mouse click occurred on an input element
-      if (e.target.tagName.toLowerCase() === 'input') {
-        return;
-      }
-
-      x = e.clientX;
-      const styles = window.getComputedStyle(col);
-      w = parseInt(styles.width, 10);
-
-      document.addEventListener('mousemove', mouseMoveHandler);
-      document.addEventListener('mouseup', mouseUpHandler);
-
-      resizer.classList.add('resizing');
-    };
-
-    const mouseMoveHandler = function (e) {
-      const dx = e.clientX - x;
-      col.style.width = `${w + dx}px`;
-    };
-
-    const mouseUpHandler = function () {
-      resizer.classList.remove('resizing');
-      document.removeEventListener('mousemove', mouseMoveHandler);
-      document.removeEventListener('mouseup', mouseUpHandler);
-    };
-
-    resizer.addEventListener('mousedown', mouseDownHandler);
-  };
-
-  createResizableTable(document.getElementById('table-data'));
-});
-
-$(function () {
-  $(".resizable").resizable({
-    handles: "e", // Only allow resizing from the east (right) side of the column
-    minWidth: 50,  // Minimum width for the column
-    maxWidth: 500   // Maximum width for the column
-  });
-});

@@ -110,6 +110,7 @@ function setNext30Days() {
 createButton("Esta semana", setThisWeek);
 createButton("Próxima semana", setNextWeek);
 createButton("Próximos 30 días", setNext30Days);
+
 // Function to create the "Completar Días" checkbox
 function createCompletarDiasButton() {
   var completarDiasButton = document.createElement('button');
@@ -117,15 +118,27 @@ function createCompletarDiasButton() {
   completarDiasButton.id = 'completarDiasButton';
   completarDiasButton.textContent = 'Completar Días';
 
-  
+
   var buttonContainer = document.getElementById('filtros');
   buttonContainer.appendChild(completarDiasButton);
 }
+function createDownloadPDFButton() {
+  var downloadPDFButton = document.createElement('button');
+  downloadPDFButton.type = 'button';
+  downloadPDFButton.id = 'downloadPDFButton';
+  downloadPDFButton.textContent = 'Descargar/Imprimir';
+  downloadPDFButton.addEventListener('click', downloadPDF);
+
+  var buttonContainer = document.getElementById('filtros');
+  buttonContainer.appendChild(downloadPDFButton);
+}
+
+createDownloadPDFButton();
 function createOcultarEnsayosCheckbox() {
   var ocultarEnsayosCheckbox = document.createElement('input');
   ocultarEnsayosCheckbox.type = 'checkbox';
   ocultarEnsayosCheckbox.id = 'ocultarEnsayosCheckbox';
-  
+
   var label = document.createElement('label');
   label.appendChild(ocultarEnsayosCheckbox);
   label.appendChild(document.createTextNode('Ocultar Ensayos'));
@@ -133,6 +146,10 @@ function createOcultarEnsayosCheckbox() {
   var buttonContainer = document.getElementById('filtros');
   buttonContainer.appendChild(label);
 }
+function downloadPDF() {
+  window.print();
+}
+
 
 function crearMenu() {
   // Define the menu items as an array of objects with 'text' and 'href' properties
