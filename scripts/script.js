@@ -474,7 +474,7 @@ async function filterData(completarDias = false) {
       }
 
       row += '>';
-
+      const cantidadNombres = dropdownValue.split("|");
       data.forEach(function (value, columnIndex) {
         if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
           // Assuming data[headers[columnIndex]] contains the link
@@ -486,36 +486,39 @@ async function filterData(completarDias = false) {
           } else {
             // Split the value string into an array of names
             const namesArray = value.split('|');
-            let shortenedNamesString = ""
+            let namesString = ""
             // Filter the names based on the matching names in dropdownValue
-            const filteredNames = namesArray.filter(name => dropdownValue.includes(name));
-            if (namesArray.length == filteredNames.length) {
+            let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
+            if (cantidadNombres.length == filteredNames.length) {
               const urlParams = new URLSearchParams(window.location.search)
               const ensParam = urlParams.get('ens');
-              shortenedNamesString = `${ensParam} Completo`;
+              namesString = `${ensParam} Completo`;
             }
             else {
+              var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
               // Shorten each name to the first two characters of each word (initials) plus one additional letter
-
-              const shortenedNames = filteredNames.map(name => {
+              if(nombresCompletosChecked){}
+              else{
+              filteredNames = filteredNames.map(name => {
                 const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
 
                 return initials;
               });
+            }
 
               // Join the shortened names back into a string with "|" separator
-              shortenedNamesString = shortenedNames.join('-');
+              namesString = filteredNames.join('-');
             }
 
             // Add the shortened names to the row
-            row += '<td>' + shortenedNamesString + '</td>';
+            row += '<td>' + namesString + '</td>';
           }
         } else if (columnIndex == 6) {
           row += '<td';
           if (value.toLowerCase().includes('ensayo')) {
             row += ' style="background-color: #0000FF; color: #FFFFFF;"'; // Apply blue background for 'Ensayo' with white text
           }
-          else if(value == 'Sinf, Cuerdas, Maderas, Bronces, Percusión' || value == 'Sinf, Cuerdas, Percusión, Bronces, Maderas'){
+          else if (value == 'Sinf, Cuerdas, Maderas, Bronces, Percusión' || value == 'Sinf, Cuerdas, Percusión, Bronces, Maderas') {
             value = "Orquesta Completa";
           }
           // Add the content of the cell

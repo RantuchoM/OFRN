@@ -149,6 +149,20 @@ function createOcultarEnsayosCheckbox() {
 function downloadPDF() {
   window.print();
 }
+function createMostrarNombresCheckbox() {
+  var ocultarEnsayosCheckbox = document.createElement('input');
+  ocultarEnsayosCheckbox.type = 'checkbox';
+  ocultarEnsayosCheckbox.id = 'mostrarNombresCheckbox';
+
+  var label = document.createElement('label');
+  label.appendChild(ocultarEnsayosCheckbox);
+  label.appendChild(document.createTextNode('Mostrar Nombres Completos'));
+
+  var buttonContainer = document.getElementById('filtros');
+  buttonContainer.appendChild(label);
+  document.querySelector('#mostrarNombresCheckbox').addEventListener('change', function () { filterData(false); });
+}
+
 
 
 function crearMenu() {
@@ -190,3 +204,6 @@ fechaDeHoy();
 // Call the function to create the "Completar Días" checkbox
 createCompletarDiasButton();
 createOcultarEnsayosCheckbox();
+const urlParams = new URLSearchParams(window.location.search)
+const ensParam = urlParams.get('ens');
+if(ensParam){createMostrarNombresCheckbox();}
