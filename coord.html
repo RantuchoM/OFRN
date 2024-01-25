@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="scripts/importar.js"></script>
+    <title>Fechas 2024 por Ensamble</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body>
+    <div>
+        <header>
+            <nav style="display:none">
+                <!-- Your navigation content goes here -->
+            </nav>
+            <div class="header-content">
+                <img src="images/logo.png" alt="Logo" class="logo">
+                <h1>Fechas del Ensamble </h1>
+                <h2>Vista de Coordinador/a</h2>
+            </div>
+        </header>
+
+        <div id="ensembleCheckboxes" class="ensemble-grid">
+            <!-- I want to put here the other part dinamically-->
+        </div>
+
+        <br>
+        <div id="filtros">
+            <button onclick="checkAll()">Marcar todas</button>
+            <button onclick="uncheckAll()">Desmarcar todas</button>
+            <div id="fechas">
+                <label for="fromDate">Fecha desde:</label>
+                <input type="date" id="fromDate" class="filter-date">
+
+                <label for="untilDate">Fecha hasta: </label>
+                <input type="date" id="untilDate" class="filter-date">
+                <div id="botonesFechas">
+
+                </div>
+                <div id="errorMessage" style="color: red;"></div>
+            </div>
+            <label id="dropdown-container" style="display:none"></label>
+        </div>
+
+        <div id="cantidades">
+            <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres"
+                class="cantidades">Cantidad de Presentaciones: </label>
+        </div>
+        <div id="printableArea">
+            <div id="encabezadoImprimir"></div>
+            <table id="table-data" class="table">
+                <thead>
+                    <!-- Headers will be populated dynamically using JavaScript -->
+                </thead>
+                <tbody>
+                    <!-- Table data will be populated dynamically using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+<script>
+    // Function to check if "nombre" parameter is provided
+    function validateEnsambleParameter() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var nombre = urlParams.get('ens');
+
+        // Check if "nombre" parameter is not provided
+        if (!nombre) {
+            // Hide the main content
+            document.body.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">ERROR: hay que acceder con el link personalizado del Ensamble</div>';
+        }
+    }
+
+    // Call the function to validate "nombre" parameter
+    validateEnsambleParameter();
+</script>
+
+</html>

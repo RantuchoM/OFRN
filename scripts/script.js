@@ -223,12 +223,15 @@ function showData(data, startColumn, endColumn) {
     console.error('No data to display.');
     return;
   }
+  const urlParams = new URLSearchParams(window.location.search)
+  const ensParam = urlParams.get('ens');
+  console.log(ensParam);
 
   // Dynamically populate the table header
   var thead = $('#table-data thead');
   var headerRowHTML = '<tr>';
   headers.forEach(function (header) {
-    if (header == "Nombres") { }
+    if (header == "Nombres" && !ensParam) { }
     else {
       headerRowHTML += '<th>' + header + '</th>';
     }
@@ -322,21 +325,34 @@ async function filterData(completarDias = false) {
   var dropdownValue = null;
 
   // Check if "nombre" parameter exists in the URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const nombreParam = urlParams.get('nombre');
-  console.log(nombreParam);
+  const urlParams = new URLSearchParams(window.location.search)
+  const ensParam = urlParams.get('ens');
+  console.log(ensParam);
 
-  if (!nombreParam) {
-    // Proceed with the original functionality
-    dropdownValue = dropdownContainer.length > 0 ? dropdownContainer.find('select').val() : null;
-    
-  } else {
-    // Fetch the corresponding value from the spreadsheet
+  if (!ensParam) {
+    const nombreParam = urlParams.get('nombre');
+    console.log(nombreParam);
+
+    if (!nombreParam) {
+      // Proceed with the original functionality
+      dropdownValue = dropdownContainer.length > 0 ? dropdownContainer.find('select').val() : null;
+
+    } else {
+      // Fetch the corresponding value from the spreadsheet
+      try {
+        dropdownValue = await fetchSpreadsheetValue(nombreParam);
+        console.log(`El valor del nombre es ${dropdownValue}`);
+      } catch (error) {
+        console.error('Error fetching spreadsheet value:', error);
+      }
+    }
+  }
+  else {
     try {
-      dropdownValue = await fetchSpreadsheetValue(nombreParam);
-      console.log(`El valor del nombre es ${dropdownValue}`);
+      dropdownValue = await fetchEnsamble(ensParam);
+      console.log(`El valor de ens es ${dropdownValue}`);
     } catch (error) {
-      console.error('Error fetching spreadsheet value:', error);
+      console.error('Error fetching ensamble value:', error);
     }
   }
 
@@ -347,7 +363,7 @@ async function filterData(completarDias = false) {
     var value = $(this).val().trim();
     filterValues[column] = value.toLowerCase(); // Convert to lowercase for case-insensitive comparison
   });
-  if(dropdownValue) {
+  if (dropdownValue) {
     document.getElementById("encabezadoImprimir").textContent = `Fechas OFRN de ${dropdownValue}`;
   }
   console.log(`El valor2 del nombre es ${dropdownValue}`);
@@ -368,7 +384,7 @@ async function filterData(completarDias = false) {
     return (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
-      (!dropdownValue || (data[7] && data[7].includes(dropdownValue))) &&
+      (!dropdownValue || (data[7] && data[7].match(dropdownValue))) &&
       (passFilter(data, filterValues)) &&
       ocultarEnsayosCondition
     );
@@ -401,7 +417,127 @@ async function filterData(completarDias = false) {
   // Generate empty rows for days with no activity
 
   if (completarDias) {
+    completarDiasRango();
+  }
 
+  // Create the table with the final array
+  createTable()
+
+  // Apply background color to the first column based on conditions
+  if (dropdownValue) {
+    applyBackgroundColorToFirstColumn();
+  }
+  function formatDate(dateString) {
+    var options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('es-ES', options);
+  }
+
+
+
+  // Update the counts in the HTML
+  $('#cant-elem').text('Programas: ' + uniquePrograms.size);
+  $('#cant-pres').text(' -- Presentaciones: ' + cantidadPresentaciones + ' -- Ensayos: ' + cantidadEnsayos);
+  $('#table-data').css('width', 'auto');
+  const destroyResizableTable = function (table) {
+    const resizers = table.querySelectorAll('.resizer');
+    resizers.forEach(function (resizer) {
+      resizer.parentNode.removeChild(resizer);
+    });
+  };
+
+  function createTable() {
+    filteredData.forEach(function (data) {
+      var rowMonth = new Date(data[1]).getMonth();
+      if (currentMonth !== rowMonth) {
+        // Insert a separator row with the name of the month
+        var monthSeparatorRow = '<tr style="background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+        tbody.append(monthSeparatorRow);
+        currentMonth = rowMonth; // Update the current month
+      }
+
+      var row = '<tr';
+
+      // Add background color based on the value in the first column
+      var columnaEnsambles = data[0]; // Assuming the second column contains 'Ensambles'
+      if (columnaEnsambles.startsWith('Sinf')) {
+        row += ' style="background-color: #dabcff;"';
+      } else if (columnaEnsambles.startsWith('CFVal')) {
+        row += ' style="background-color: #E1C16E;"';
+      } else if (columnaEnsambles.startsWith('CFMon')) {
+        row += ' style="background-color: #A8A8A8;"';
+      } else if (columnaEnsambles.startsWith('CFMar')) {
+        row += ' style="background-color: #89CFF0;"';
+      } else if (columnaEnsambles.startsWith('CFCuer')) {
+        row += ' style="background-color: #ffccff;"';
+      } else if (columnaEnsambles.startsWith('Día sin')) {
+        row += ' style="background-color: #808080;"';
+      }
+
+      row += '>';
+
+      data.forEach(function (value, columnIndex) {
+        if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
+          // Assuming data[headers[columnIndex]] contains the link
+          if (data[0] == "Día sin actividad") { }
+          else { row += '<td><a href="' + value + '" target="_blank">Drive</a></td>'; }
+        } else if (columnIndex == 7) {
+          if (!ensParam) {
+            // Do not show names
+          } else {
+            // Split the value string into an array of names
+            const namesArray = value.split('|');
+            let shortenedNamesString = ""
+            // Filter the names based on the matching names in dropdownValue
+            const filteredNames = namesArray.filter(name => dropdownValue.includes(name));
+            if (namesArray.length == filteredNames.length) {
+              const urlParams = new URLSearchParams(window.location.search)
+              const ensParam = urlParams.get('ens');
+              shortenedNamesString = `${ensParam} Completo`;
+            }
+            else {
+              // Shorten each name to the first two characters of each word (initials) plus one additional letter
+
+              const shortenedNames = filteredNames.map(name => {
+                const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
+
+                return initials;
+              });
+
+              // Join the shortened names back into a string with "|" separator
+              shortenedNamesString = shortenedNames.join('-');
+            }
+
+            // Add the shortened names to the row
+            row += '<td>' + shortenedNamesString + '</td>';
+          }
+        } else if (columnIndex == 6) {
+          row += '<td';
+          if (value.toLowerCase().includes('ensayo')) {
+            row += ' style="background-color: #0000FF; color: #FFFFFF;"'; // Apply blue background for 'Ensayo' with white text
+          }
+          else if(value == 'Sinf, Cuerdas, Maderas, Bronces, Percusión' || value == 'Sinf, Cuerdas, Percusión, Bronces, Maderas'){
+            value = "Orquesta Completa";
+          }
+          // Add the content of the cell
+          row += '>' + value + '</td>';
+        }
+        else if (columnIndex == 1) {
+          if (longDate(value).charAt(0) == "D") {
+            row += '<td class = "domingo">' + longDate(value) + '</td>'
+          }
+          else {
+            row += '<td>' + longDate(value) + '</td>';
+          }
+        } else {
+          row += '<td>' + value + '</td>';
+        }
+      });
+
+      row += '</tr>';
+      tbody.append(row);
+    });
+  }
+  function completarDiasRango() {
     var currentDate = fromDate ? new Date(fromDate + 'T00:00') : dataArray[0][1];
     var endDate = untilDate ? new Date(untilDate + 'T00:00') : dataArray[dataArray.length - 1][1];
     console.log(dataArray[dataArray.length - 1][1])
@@ -441,91 +577,6 @@ async function filterData(completarDias = false) {
       });
     }
   }
-
-  // Create the table with the final array
-  filteredData.forEach(function (data) {
-    var rowMonth = new Date(data[1]).getMonth();
-    if (currentMonth !== rowMonth) {
-      // Insert a separator row with the name of the month
-      var monthSeparatorRow = '<tr style="background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-      tbody.append(monthSeparatorRow);
-      currentMonth = rowMonth; // Update the current month
-    }
-
-    var row = '<tr';
-
-    // Add background color based on the value in the first column
-    var columnaEnsambles = data[0]; // Assuming the second column contains 'Ensambles'
-    if (columnaEnsambles.startsWith('Sinf')) {
-      row += ' style="background-color: #dabcff;"';
-    } else if (columnaEnsambles.startsWith('CFVal')) {
-      row += ' style="background-color: #E1C16E;"';
-    } else if (columnaEnsambles.startsWith('CFMon')) {
-      row += ' style="background-color: #A8A8A8;"';
-    } else if (columnaEnsambles.startsWith('CFMar')) {
-      row += ' style="background-color: #89CFF0;"';
-    } else if (columnaEnsambles.startsWith('CFCuer')) {
-      row += ' style="background-color: #ffccff;"';
-    } else if (columnaEnsambles.startsWith('Día sin')) {
-      row += ' style="background-color: #808080;"';
-    }
-
-    row += '>';
-
-    data.forEach(function (value, columnIndex) {
-      if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-        // Assuming data[headers[columnIndex]] contains the link
-        if (data[0] == "Día sin actividad") { }
-        else { row += '<td><a href="' + value + '" target="_blank">Drive</a></td>'; }
-      } else if (columnIndex == 7) {
-        // Check if it's the 8th column (assuming 0-based index)
-        //row += '<td>' + value + '</td>';
-      } else if (columnIndex == 6) {
-        row += '<td';
-        if (value.toLowerCase().includes('ensayo')) {
-          row += ' style="background-color: #0000FF; color: #FFFFFF;"'; // Apply blue background for 'Ensayo' with white text
-        }
-        // Add the content of the cell
-        row += '>' + value + '</td>';
-      }
-      else if (columnIndex == 1) {
-        if (longDate(value).charAt(0) == "D") {
-          row += '<td class = "domingo">' + longDate(value) + '</td>'
-        }
-        else {
-          row += '<td>' + longDate(value) + '</td>';
-        }
-      } else {
-        row += '<td>' + value + '</td>';
-      }
-    });
-
-    row += '</tr>';
-    tbody.append(row);
-  });
-
-  // Apply background color to the first column based on conditions
-  if (dropdownValue) {
-    applyBackgroundColorToFirstColumn();
-  }
-  function formatDate(dateString) {
-    var options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('es-ES', options);
-  }
-
-
-
-  // Update the counts in the HTML
-  $('#cant-elem').text('Programas: ' + uniquePrograms.size);
-  $('#cant-pres').text(' -- Presentaciones: ' + cantidadPresentaciones + ' -- Ensayos: ' + cantidadEnsayos);
-  $('#table-data').css('width', 'auto');
-  const destroyResizableTable = function (table) {
-    const resizers = table.querySelectorAll('.resizer');
-    resizers.forEach(function (resizer) {
-      resizer.parentNode.removeChild(resizer);
-    });
-  };
-
   const createResizableTable = function (table) {
     destroyResizableTable(table); // Remove existing resizers
     const cols = table.querySelectorAll('th');
@@ -616,6 +667,41 @@ function fetchSpreadsheetValue(nombreParam) {
         console.error('No matching value found in column AB.');
         return null;
       }
+    })
+    .catch(error => {
+      console.error('Error fetching data from the spreadsheet:', error);
+      return null;
+    });
+}
+function fetchEnsamble(ens) {
+  const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
+
+
+  return fetch(spreadsheetUrl)
+    .then(response => response.text())
+    .then(html => {
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      console.log(ens);
+      const ensambles = extractColumnData(doc, 2); // Extract data from the 4th column (AB column)
+      const miembros = extractColumnData(doc, 3); // Extract data from the 3rd column (AB column)
+      console.log(ensambles);
+      console.log(miembros);
+
+      // Filter miembros based on the condition that the corresponding ensambles value matches the variable "ens"
+      const filteredMiembros = miembros.filter((miembro, index) => ensambles[index].includes(ens));
+      console.log(filteredMiembros);
+      // Create a string by joining the values of filteredMiembros with "|"
+      const resultString = `/${filteredMiembros.join('|')}/`;
+
+      // Use resultString for further processing or display
+      console.log(`Ens: ${resultString}`);
+
+      // Rest of your code...
+      document.querySelector('h1').innerHTML = `Fechas OFRN de <br>${ens}`;
+      document.getElementById("encabezadoImprimir").textContent = `Fechas OFRN de ${ens}`;
+      return resultString;
     })
     .catch(error => {
       console.error('Error fetching data from the spreadsheet:', error);
