@@ -4,7 +4,10 @@
 var dataArray;
 var headers;
 var names;
-
+const urlParameters = new URLSearchParams(window.location.search)
+const ensParam = urlParameters.get('ens');
+let esCoordEns = false;
+if (ensParam) { esCoordEns = true; }
 
 function loadClient() {
   gapi.load('client', initClient);
@@ -223,8 +226,7 @@ function showData(data, startColumn, endColumn) {
     console.error('No data to display.');
     return;
   }
-  const urlParams = new URLSearchParams(window.location.search)
-  const ensParam = urlParams.get('ens');
+
   console.log(ensParam);
 
   // Dynamically populate the table header
@@ -242,7 +244,7 @@ function showData(data, startColumn, endColumn) {
   var inputRowHTML = '<tr id="filtros-texto">';
   var tbody = $('#table-data tbody');
   headers.forEach(function (header) {
-    if (header == "Nombres") { }
+    if (header == "Nombres" & !ensParam) { }
     else {
       inputRowHTML += '<td class="tooltip"><input type="text" class="filter-input" data-column="' + header + '"><div class="tooltiptext">Escribí los valores que quieras que aparezcan en esta columna, separados por guiones</div></td>';
     }
@@ -276,7 +278,7 @@ function showData(data, startColumn, endColumn) {
   $('.filter-input').on('input', function () {
     filterData();
   });
-
+  /*
   // Dynamically populate the table data
   var tbody = $('#table-data tbody');
   for (let i = 1; i < data.length; i++) {
@@ -295,6 +297,7 @@ function showData(data, startColumn, endColumn) {
     rowHTML += '</tr>';
     tbody.append(rowHTML);
   }
+  */
 
 
 }
@@ -324,13 +327,10 @@ async function filterData(completarDias = false) {
   var dropdownContainer = $('#dropdown-container');
   var dropdownValue = null;
 
-  // Check if "nombre" parameter exists in the URL
-  const urlParams = new URLSearchParams(window.location.search)
-  const ensParam = urlParams.get('ens');
-  console.log(ensParam);
+
 
   if (!ensParam) {
-    const nombreParam = urlParams.get('nombre');
+    const nombreParam = urlParameters.get('nombre');
     console.log(nombreParam);
 
     if (!nombreParam) {
@@ -474,7 +474,8 @@ async function filterData(completarDias = false) {
       }
 
       row += '>';
-      const cantidadNombres = dropdownValue.split("|");
+      let cantidadNombres;
+      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
       data.forEach(function (value, columnIndex) {
         if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
           // Assuming data[headers[columnIndex]] contains the link
@@ -490,21 +491,20 @@ async function filterData(completarDias = false) {
             // Filter the names based on the matching names in dropdownValue
             let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
             if (cantidadNombres.length == filteredNames.length) {
-              const urlParams = new URLSearchParams(window.location.search)
-              const ensParam = urlParams.get('ens');
+
               namesString = `${ensParam} Completo`;
             }
             else {
               var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
               // Shorten each name to the first two characters of each word (initials) plus one additional letter
-              if(nombresCompletosChecked){}
-              else{
-              filteredNames = filteredNames.map(name => {
-                const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
+              if (nombresCompletosChecked) { }
+              else {
+                filteredNames = filteredNames.map(name => {
+                  const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
 
-                return initials;
-              });
-            }
+                  return initials;
+                });
+              }
 
               // Join the shortened names back into a string with "|" separator
               namesString = filteredNames.join('-');
@@ -825,5 +825,15 @@ function uncheckAll() {
   });
   filterData();
 }
-
+function toggleFiltros() {
+  const filtros = document.getElementById('filtros');
+  filtros.classList.toggle('mobile-minimized');
+  const checkboxes = document.getElementById('ensembleCheckboxes');
+  checkboxes.classList.toggle('mobile-minimized');
+  const toggle = document.getElementById('toggleFiltros');
+  if (toggle.textContent == '⇓') { toggle.textContent = '⇑' }
+  else { toggle.textContent = '⇓' }
+}
 document.addEventListener('DOMContentLoaded', loadClient);
+
+agregarOcultar();

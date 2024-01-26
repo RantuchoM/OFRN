@@ -55,6 +55,22 @@ function crearCheckboxes() {
   });
 
 }
+function agregarOcultar() {
+  const mainElement = document.querySelector('main');
+  const toggleButton = document.createElement('button');
+  toggleButton.id = 'toggleFiltros';
+  toggleButton.textContent = '⇑';
+  toggleButton.onclick = toggleFiltros;
+
+  // Style the button for centering
+  toggleButton.style.display = 'block';
+  toggleButton.style.margin = 'auto';
+
+  // Insert the button as the first child of main
+  mainElement.insertBefore(toggleButton, mainElement.firstChild);
+}
+
+
 function fechaDeHoy() {
   document.getElementById('fromDate').valueAsDate = new Date();
 }
@@ -205,5 +221,6 @@ fechaDeHoy();
 createCompletarDiasButton();
 createOcultarEnsayosCheckbox();
 const urlParams = new URLSearchParams(window.location.search)
-const ensParam = urlParams.get('ens');
-if(ensParam){createMostrarNombresCheckbox();}
+const ensParameter = urlParams.get('ens');
+if(ensParameter){createMostrarNombresCheckbox();}
+

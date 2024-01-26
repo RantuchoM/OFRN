@@ -131,13 +131,18 @@ button {
   opacity: 1;
 }
 
-#filtros {
+#filtros, #ensembleCheckboxes {
   font-size: 18px;
   text-align: center;
   box-sizing: border-box;
   align-items: center;
   background-color: rgb(212, 198, 180);
 }
+
+.mobile-minimized {
+  display: none !important; /* initially hide in mobile view */
+}
+
 
 header {
   /* background-color: rgb(100, 204, 105); */

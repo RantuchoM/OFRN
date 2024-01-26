@@ -20,44 +20,46 @@
                 <h1>Fechas de </h1>
             </div>
         </header>
+        <main>
 
-        <div id="ensembleCheckboxes" class="ensemble-grid">
-            <!-- I want to put here the other part dinamically-->
-        </div>
-
-        <br>
-        <div id="filtros">
-            <button onclick="checkAll()">Marcar todas</button>
-            <button onclick="uncheckAll()">Desmarcar todas</button>
-            <div id="fechas">
-                <label for="fromDate">Fecha desde:</label>
-                <input type="date" id="fromDate" class="filter-date">
-
-                <label for="untilDate">Fecha hasta: </label>
-                <input type="date" id="untilDate" class="filter-date">
-                <div id="botonesFechas">
-
-                </div>
-                <div id="errorMessage" style="color: red;"></div>
+            <div id="ensembleCheckboxes" class="ensemble-grid">
+                <!-- I want to put here the other part dinamically-->
             </div>
-            <label id="dropdown-container" style="display:none"></label>
-        </div>
 
-        <div id="cantidades">
-            <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres"
-                class="cantidades">Cantidad de Presentaciones: </label>
-        </div>
-        <div id="printableArea">
-            <div id="encabezadoImprimir"></div>
-            <table id="table-data" class="table">
-                <thead>
-                    <!-- Headers will be populated dynamically using JavaScript -->
-                </thead>
-                <tbody>
-                    <!-- Table data will be populated dynamically using JavaScript -->
-                </tbody>
-            </table>
-        </div>
+            <br>
+            <div id="filtros">
+                <button onclick="checkAll()">Marcar todas</button>
+                <button onclick="uncheckAll()">Desmarcar todas</button>
+                <div id="fechas">
+                    <label for="fromDate">Fecha desde:</label>
+                    <input type="date" id="fromDate" class="filter-date">
+
+                    <label for="untilDate">Fecha hasta: </label>
+                    <input type="date" id="untilDate" class="filter-date">
+                    <div id="botonesFechas">
+
+                    </div>
+                    <div id="errorMessage" style="color: red;"></div>
+                </div>
+                <label id="dropdown-container" style="display:none"></label>
+            </div>
+
+            <div id="cantidades">
+                <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres"
+                    class="cantidades">Cantidad de Presentaciones: </label>
+            </div>
+            <div id="printableArea">
+                <div id="encabezadoImprimir"></div>
+                <table id="table-data" class="table">
+                    <thead>
+                        <!-- Headers will be populated dynamically using JavaScript -->
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be populated dynamically using JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
 
 </body>
