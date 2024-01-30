@@ -226,11 +226,12 @@ footer nav a img {
 }
 
 #people-details-table {
-  
+
   width: 100%;
   border: 2px solid black;
+
   tbody {
-    
+
     td:not(:first-child) {
       text-align: center;
     }
@@ -248,7 +249,29 @@ footer nav a img {
   th {
     border-right: 1px solid black;
   }
-  
+
+}
+
+h2 {
+  font-size: 3em;
+  text-align: center;
+}
+
+#maestro {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid black;
+  font-size: 2em;
+  text-align: center;
+
+  th,
+  td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+  }
+
+
 }
 
 
