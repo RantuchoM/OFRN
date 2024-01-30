@@ -131,7 +131,8 @@ button {
   opacity: 1;
 }
 
-#filtros, #ensembleCheckboxes {
+#filtros,
+#ensembleCheckboxes {
   font-size: 18px;
   text-align: center;
   box-sizing: border-box;
@@ -140,7 +141,8 @@ button {
 }
 
 .mobile-minimized {
-  display: none !important; /* initially hide in mobile view */
+  display: none !important;
+  /* initially hide in mobile view */
 }
 
 
@@ -221,6 +223,38 @@ footer nav a img {
 
 #table-container {
   width: 100%;
+}
+
+#people-details-table {
+  
+  width: 100%;
+  border: 2px solid black;
+  tbody {
+    
+    td:not(:first-child) {
+      text-align: center;
+    }
+
+    td:nth-child(1),
+    td:nth-child(4),
+    td:nth-child(7),
+    td:nth-child(10) {
+      border-right: 1px solid black;
+    }
+
+
+  }
+
+  th {
+    border-right: 1px solid black;
+  }
+  
+}
+
+
+
+#people-details-table_length {
+  display: none;
 }
 
 .ensemble-grid {
@@ -368,7 +402,7 @@ summary {
   #filtros-texto {
     display: none;
   }
-  
+
   .table,
   .table th,
   .table td {

@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/colreorder/1.5.4/css/colReorder.dataTables.min.css">
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/colreorder/1.5.4/js/dataTables.colReorder.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/colreorder/1.5.4/js/dataTables.colResize.min.js"></script>
     <script src="scripts/importar.js"></script>
+
     <title>OFRN - Resumen Participantes</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
+
 <body>
     <div>
         <header>
             <nav>
-                
-            </nav>  
+
+            </nav>
             <br>
             <h1>Fechas - Resumen Individual</h1>
         </header>
@@ -25,7 +35,7 @@
             <div id="fechas">
                 <label for="fromDate">Fecha desde:</label>
                 <input type="date" id="fromDate" class="filter-date">
-                
+
                 <label for="untilDate">Fecha hasta: </label>
                 <input type="date" id="untilDate" class="filter-date">
                 <div id="botonesFechas">
@@ -36,35 +46,40 @@
             <label id="dropdown-container" style="display:none"></label>
         </div>
         <div id="cantidades" style="display:none">
-        <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres" class="cantidades">Cantidad de Presentaciones: </label>
+            <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres"
+                class="cantidades">Cantidad de Presentaciones: </label>
         </div>
-        <div >
-            <table id="table-data" class="table" style="display:none">
-                <thead>
-                    <!-- Headers will be populated dynamically using JavaScript -->
-                </thead>
-                <tbody>
-                    <!-- Table data will be populated dynamically using JavaScript -->
-                </tbody>
-            </table>
+        <div style="text-align: center; margin-top: 20px;">
+            <input type="checkbox" id="mostrarDetalle" onchange="resumenPersonas()"
+                style="transform: scale(1.5); margin-right: 5px;">
+            <label for="mostrarDetalle" style="font-size: 1.5em;">Mostrar Detalle</label>
+            <input type="checkbox" id="mostrarProduccion" onchange="resumenPersonas()"
+                style="transform: scale(1.5); margin-right: 5px;">
+            <label for="mostrarProduccion" style="font-size: 1.5em;">Mostrar Producción</label>
         </div>
-        
-       
-        <div id="printableArea">
-            <table id="people-details" class="table">
-                <thead>
-                    <!-- Headers will be populated dynamically using JavaScript -->
-                </thead>
-                <tbody>
-                    <!-- Table data will be populated dynamically using JavaScript -->
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    
-    
-    <script></script>
+        <div>
+            <div id="table-data" class="table" style="display:none">
+
+                </table>
+            </div>
+
+
+            <div id="printableArea">
+                <table id="people-details" class="table">
+                    <thead>
+                        <!-- Headers will be populated dynamically using JavaScript -->
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be populated dynamically using JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+        <script></script>
 </body>
-</html>
 
+</html>

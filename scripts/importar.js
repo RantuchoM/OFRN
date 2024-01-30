@@ -12,6 +12,11 @@ document.write('<script src="scripts/completar.js" defer></script>')
 document.write('<script src="scripts/script.js" defer></script>');
 document.write('<script src="scripts/dropdown.js" defer></script>');
 
+document.write('<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">');
+document.write('<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>');
+document.write('<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>');
+
+
 
 //document.write('<script src="scripts/resumen.js" defer></script>');
 

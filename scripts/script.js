@@ -4,6 +4,7 @@
 var dataArray;
 var headers;
 var names;
+var namesWithMus;
 const urlParameters = new URLSearchParams(window.location.search)
 const ensParam = urlParameters.get('ens');
 let esCoordEns = false;
@@ -23,6 +24,7 @@ function initClient() {
     getData().then(() => {
       // Now that the data is loaded, call the function to get names
       getNames();
+      getNamesWithMus();
     });
 
   });
@@ -44,10 +46,43 @@ function getNames() {
       resumenPersonas();
     })
     .catch(error => console.error('Error fetching data:', error));
-
 }
-function resumenPersonas() {
+function getNamesWithMus() {
+  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true';
+
+  return fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const allNames = extractAllColumnData(doc, 3); // Assuming 3rd column contains names
+      allNames.shift(); // Remove header
+      allMus = extractAllColumnData(doc, 9);
+      allMus.shift();
+      // Filter names based on the presence of musical terms in column 10
+      namesWithMus = allNames.filter(name => {
+
+        const musValue = extractAllColumnData(doc, 9)[allNames.indexOf(name) + 1];
+        //console.log(name+" - "+musValue+" - " +["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
+
+        return ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword));
+      });
+
+      // Sorting names alphabetically
+      namesWithMus.sort();
+      resumenPersonas();
+
+
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+      return []; // Return an empty array in case of an error
+    });
+}
+function resumenPersonas2() {
   var detailsContainer = $('#people-details');
+  var mostrarDetalleCheckbox = $('#mostrarDetalle');
+
   if (!detailsContainer.length) {
     console.error("Container not found");
     return;
@@ -55,6 +90,14 @@ function resumenPersonas() {
 
   detailsContainer.empty();
   console.log(names);
+
+  // Initialize tableHTML with headers
+  var tableHTML = '';
+  if (!mostrarDetalleCheckbox.is(':checked')) {
+    // Change the tableHTML initialization to include an ID
+    var tableHTML = '<table id="people-details-table"><thead><tr><th>Nombre</th><th>Programas</th><th>Presentaciones</th><th>Ensayos</th></tr></thead><tbody>';
+
+  }
 
   names.forEach(function (name) {
     // Filtered rows for the current name
@@ -67,67 +110,288 @@ function resumenPersonas() {
       return data[0];
     }));
 
-    // Summary construction
-    var detailsSummary = '<details id="' + name + '"><summary>' + name +
-      ' - Cantidad de Programas: ' + uniquePrograms.size +
-      ' - Cantidad de Presentaciones: ' + filteredRows.length +
-      '</summary>';
-    detailsSummary += '<table>';
+    // Define cantidadEnsayos for the "false" logic
+    var cantidadEnsayos = filteredRows.filter(function (data) {
+      return data[6].startsWith('Ensayo');
+    }).length;
 
-    // Iterate over filtered rows
-    filteredRows.forEach(function (data) {
-      var row = '<tr';
+    // Check if mostrarDetalle checkbox is checked
+    if (mostrarDetalleCheckbox.is(':checked')) {
+      // Count for Cantidad de Ensayos
+      cantidadEnsayos = filteredRows.filter(function (data) {
+        return data[6].startsWith('Ensayo');
+      }).length;
 
-      if (data[6].startsWith('Sinf')) {
-        row += ' style="background-color: #dabcff;"';
-      } else if (data[6].startsWith('CFVal')) {
-        row += ' style="background-color: #E1C16E;"';
-      } else if (data[6].startsWith('CFMon')) {
-        row += ' style="background-color: #A8A8A8;"';
-      } else if (data[6].startsWith('CFMar')) {
-        row += ' style="background-color: #89CFF0;"';
-      } else if (data[6].startsWith('CFCuer')) {
-        row += ' style="background-color: #ffccff;"';
-      }
+      // Count for Cantidad de Presentaciones (excluding Ensayos)
+      var cantidadPresentaciones = filteredRows.length - cantidadEnsayos;
 
-      row += '>';
+      // Summary construction
+      var detailsSummary = '<details id="' + name + '"><summary>' + name +
+        ' - Cantidad de Programas: ' + uniquePrograms.size +
+        ' - Cantidad de Presentaciones: ' + cantidadPresentaciones +
+        ' - Cantidad de Ensayos: ' + cantidadEnsayos +
+        '</summary>';
+      detailsSummary += '<table>';
 
-      // Iterate over each value in the row (columns 1 to 7)
+      // Add headers inside the detailsSummary
+      //detailsSummary += '<tr><th>Nombre</th><th>Fecha</th><th>...</th><th>Ensayos</th></tr>';
+
+      // Iterate over filtered rows
+      filteredRows.forEach(function (data) {
+        var row = '<tr';
+        var backgroundColors = {
+          'Sinf': '#dabcff',
+          'CFVal': '#E1C16E',
+          'CFMon': '#A8A8A8',
+          'CFMar': '#89CFF0',
+          'CFCuer': '#ffccff'
+          // Add more entries as needed
+        };
+
+        var prefix = Object.keys(backgroundColors).find(key => data[0].startsWith(key));
+
+        if (prefix && backgroundColors[prefix]) {
+          row += ' style="background-color: ' + backgroundColors[prefix] + ';"';
+        }
+        row += '>';
+
+        // Iterate over each value in the row (columns 1 to 7)
+        for (var columnIndex = 0; columnIndex < 7; columnIndex++) {
+          var columnValue = data[columnIndex];
+          if (columnIndex === 1) {
+            row += '<td>' + formatDate(columnValue) + '</td>';
+          } else if (columnIndex === 5) { // Check if it's the 6th column
+            // Assuming data[headers[columnIndex]] contains the link
+            row += '<td><a href="' + columnValue + '" target="_blank">Drive</a></td>';
+          } else {
+            row += '<td>' + columnValue + '</td>';
+          }
+        }
+
+        row += '</tr>';
+        detailsSummary += row;
+      });
+
+      detailsSummary += '</table>';
+      detailsSummary += '</details>';
+
+      // Append detailsSummary to tableHTML
+      tableHTML += detailsSummary;
+    } else {
+      // Only show a single line in the table for each name
+      var tableRow = '<tr><td>' + name + '</td><td>' + uniquePrograms.size + '</td><td>' + (filteredRows.length - cantidadEnsayos) + '</td><td>' + cantidadEnsayos + '</td></tr>';
+
+      // Append tableRow to tableHTML
+      tableHTML += tableRow;
+    }
+  });
+
+  // Close the table if mostrarDetalle checkbox is not checked
+  if (!mostrarDetalleCheckbox.is(':checked')) {
+    tableHTML += '</table>';
+  }
+
+  // Append the final HTML to the detailsContainer outside the loop
+  detailsContainer.append(tableHTML);
+  if (!mostrarDetalleCheckbox.is(':checked')) {
+    $('#people-details-table').DataTable({ pageLength: 100, dom: 'lrtip', resizable: true });
+  }
+}
+
+function resumenPersonas() {
+  var detailsContainer = $('#people-details');
+  var mostrarDetalleCheckbox = $('#mostrarDetalle');
+  var mostrarProduccion = $('#mostrarProduccion');
+  var namesResumen;
+
+
+  if (!detailsContainer.length) {
+    console.error("Container not found");
+    return;
+  }
+
+  detailsContainer.empty();
+
+  if (mostrarProduccion.is(':checked')) {
+    namesResumen = names;
+  }
+  else {
+    namesResumen = namesWithMus;
+  }
+  // Initialize tableHTML with headers
+  var tableHTML = '';
+  if (!mostrarDetalleCheckbox.is(':checked')) {
+    tableHTML = '<table id="people-details-table" class="display"><thead>' +
+      '<tr>' +
+      '<th rowspan="2">Names</th>' +
+      '<th colspan="3">Sinf</th>' +
+      '<th colspan="3">CF</th>' +
+      '<th colspan="3">Ensambles</th>' +
+      '<th colspan="3">Totals</th>' +
+      '</tr>' +
+      '<tr>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
+      '</tr>' +
+      '</thead><tbody>';
+  }
+
+  namesResumen.forEach(function (name) {
+    // Filtered rows for the current name
+    var filteredRows = dataArray.filter(function (data) {
+      return data[7].includes(name);
+    });
+
+    // Separate rows based on categories
+    var sinfRows = filteredRows.filter(function (data) {
+      return data[0].startsWith('Sinf');
+    });
+
+    var cfRows = filteredRows.filter(function (data) {
+      return data[0].startsWith('CF');
+    });
+
+    var ensambleRows = filteredRows.filter(function (data) {
+      return !data[0].startsWith('Sinf') && !data[0].startsWith('CF');
+    });
+
+    // Counts for different categories
+    var countPresentacionesSinf = sinfRows.length - countEnsayos(sinfRows);
+    var countPresentacionesCF = cfRows.length - countEnsayos(cfRows);
+    var countPresentacionesEnsamble = ensambleRows.length - countEnsayos(ensambleRows);
+
+    var countProgramasSinf = countUniquePrograms(sinfRows);
+    var countProgramasCF = countUniquePrograms(cfRows);
+    var countProgramasEnsamble = countUniquePrograms(ensambleRows);
+
+    var countEnsayosSinf = countEnsayos(sinfRows);
+    var countEnsayosCF = countEnsayos(cfRows);
+    var countEnsayosEnsamble = countEnsayos(ensambleRows);
+
+    // Total counts
+    var totalCountPresentaciones = countPresentacionesSinf + countPresentacionesCF + countPresentacionesEnsamble;
+    var totalCountProgramas = countProgramasSinf + countProgramasCF + countProgramasEnsamble;
+    var totalCountEnsayos = countEnsayosSinf + countEnsayosCF + countEnsayosEnsamble;
+
+    if (mostrarDetalleCheckbox.is(':checked')) {
+      // Build details summary
+      var detailsSummary = '<details id="' + name + '"><summary>' + name +
+        ' - Cantidad de Programas: ' + totalCountProgramas +
+        ' - Cantidad de Presentaciones: ' + totalCountPresentaciones +
+        ' - Cantidad de Ensayos: ' + totalCountEnsayos +
+        '</summary>';
+      detailsSummary += '<table>';
+
+      // Iterate over filtered rows
+      filteredRows.forEach(function (data) {
+        var row = '<tr';
+        var backgroundColors = {
+          'Sinf': '#dabcff',
+          'CFVal': '#E1C16E',
+          'CFMon': '#A8A8A8',
+          'CFMar': '#89CFF0',
+          'CFCuer': '#ffccff'
+          // Add more entries as needed
+        };
+
+        var prefix = Object.keys(backgroundColors).find(key => data[0].startsWith(key));
+
+        if (prefix && backgroundColors[prefix]) {
+          row += ' style="background-color: ' + backgroundColors[prefix] + ';"';
+        }
+        row += '>';
+
+        // Iterate over each value in the row (columns 1 to 7)
+        for (var columnIndex = 0; columnIndex < 7; columnIndex++) {
+          var columnValue = data[columnIndex];
+          if (columnIndex === 1) {
+            row += '<td class="center">' + formatDate(columnValue) + '</td>';
+          } else if (columnIndex === 5) { // Check if it's the 6th column
+            // Assuming data[headers[columnIndex]] contains the link
+            row += '<td class="center"><a href="' + columnValue + '" target="_blank">Drive</a></td>';
+          } else {
+            row += '<td class="center">' + columnValue + '</td>';
+          }
+        }
+
+        row += '</tr>';
+        detailsSummary += row;
+      });
+
+      detailsSummary += '</table>';
+      detailsSummary += '</details>';
+
+      // Append detailsSummary to tableHTML
+      tableHTML += detailsSummary;
+
+    } else {
+      // Only show a single line in the table for each name
+      tableHTML += '<tr><td>' + name +
+        '</td><td class="center">' + countPresentacionesSinf + '</td><td class="center">' + countProgramasSinf + '</td><td class="center">' + countEnsayosSinf +
+        '</td><td class="center">' + countPresentacionesCF + '</td><td class="center">' + countProgramasCF + '</td><td class="center">' + countEnsayosCF +
+        '</td><td class="center">' + countPresentacionesEnsamble + '</td><td class="center">' + countProgramasEnsamble + '</td><td class="center">' + countEnsayosEnsamble +
+        '</td><td class="center">' + totalCountPresentaciones + '</td><td class="center">' + totalCountProgramas + '</td><td class="center">' + totalCountEnsayos + '</td></tr>';
+    }
+  });
+
+  // Close the table if mostrarDetalle checkbox is not checked
+  if (!mostrarDetalleCheckbox.is(':checked')) {
+    tableHTML += '</table>';
+  }
+
+  // Append the final HTML to the detailsContainer outside the loop
+  detailsContainer.append(tableHTML);
+  if (!mostrarDetalleCheckbox.is(':checked')) {
+    $('#people-details-table').DataTable({ pageLength: 100, dom: 'lrtip', resizable: true });
+  }
+
+  function buildTypeRows(rows, backgroundColor) {
+    var typeRows = '';
+    rows.forEach(function (data) {
+      var row = '<tr style="background-color: ' + backgroundColor + ';">';
       for (var columnIndex = 0; columnIndex < 7; columnIndex++) {
         var columnValue = data[columnIndex];
         if (columnIndex === 1) {
-          row += '<td>' + formatDate(columnValue) + '</td>';
-        }
-
-        else if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-          // Assuming data[headers[columnIndex]] contains the link
-          row += '<td><a href="' + columnValue + '" target="_blank">Drive</a></td>';
+          row += '<td class="center">' + formatDate(columnValue) + '</td>';
+        } else if (columnIndex === 5) {
+          row += '<td class="center"><a href="' + columnValue + '" target="_blank">Drive</a></td>';
         } else {
-          row += '<td>' + columnValue + '</td>';
+          row += '<td class="center">' + columnValue + '</td>';
         }
       }
-
       row += '</tr>';
-      detailsSummary += row;
+      typeRows += row;
     });
+    return typeRows;
+  }
 
-    detailsSummary += '</table>';
-    detailsSummary += '</details>';
+  function countEnsayos(rows) {
+    return rows ? rows.filter(function (data) {
+      return data[6].startsWith('Ensayo');
+    }).length : 0;
+  }
 
-    // Create a temporary div element to hold the HTML content
-    var tempDiv = document.createElement('div');
-    tempDiv.innerHTML = detailsSummary;
-
-    // Pass the div element to the applyBackgroundColorToFirstColumn function
-    applyBackgroundColorToFirstColumn(tempDiv);
-
-    // Append the modified HTML to the detailsContainer
-    detailsContainer.append(tempDiv.innerHTML);
-
-
-  });
-
+  function countUniquePrograms(rows) {
+    return new Set(rows.map(function (data) {
+      return data[0];
+    })).size;
+  }
 }
+
+
+
+// Function to toggle details element
+function toggleDetails(name) {
+  var detailsElement = document.getElementById(name);
+  if (detailsElement) {
+    detailsElement.open = !detailsElement.open;
+  }
+}
+
+
+
 // Function to extract data from the specified column
 function extractColumnData(doc, columnIndex) {
   const tableRows = Array.from(doc.querySelectorAll('table tr'));
@@ -141,6 +405,24 @@ function extractColumnData(doc, columnIndex) {
       if (cellValue !== "") {
         columnData.push(cellValue);
       }
+    }
+  }
+
+  return columnData;
+}
+
+function extractAllColumnData(doc, columnIndex) {
+  const tableRows = Array.from(doc.querySelectorAll('table tr'));
+  const columnData = [];
+
+  for (let i = 1; i < tableRows.length; i++) {
+    const rowData = tableRows[i].querySelectorAll('td');
+    if (rowData.length > columnIndex) {
+      const cellValue = rowData[columnIndex].textContent;
+
+
+      columnData.push(cellValue);
+
     }
   }
 
@@ -284,9 +566,9 @@ function showData(data, startColumn, endColumn) {
   for (let i = 1; i < data.length; i++) {
     const rowData = data[i].slice(startColumn - 1, endColumn);
     var rowHTML = '<tr>';
-
+ 
     rowData.forEach(function (value, columnIndex) {
-
+ 
       if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
         // Assuming data[headers[columnIndex]] contains the link
         rowHTML += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
