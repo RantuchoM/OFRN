@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="scripts/porPrograma.js"></script>
+    <title>Fechas 2024 por Programa</title>
+    <link rel="stylesheet" href="styles/style.css">
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+</head>
+
+<body>
+    <div>
+        <header>
+            <nav style="display:none">
+                <!-- Your navigation content goes here -->
+            </nav>
+            <div class="header-content">
+                <img src="images/logo.png" alt="Logo" class="logo">
+                <h1>Fechas de </h1>
+            </div>
+        </header>
+        <main>
+
+            </div>
+            <div id="printableArea">
+                <div id="encabezadoImprimir"></div>
+                <table id="table-data" class="table">
+                    <thead>
+                        <!-- Headers will be populated dynamically using JavaScript -->
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be populated dynamically using JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+</body>
+<script>
+    // Function to check if "nombre" parameter is provided
+    function validateProgrParameter() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var nombre = urlParams.get('progr');
+
+        // Check if "nombre" parameter is not provided
+        if (!nombre) {
+            // Hide the main content
+            document.body.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Error: Parameter "nombre" is required.</div>';
+        }
+    }
+
+    // Call the function to validate "nombre" parameter
+    //validateProgrParameter();
+</script>
+
+</html>

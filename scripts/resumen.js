@@ -22,8 +22,8 @@ function getDropdownData() {
 function getDataRes() {
   return new Promise((resolve, reject) => {
     gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: '1-pzeyaROPbpJq1r0snrHPfuyjUz3oyfjHxryQdhswwQ',
-      range: 'Listado!L:S',
+      spreadsheetId: '1l4t9hnGrJhpxWii8WbqxO9yWd_oOLaxx3BT8oxGFHFw',
+      range: 'Listado!E:M',
     }).then(response => {
         const values = response.result.values;
         dataArrayRes = extractData(values, 12, 19); // Extract and assign data globally

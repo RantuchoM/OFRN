@@ -1,0 +1,109 @@
+{
+    "ensambles": [
+        {
+            "name": "ECAS",
+            "ensayos": "https://docs.google.com/spreadsheets/d/1n8mNYLzMXaGdi2JxzEozf9xAVt5UnejW4lf6_197yQc/edit#gid=46879505",
+            "drive": "https://drive.google.com/drive/folders/1_aCcCf9KAJlPfgnvl7hlmthuMvXmCJJp",
+            "vistaCF": "https://rantuchom.github.io/OFRN/coord.html?ens=CFMar",
+            "ensayosCF": "https://example.com/ensayosCF"
+        },
+        {
+            "name": "CAV",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "PILTRI",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "TREPUN",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "ES",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "VN",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "PV",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "CPAT",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "VS",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "BRAT",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "ABRON",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "CFCuer",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "CFMon",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "CFVal",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        },
+        {
+            "name": "CFMar",
+            "ensayos": null,
+            "drive": null,
+            "vistaCF": null,
+            "ensayosCF": null
+        }
+    ]
+}

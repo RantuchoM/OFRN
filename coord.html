@@ -7,6 +7,30 @@
     <script src="scripts/importar.js"></script>
     <title>Fechas 2024 por Ensamble</title>
     <link rel="stylesheet" href="styles/style.css">
+
+    <style>
+        
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgb(32, 99, 145);
+        }
+
+        section {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -18,47 +42,102 @@
             <div class="header-content">
                 <img src="images/logo.png" alt="Logo" class="logo">
                 <h1>Fechas del Ensamble </h1>
-                <h2>Vista de Coordinador/a</h2>
+
             </div>
         </header>
         <main>
-        <div id="ensembleCheckboxes" class="ensemble-grid">
-            <!-- I want to put here the other part dinamically-->
-        </div>
-
-        <br>
-        <div id="filtros">
-            <button onclick="checkAll()">Marcar todas</button>
-            <button onclick="uncheckAll()">Desmarcar todas</button>
-            <div id="fechas">
-                <label for="fromDate">Fecha desde:</label>
-                <input type="date" id="fromDate" class="filter-date">
-
-                <label for="untilDate">Fecha hasta: </label>
-                <input type="date" id="untilDate" class="filter-date">
-                <div id="botonesFechas">
-
-                </div>
-                <div id="errorMessage" style="color: red;"></div>
+            <nav>
+                <a href="#" id="ensayos">Ensayos</a>
+                <a href="#" id="drive">Drive</a>
+                <a href="#" id="vistaCF">Vista CF</a>
+                <a href="#" id="ensayosCF">Ensayos CF</a>
+            </nav>
+            <div id="ensembleCheckboxes" class="ensemble-grid">
+                <!-- I want to put here the other part dinamically-->
             </div>
-            <label id="dropdown-container" style="display:none"></label>
-        </div>
 
-        <div id="cantidades">
-            <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres"
-                class="cantidades">Cantidad de Presentaciones: </label>
-        </div>
-        <div id="printableArea">
-            <div id="encabezadoImprimir"></div>
-            <table id="table-data" class="table">
-                <thead>
-                    <!-- Headers will be populated dynamically using JavaScript -->
-                </thead>
-                <tbody>
-                    <!-- Table data will be populated dynamically using JavaScript -->
-                </tbody>
-            </table>
-        </div>
+
+            <br>
+            <div id="filtros">
+                <button onclick="checkAll()">Marcar todas</button>
+                <button onclick="uncheckAll()">Desmarcar todas</button>
+                <div id="fechas">
+                    <label for="fromDate">Fecha desde:</label>
+                    <input type="date" id="fromDate" class="filter-date">
+
+                    <label for="untilDate">Fecha hasta: </label>
+                    <input type="date" id="untilDate" class="filter-date">
+                    <div id="botonesFechas">
+
+                    </div>
+                    <div id="errorMessage" style="color: red;"></div>
+                </div>
+                <label id="dropdown-container" style="display:none"></label>
+
+            </div>
+
+            
+            <div id="cantidades">
+                <label id="cant-elem" class="cantidades">Cantidad de Programas: </label><label id="cant-pres"
+                    class="cantidades">Cantidad de Presentaciones: </label>
+            </div>
+
+            <script>
+                // Function to get URL parameters
+                function getUrlParameter(name) {
+                    name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
+                    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                    var results = regex.exec(location.search);
+                    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+                }
+            
+                // Get the "ens" parameter from the URL
+                var ens = getUrlParameter('ens');
+
+                document.querySelector('title').textContent = `${ens} - Coordinación`;
+            
+                // Fetch JSON data from the file
+                fetch('ensambles.json')
+                    .then(response => response.json())
+                    .then(jsonData => {
+                        // Find the corresponding ensamble in the JSON data
+                        var ensamble = jsonData.ensambles.find(function(item) {
+                            return item.name === ens;
+                        });
+            
+                        // Populate HTML elements with the retrieved data and hide elements with null values
+                        populateAndHide('ensayos', 'ensayos', ensamble.ensayos);
+                        populateAndHide('drive', 'drive', ensamble.drive);
+                        populateAndHide('vistaCF', 'vistaCF', ensamble.vistaCF);
+                        populateAndHide('ensayosCF', 'ensayosCF', ensamble.ensayosCF);
+                    })
+                    .catch(error => console.error('Error fetching JSON:', error));
+            
+                // Function to populate HTML elements and hide if the value is null
+                function populateAndHide(id, contentId, value) {
+                    var element = document.getElementById(id);
+                    var contentElement = document.getElementById(contentId);
+            
+                    if (value !== null) {
+                        element.href = value;
+                        contentElement.innerHTML = '<a href="' + value + '" target="_blank">' + id.charAt(0).toUpperCase() + id.slice(1) + ' Link</a>';
+                    } else {
+                        element.style.display = 'none';
+                        contentElement.style.display = 'none';
+                    }
+                }
+            </script>
+            <div id="printableArea">
+                <div id="encabezadoImprimir"></div>
+                <table id="table-data" class="table">
+                    <thead>
+                        <!-- Headers will be populated dynamically using JavaScript -->
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be populated dynamically using JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </main>
     </div>
 

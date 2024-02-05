@@ -866,7 +866,7 @@ function fetchEnsamble(ens) {
       console.log(`Ens: ${resultString}`);
 
       // Rest of your code...
-      document.querySelector('h1').innerHTML = `Fechas OFRN de <br>${ens}`;
+      document.querySelector('h1').innerHTML = `${ens} <br> Coordinación`;
       document.getElementById("encabezadoImprimir").textContent = `Fechas OFRN de ${ens}`;
       return resultString;
     })
