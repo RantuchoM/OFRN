@@ -643,7 +643,7 @@ async function filterData(completarDias = false) {
       data.forEach(function (value, columnIndex) {
         if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
           // Assuming data[headers[columnIndex]] contains the link
-          if (data[0] == "Día sin actividad") { }
+          if (data[0] == "Día sin actividad" || data[5] == "" || data[5].includes('#')) { row += "<td></td>"}
           else { row += '<td><a href="' + value + '" target="_blank">Drive</a></td>'; }
         } else if (columnIndex == 7) {
           if (!ensParam) {
