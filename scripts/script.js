@@ -106,16 +106,16 @@ function resumenPersonas() {
     tableHTML = '<table id="people-details-table" class="display"><thead>' +
       '<tr>' +
       '<th rowspan="2">Names</th>' +
-      '<th colspan="3">Sinf</th>' +
-      '<th colspan="3">CF</th>' +
-      '<th colspan="3">Ensambles</th>' +
-      '<th colspan="3">Totals</th>' +
+      '<th colspan="4">Sinf</th>' +
+      '<th colspan="4">CF</th>' +
+      '<th colspan="4">Ensambles</th>' +
+      '<th colspan="4">Totals</th>' +
       '</tr>' +
       '<tr>' +
-      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
-      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
-      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
-      '<th>Pres</th><th>Prog</th><th>Ens</th>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th><th>EnsGir</th>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th><th>EnsGir</th>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th><th>EnsGir</th>' +
+      '<th>Pres</th><th>Prog</th><th>Ens</th><th>EnsGir</th>' +
       '</tr>' +
       '</thead><tbody>';
   }
@@ -148,14 +148,20 @@ function resumenPersonas() {
     var countProgramasCF = countUniquePrograms(cfRows);
     var countProgramasEnsamble = countUniquePrograms(ensambleRows);
 
-    var countEnsayosSinf = countEnsayos(sinfRows);
-    var countEnsayosCF = countEnsayos(cfRows);
-    var countEnsayosEnsamble = countEnsayos(ensambleRows);
+    var countEnsayosSinf = countEnsayosSinGiras(sinfRows);
+    var countEnsayosCF = countEnsayosSinGiras(cfRows);
+    var countEnsayosEnsamble = countEnsayosSinGiras(ensambleRows);
+
+    var countEnsayosGirasSinf = countEnsayos(sinfRows) - countEnsayosSinGiras(sinfRows);
+    var countEnsayosGirasCF = countEnsayos(cfRows) - countEnsayosSinGiras(cfRows);
+    var countEnsayosGirasEns = countEnsayos(ensambleRows) - countEnsayosSinGiras(ensambleRows);
+
 
     // Total counts
     var totalCountPresentaciones = countPresentacionesSinf + countPresentacionesCF + countPresentacionesEnsamble;
     var totalCountProgramas = countProgramasSinf + countProgramasCF + countProgramasEnsamble;
     var totalCountEnsayos = countEnsayosSinf + countEnsayosCF + countEnsayosEnsamble;
+    var totalCountEnsayosSinGiras = countEnsayosGirasSinf + countEnsayosGirasCF + countEnsayosGirasEns;
 
     if (mostrarDetalleCheckbox.is(':checked')) {
       // Build details summary
@@ -211,10 +217,10 @@ function resumenPersonas() {
     } else {
       // Only show a single line in the table for each name
       tableHTML += '<tr><td>' + name +
-        '</td><td class="center">' + countPresentacionesSinf + '</td><td class="center">' + countProgramasSinf + '</td><td class="center">' + countEnsayosSinf +
-        '</td><td class="center">' + countPresentacionesCF + '</td><td class="center">' + countProgramasCF + '</td><td class="center">' + countEnsayosCF +
-        '</td><td class="center">' + countPresentacionesEnsamble + '</td><td class="center">' + countProgramasEnsamble + '</td><td class="center">' + countEnsayosEnsamble +
-        '</td><td class="center">' + totalCountPresentaciones + '</td><td class="center">' + totalCountProgramas + '</td><td class="center">' + totalCountEnsayos + '</td></tr>';
+        '</td><td class="center">' + countPresentacionesSinf + '</td><td class="center">' + countProgramasSinf + '</td><td class="center">' + countEnsayosSinf + '</td><td>' + countEnsayosGirasSinf +
+        '</td><td class="center">' + countPresentacionesCF + '</td><td class="center">' + countProgramasCF + '</td><td class="center">' + countEnsayosCF +'</td><td>' + countEnsayosGirasCF +
+        '</td><td class="center">' + countPresentacionesEnsamble + '</td><td class="center">' + countProgramasEnsamble + '</td><td class="center">' + countEnsayosEnsamble +'</td><td>' + countEnsayosGirasEns +
+        '</td><td class="center">' + totalCountPresentaciones + '</td><td class="center">' + totalCountProgramas + '</td><td class="center">' + totalCountEnsayos +'</td><td>' + totalCountEnsayosSinGiras + '</td></tr>' ;;
     }
   });
 
@@ -252,6 +258,11 @@ function resumenPersonas() {
   function countEnsayos(rows) {
     return rows ? rows.filter(function (data) {
       return data[6].startsWith('Ensayo');
+    }).length : 0;
+  }
+  function countEnsayosSinGiras(rows) {
+    return rows ? rows.filter(function (data) {
+      return data[6].startsWith('Ensayo') && !data[6].includes('de Gira');
     }).length : 0;
   }
 
@@ -556,6 +567,7 @@ async function filterData(completarDias = false) {
 
   var cantidadPresentaciones = 0;
   var cantidadEnsayos = 0;
+  var cantidadEnsGir = 0;
 
   var uniquePrograms = new Set(filteredData
     .filter(function (data) {
@@ -569,11 +581,15 @@ async function filterData(completarDias = false) {
     }));
 
   var filteredPresentaciones = filteredData.filter(function (data) {
-    var hasEnsayo = data[6].toLowerCase().includes('ensayo');
+    var hasEnsayo = data[6].toLowerCase().includes('ensayo') && !data[6].toLowerCase().includes('gira');
+    var hasEnsGir = data[6].toLowerCase().includes('ensayo' )&& data[6].toLowerCase().includes('gira');
     if (hasEnsayo) {
       cantidadEnsayos++;
     }
-    return !hasEnsayo;
+    if(hasEnsGir) {
+      cantidadEnsGir++;
+    }
+    return !hasEnsayo && !hasEnsGir;
   });
 
   cantidadPresentaciones = filteredPresentaciones.length;
@@ -600,7 +616,7 @@ async function filterData(completarDias = false) {
 
   // Update the counts in the HTML
   $('#cant-elem').text('Programas: ' + uniquePrograms.size);
-  $('#cant-pres').text(' -- Presentaciones: ' + cantidadPresentaciones + ' -- Ensayos: ' + cantidadEnsayos);
+  $('#cant-pres').text(' -- Presentaciones: ' + cantidadPresentaciones + ' -- Ensayos: ' + cantidadEnsayos +' -- Ensayos de Gira/Progr.: '+cantidadEnsGir); 
   $('#table-data').css('width', 'auto');
   const destroyResizableTable = function (table) {
     const resizers = table.querySelectorAll('.resizer');

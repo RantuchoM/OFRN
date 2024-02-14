@@ -237,9 +237,9 @@ footer nav a img {
     }
 
     td:nth-child(1),
-    td:nth-child(4),
-    td:nth-child(7),
-    td:nth-child(10) {
+    td:nth-child(5),
+    td:nth-child(9),
+    td:nth-child(13) {
       border-right: 1px solid black;
     }
 
