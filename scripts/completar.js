@@ -162,6 +162,20 @@ function createOcultarEnsayosCheckbox() {
   var buttonContainer = document.getElementById('filtros');
   buttonContainer.appendChild(label);
 }
+function createOcultarEnsGirCheckbox() {
+  var ocultarEnsayosCheckbox = document.createElement('input');
+  ocultarEnsayosCheckbox.type = 'checkbox';
+  ocultarEnsayosCheckbox.id = 'ocultarEnsGirCheckbox';
+
+  var label = document.createElement('label');
+  label.appendChild(ocultarEnsayosCheckbox);
+  label.appendChild(document.createTextNode('Ocultar Ensayos de Gira/Progr.'));
+
+  var buttonContainer = document.getElementById('filtros');
+  buttonContainer.appendChild(label);
+}
+
+
 function downloadPDF() {
   window.print();
 }
@@ -220,6 +234,7 @@ fechaDeHoy();
 // Call the function to create the "Completar Días" checkbox
 createCompletarDiasButton();
 createOcultarEnsayosCheckbox();
+createOcultarEnsGirCheckbox();
 const urlParams = new URLSearchParams(window.location.search)
 const ensParameter = urlParams.get('ens');
 if(ensParameter){createMostrarNombresCheckbox();}

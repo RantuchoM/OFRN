@@ -327,6 +327,7 @@ document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
   checkbox.addEventListener('change', function () { filterData(false); });
 });
 document.querySelector('#ocultarEnsayosCheckbox').addEventListener('change', function () { filterData(false); });
+document.querySelector('#ocultarEnsGirCheckbox').addEventListener('change', function () { filterData(false); });
 
 
 document.querySelectorAll('.filter-date').forEach(function (dateInput) {
@@ -545,6 +546,7 @@ async function filterData(completarDias = false) {
 
   // Check if "Ocultar Ensayos" checkbox is checked
   var ocultarEnsayosChecked = document.getElementById('ocultarEnsayosCheckbox').checked;
+  var ocultarEnsGirChecked = document.getElementById('ocultarEnsGirCheckbox').checked;
 
   // Filter and display rows based on checkboxes, date range, dropdown value, and filter input textboxes
   console.log(dataArray);
@@ -554,14 +556,15 @@ async function filterData(completarDias = false) {
     var columnaEnsambles = data[6];
 
     // Check if "Ocultar Ensayos" checkbox is checked and if the word "ensayo" is present in column 6
-    var ocultarEnsayosCondition = !ocultarEnsayosChecked || !columnaEnsambles.toLowerCase().includes('ensayo');
+    var ocultarEnsayosCondition = !ocultarEnsayosChecked || !columnaEnsambles.toLowerCase().includes('ensayo') || columnaEnsambles.toLowerCase().includes('gira'); 
+    var ocultarEnsGirCondition = !ocultarEnsGirChecked || !columnaEnsambles.toLowerCase().includes('gira');
 
     return (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
       (!dropdownValue || (data[7] && data[7].match(dropdownValue))) &&
       (passFilter(data, filterValues)) &&
-      ocultarEnsayosCondition
+      ocultarEnsayosCondition && ocultarEnsGirCondition
     );
   });
 
