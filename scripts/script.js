@@ -585,13 +585,14 @@ async function filterData(completarDias = false) {
 
   var filteredPresentaciones = filteredData.filter(function (data) {
     var hasEnsayo = data[6].toLowerCase().includes('ensayo') && !data[6].toLowerCase().includes('gira');
-    var hasEnsGir = data[6].toLowerCase().includes('ensayo' )&& data[6].toLowerCase().includes('gira');
-    if (hasEnsayo) {
-      cantidadEnsayos++;
-    }
+    var hasEnsGir = data[6].toLowerCase().includes('ensayo' ) && data[6].toLowerCase().includes('gira');
     if(hasEnsGir) {
       cantidadEnsGir++;
     }
+    else if (hasEnsayo) {
+      cantidadEnsayos++;
+    }
+    
     return !hasEnsayo && !hasEnsGir;
   });
 
@@ -836,7 +837,7 @@ function fetchSpreadsheetValue(nombreParam) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       console.log(doc);
-      const dataAB = extractColumnData(doc, 13); // Extract data from the 28th column (AB column)
+      const dataAB = extractColumnData(doc, 14); // Extract data from the 28th column (AB column)
       console.log(dataAB);
       // Find the corresponding value in column AB
       const index = dataAB.indexOf(nombreParam);
