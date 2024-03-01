@@ -361,6 +361,10 @@ function getData() {
 
       if (!isMobileView) {
         showData(dataArray, 12, 18);
+        
+      }
+      else{
+        toggleFiltros();
       }
       filterData(false);
       //convert the values to valid dates
@@ -762,7 +766,7 @@ async function filterData(completarDias = false) {
           let fD = longDate(nextDay);
           let dom = '';
           if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-          tbody.append('<tr style="text-align: center;"><td><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
+          tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
 
         };
       }
@@ -798,7 +802,7 @@ async function filterData(completarDias = false) {
       if (data[6].toLowerCase().includes('ensayo')) {
         row += ' style="background: linear-gradient(violet, white) content-box;"';
       }
-      else if (data[8].toLowerCase().includes('integrado')) {
+      else if (data[8].toLowerCase().includes('integr')) {
         row += ' style="background: linear-gradient(blue, white) content-box;"';
       }
       else if (data[8].includes('Present')) {
@@ -810,11 +814,11 @@ async function filterData(completarDias = false) {
       row += '<h4>' + longDate(data[1]) + ' - ' + data[2] + '</h4>';
 
       if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
-
-      if (data[8].toLowerCase().includes('integrad')) {
+      console.log(data[8].toLowerCase())
+      if (data[8].toLowerCase().startsWith('ensayo')) {
         row += '<h3>Ensayo Integrado</h3>'
       }
-      else if (data[8].toLowerCase().includes('present')) {
+      else if (data[8].toLowerCase().startsWith('present')) {
         row += '<h3>Presentación</h3>'
       }
       else {
