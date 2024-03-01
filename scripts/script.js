@@ -802,7 +802,7 @@ async function filterData(completarDias = false) {
       if (data[6].toLowerCase().includes('ensayo')) {
         row += ' style="background: linear-gradient(violet, white) content-box;"';
       }
-      else if (data[8].toLowerCase().includes('integr')) {
+      else if (data[8].toLowerCase().startsWith('ensay')) {
         row += ' style="background: linear-gradient(blue, white) content-box;"';
       }
       else if (data[8].includes('Present')) {
@@ -829,10 +829,11 @@ async function filterData(completarDias = false) {
 
       if (data[0] == "Día sin actividad" || data[5] == "" || data[5].includes('#')) { row += "" }
       else { row += '<br><a href="' + data[5] + '" target="_blank">Drive</a>'; }
+      var obs = data[8]
       if (data[8].includes('Integrado')) {
-        data[8] = data[8].replace('Ensayo Integrado:', '');
+        obs = data[8].replace('Ensayo Integrado:', '');
       }
-      if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + data[8] + '</p>' };
+      if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + obs + '</p>' };
 
       /*
       data.forEach(function (value, columnIndex) {
