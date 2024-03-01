@@ -498,6 +498,7 @@ async function filterData(completarDias = false) {
   var untilDate = $('#untilDate').val();
   var tbody = $('#table-data tbody');
   var currentMonth = null;
+  var currentDay = 0;
 
   // Clear existing rows
   tbody.empty().css('width', 'auto');
@@ -636,6 +637,8 @@ async function filterData(completarDias = false) {
   function createTable() {
     filteredData.forEach(function (data) {
       var rowMonth = new Date(data[1]).getMonth();
+
+
       if (currentMonth !== rowMonth) {
         // Insert a separator row with the name of the month
         var monthSeparatorRow = '<tr style="background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
@@ -730,17 +733,51 @@ async function filterData(completarDias = false) {
   }
 
   function createTableAsCards() {
+
     filteredData.forEach(function (data) {
       var rowMonth = new Date(data[1]).getMonth();
+      var rowDay = new Date(data[1]);
+      var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
+      function formatDate(milliseconds) {
+        const date = new Date(milliseconds);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are zero-based
+        const year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
+      }
+
+      if (diff > 1 && currentDay !== 0) {
+        //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
+        for (i = 1; i < diff; i++) {
+          let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
+          rowMonth = nextDay.getMonth();
+          if (currentMonth !== rowMonth) {
+            // Insert a separator row with the name of the month
+            var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="1">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+            tbody.append(monthSeparatorRow);
+
+          }
+          currentMonth = rowMonth; // Update the current month
+          let fD = longDate(nextDay);
+          let dom = '';
+          if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
+          tbody.append('<tr style="text-align: center;"><td><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
+
+        };
+      }
+
+      currentDay = rowDay
       if (currentMonth !== rowMonth) {
         // Insert a separator row with the name of the month
-        var monthSeparatorRow = '<tr style="width: 100%; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="1">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+        var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="1">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
         tbody.append(monthSeparatorRow);
         currentMonth = rowMonth; // Update the current month
       }
 
-      var row = '<tr style="text-align: center"';
+      var row = '<tr style="text-align: center; padding: 0px;"';
 
+      /*
       // Add background color based on the value in the first column
       var columnaEnsambles = data[0]; // Assuming the second column contains 'Ensambles'
       if (columnaEnsambles.startsWith('Sinf')) {
@@ -756,30 +793,42 @@ async function filterData(completarDias = false) {
       } else if (columnaEnsambles.startsWith('Día sin')) {
         row += ' style="background-color: #808080;"';
       }
-
-      row += '><td>';
-      let cantidadNombres;
-      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
+      */
+      row += '><td';
       if (data[6].toLowerCase().includes('ensayo')) {
-        row += '<h3';
-        if (data[6].toLowerCase().includes('gira')) {
-          row += ' style="background: orange;"';
-        }
-        row += '>' + data[6] + '</h3>'
+        row += ' style="background: linear-gradient(violet, white) content-box;"';
+      }
+      else if (data[8].toLowerCase().includes('integrado')) {
+        row += ' style="background: linear-gradient(blue, white) content-box;"';
+      }
+      else if (data[8].includes('Present')) {
+        row += ' style="background: linear-gradient(yellow, white) content-box;"';
+      }
+
+      row += '>'
+      let cantidadNombres;
+      row += '<h4>' + longDate(data[1]) + ' - ' + data[2] + '</h4>';
+
+      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
+
+      if (data[8].toLowerCase().includes('integrad')) {
+        row += '<h3>Ensayo Integrado</h3>'
       }
       else if (data[8].toLowerCase().includes('present')) {
-        row += '<h3 style="background: yellow">' + data[8] + '</h3>'
+        row += '<h3>Presentación</h3>'
       }
-      else if (data[8].toLowerCase().includes('integrad')) {
-        row += '<h3 style="background: blue">Ensayo Integrado</h3>'
+      else {
+        row += '<h3>' + data[6] + '</h3>';
       }
 
-      row += '<p>' + longDate(data[1]) + ' - ' + data[2];
-      row += '<h4>' + data[0] + '</h4>';
+      row += '<p><i>Progr:</i> ' + data[0] + '</p>';
 
       if (data[0] == "Día sin actividad" || data[5] == "" || data[5].includes('#')) { row += "" }
       else { row += '<br><a href="' + data[5] + '" target="_blank">Drive</a>'; }
-      row += '<p>'+data[8]+'</p>';
+      if (data[8].includes('Integrado')) {
+        data[8] = data[8].replace('Ensayo Integrado:', '');
+      }
+      if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + data[8] + '</p>' };
 
       /*
       data.forEach(function (value, columnIndex) {

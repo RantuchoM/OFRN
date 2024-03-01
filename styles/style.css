@@ -42,7 +42,7 @@ h1 {
 
 .table th,
 .table td {
-  padding: 0.5rem;
+  padding: 0rem;
 }
 
 .table th {
@@ -211,7 +211,7 @@ footer a {
 }
 
 a {
-  color: black
+  color: rgb(0, 0, 0)
 }
 
 header nav a:hover,
@@ -345,11 +345,13 @@ h2 {
   margin: 5px;
 }
 
+
+
 #table-data th,
 #table-data td {
   border: 1px solid #808080;
   /*text-align: left;*/
-  padding: 8px;
+  padding: 10px 0px;
 }
 
 #table-data th {
@@ -374,34 +376,37 @@ summary {
   display: none;
 }
 
-/* Media query for mobile devices */
-@media only screen and (max-width: 600px) {
-  body {
-    margin: 0;
-    padding: 0;
 
-    display: flex;
-    flex-direction: column;
-
-  }
-
-}
 h3 {
   font-size: 2em;
+  word-wrap: break-word;
+
 }
+
+td * {
+  line-height: 1;
+  margin: 0.4em;
+}
+
 td a {
-  font-size: 1.3em;
+  font-size: 1em;
   box-sizing: border-box;
   background-color: lightblue;
-  padding: 10px 20px;
-  margin: 5px;
+  padding: 5px 10px;
+  margin: 1px;
 }
+
 h4 {
-  font-size: 1.6em;
+  font-size: 1.2em;
+  font-style: normal;
+  font-weight: normal;
 }
+
 p {
-  font-size: 1.4em;
+  font-size: 1em;
+  padding: 0.3em;
 }
+
 @media print {
   body * {
     visibility: hidden;
@@ -460,4 +465,22 @@ p {
     font-size: 12px;
   }
 
+}
+
+
+/* Media query for mobile devices */
+@media only screen and (max-width: 600px) {
+  body {
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+
+  }
+
+  .ensemble-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
