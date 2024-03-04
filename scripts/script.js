@@ -346,18 +346,18 @@ function getData() {
       range: 'Listado!E:M',
     }).then(response => {
       const values = response.result.values;
-      console.log(values);
+      //console.log(values);
       dataArray = extractData(values);
       headers = dataArray[0];
       dataArray.shift();
       dataArray = dataArray.filter(row => row[0].length > 1);
-      console.log("Última fila: " + dataArray[dataArray.length - 1][0])
+      //console.log("Última fila: " + dataArray[dataArray.length - 1][0])
       for (i = 0; i < dataArray.length; i++) {
         var dateParts = dataArray[i][1].split("/");
         var formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
         dataArray[i][1] = new Date(formattedDate + 'T00:00')
       }
-      console.log(dataArray)
+      //console.log(dataArray)
 
       if (!isMobileView) {
         showData(dataArray, 12, 18);
@@ -1094,7 +1094,7 @@ function fetchEnsamble(ens) {
       const filteredMiembros = miembros.filter((miembro, index) => ensambles[index].includes(ens));
       console.log(filteredMiembros);
       // Create a string by joining the values of filteredMiembros with "|"
-      const resultString = `/${filteredMiembros.join('|')}/`;
+      const resultString = `${filteredMiembros.join('|')}`;
 
       // Use resultString for further processing or display
       console.log(`Ens: ${resultString}`);
