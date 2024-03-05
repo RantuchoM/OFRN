@@ -808,30 +808,34 @@ async function filterData(completarDias = false) {
       else {
         row += '<h3>' + data[6] + '</h3>';
       }
-      var progrs = data[0].split(' ♪ ');
-      var programColored = "";
-      // Process each value separately
-      for (var i = 0; i < progrs.length; i++) {
-        var backgroundColor;
+      if (data[0] != "Sin programa asign.") {
+        var progrs = data[0].split(' ♪ ');
+        var drives = data[5].split(' ♪ ');
+        var programColored = "";
+        // Process each value separately
+        for (var i = 0; i < progrs.length; i++) {
+          var backgroundColor;
 
-        if (progrs[i].startsWith('Sinf')) {
-          backgroundColor = '#5f51db';
-        } else if (progrs[i].startsWith('CFVal')) {
-          backgroundColor = '#E1C16E';
-        } else if (progrs[i].startsWith('CFMon')) {
-          backgroundColor = '#A8A8A8';
-        } else if (progrs[i].startsWith('CFMar')) {
-          backgroundColor = '#89CFF0';
-        } else if (progrs[i].startsWith('CFCuer')) {
-          backgroundColor = '#ffccff';
-        } else {
-          backgroundColor = 'lightgray';
+          if (progrs[i].startsWith('Sinf')) {
+            backgroundColor = '#5f51db';
+          } else if (progrs[i].startsWith('CFVal')) {
+            backgroundColor = '#E1C16E';
+          } else if (progrs[i].startsWith('CFMon')) {
+            backgroundColor = '#A8A8A8';
+          } else if (progrs[i].startsWith('CFMar')) {
+            backgroundColor = '#89CFF0';
+          } else if (progrs[i].startsWith('CFCuer')) {
+            backgroundColor = '#ffccff';
+          } else {
+            backgroundColor = 'lightgray';
+          }
+
+          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>';
+
         }
-
-        programColored += '<span style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </span>';
-       
+        row += '<p style="line-height: 2  "><i>Progr:</i> ' + programColored + '</p>';
       }
-      row += '<p><i>Progr:</i> ' + programColored + '</p>';
+      else {row+= '<p>Sin programa asign.</p>'}
       /*
       var programColored;
       var backgroundColor;
@@ -847,8 +851,6 @@ async function filterData(completarDias = false) {
       programColored = '<span style="background: ' + backgroundColor + '">' + data[0] + '</span>'
       row += '<p><i>Progr:</i> ' + programColored + '</p>';
 */
-      if (data[0] == "Día sin actividad" || data[5] == "" || data[5].includes('#')) { row += "" }
-      else { row += '<br><a href="' + data[5] + '" target="_blank">Drive</a>'; }
       var obs = data[8]
       if (data[8].includes('Integrado')) {
         obs = data[8].replace('Ensayo Integrado:', '');
