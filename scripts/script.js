@@ -808,7 +808,7 @@ async function filterData(completarDias = false) {
       else {
         row += '<h3>' + data[6] + '</h3>';
       }
-      if (data[0] != "Sin programa asign.") {
+      if (data[0] != "Sin programa asignado") {
         var progrs = data[0].split(' ♪ ');
         var drives = data[5].split(' ♪ ');
         var programColored = "";
@@ -827,7 +827,7 @@ async function filterData(completarDias = false) {
           } else if (progrs[i].startsWith('CFCuer')) {
             backgroundColor = '#ffccff';
           } else {
-            backgroundColor = 'lightgray';
+            backgroundColor = '#baee29';
           }
 
           programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>';
@@ -835,7 +835,7 @@ async function filterData(completarDias = false) {
         }
         row += '<p style="line-height: 2  "><i>Progr:</i> ' + programColored + '</p>';
       }
-      else {row+= '<p>Sin programa asign.</p>'}
+      else {row+= '<p>Sin programa asignado</p>'}
       /*
       var programColored;
       var backgroundColor;
@@ -855,7 +855,8 @@ async function filterData(completarDias = false) {
       if (data[8].includes('Integrado')) {
         obs = data[8].replace('Ensayo Integrado:', '');
       }
-      if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + obs + '</p>' };
+      if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + obs + '</p>' }
+      else{row += '<p>Partic: '+data[6]+'</p>'};
       if (ensParam) {
         const namesArray = data[7].split('|');
         let namesString = ""
