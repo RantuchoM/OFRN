@@ -361,9 +361,9 @@ function getData() {
 
       if (!isMobileView) {
         showData(dataArray, 12, 18);
-        
+
       }
-      else{
+      else {
         toggleFiltros();
       }
       filterData(false);
@@ -781,23 +781,7 @@ async function filterData(completarDias = false) {
 
       var row = '<tr style="text-align: center; padding: 0px;"';
 
-      /*
-      // Add background color based on the value in the first column
-      var columnaEnsambles = data[0]; // Assuming the second column contains 'Ensambles'
-      if (columnaEnsambles.startsWith('Sinf')) {
-        row += ' style="background-color: #dabcff;"';
-      } else if (columnaEnsambles.startsWith('CFVal')) {
-        row += ' style="background-color: #E1C16E;"';
-      } else if (columnaEnsambles.startsWith('CFMon')) {
-        row += ' style="background-color: #A8A8A8;"';
-      } else if (columnaEnsambles.startsWith('CFMar')) {
-        row += ' style="background-color: #89CFF0;"';
-      } else if (columnaEnsambles.startsWith('CFCuer')) {
-        row += ' style="background-color: #ffccff;"';
-      } else if (columnaEnsambles.startsWith('Día sin')) {
-        row += ' style="background-color: #808080;"';
-      }
-      */
+
       row += '><td';
       if (data[6].toLowerCase().includes('ensayo')) {
         row += ' style="background: linear-gradient(violet, white) content-box;"';
@@ -814,7 +798,7 @@ async function filterData(completarDias = false) {
       row += '<h4>' + longDate(data[1]) + ' - ' + data[2] + '</h4>';
 
       if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
-      console.log(data[8].toLowerCase())
+      //console.log(data[8].toLowerCase())
       if (data[8].toLowerCase().startsWith('ensayo')) {
         row += '<h3>Ensayo Integrado</h3>'
       }
@@ -824,9 +808,45 @@ async function filterData(completarDias = false) {
       else {
         row += '<h3>' + data[6] + '</h3>';
       }
+      var progrs = data[0].split(' ♪ ');
+      var programColored = "";
+      // Process each value separately
+      for (var i = 0; i < progrs.length; i++) {
+        var backgroundColor;
 
-      row += '<p><i>Progr:</i> ' + data[0] + '</p>';
+        if (progrs[i].startsWith('Sinf')) {
+          backgroundColor = '#5f51db';
+        } else if (progrs[i].startsWith('CFVal')) {
+          backgroundColor = '#E1C16E';
+        } else if (progrs[i].startsWith('CFMon')) {
+          backgroundColor = '#A8A8A8';
+        } else if (progrs[i].startsWith('CFMar')) {
+          backgroundColor = '#89CFF0';
+        } else if (progrs[i].startsWith('CFCuer')) {
+          backgroundColor = '#ffccff';
+        } else {
+          backgroundColor = 'lightgray';
+        }
 
+        programColored += '<span style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </span>';
+       
+      }
+      row += '<p><i>Progr:</i> ' + programColored + '</p>';
+      /*
+      var programColored;
+      var backgroundColor;
+
+      if (data[0].startsWith('Sinf')) { backgroundColor = '#5f51db' }
+      else if (data[0].startsWith('CFVal')) { backgroundColor = '#E1C16E' }
+      else if (data[0].startsWith('CFMon')) { backgroundColor = '#A8A8A8' }
+      else if (data[0].startsWith('CFMar')) { backgroundColor = '#89CFF0' }
+      else if (data[0].startsWith('CFCuer')) { backgroundColor = '#ffccff' }
+      else { backgroundColor = 'lightgray' }
+
+
+      programColored = '<span style="background: ' + backgroundColor + '">' + data[0] + '</span>'
+      row += '<p><i>Progr:</i> ' + programColored + '</p>';
+*/
       if (data[0] == "Día sin actividad" || data[5] == "" || data[5].includes('#')) { row += "" }
       else { row += '<br><a href="' + data[5] + '" target="_blank">Drive</a>'; }
       var obs = data[8]
@@ -834,78 +854,36 @@ async function filterData(completarDias = false) {
         obs = data[8].replace('Ensayo Integrado:', '');
       }
       if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + obs + '</p>' };
+      if (ensParam) {
+        const namesArray = data[7].split('|');
+        let namesString = ""
+        // Filter the names based on the matching names in dropdownValue
+        let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
+        if (cantidadNombres.length == filteredNames.length) {
 
-      /*
-      data.forEach(function (value, columnIndex) {
-        if (columnIndex === 0) {
-          row += '<h3>' + value + '</h3>';
-        }
-        else if (columnIndex == 1) {
-          if (longDate(value).charAt(0) == "D") {
-            row += '<p class = "domingo">' + longDate(value) + '</p>'
-          }
-          else {
-            row += '<p>' + longDate(value);
-          }
-        }
-        else if(columnIndex == 2) {
-          row += ' ' + value + '</p>'
-        }
-
-
-        else if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-          // Assuming data[headers[columnIndex]] contains the link
-          if (data[0] == "Día sin actividad" || data[5] == "" || data[5].includes('#')) { row += "" }
-          else { row += '<a href="' + value + '" target="_blank">Drive</a>'; }
-        }
-        else if (columnIndex == 6) {
-          row += '<p';
-          if (value.toLowerCase().includes('ensayo')) {
-            row += ' style="background-color: #0000FF; color: #FFFFFF;"'; // Apply blue background for 'Ensayo' with white text
-          }
-          else if (value == 'Sinf, Cuerdas, Maderas, Bronces, Percusión' || value == 'Sinf, Cuerdas, Percusión, Bronces, Maderas') {
-            value = "Orquesta Completa";
-          }
-          // Add the content of the cell
-          row += '>' + value + '</p>';
-        }
-        else if (columnIndex == 7) {
-          if (!ensParam) {
-            // Do not show names
-          } else {
-            // Split the value string into an array of names
-            const namesArray = value.split('|');
-            let namesString = ""
-            // Filter the names based on the matching names in dropdownValue
-            let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
-            if (cantidadNombres.length == filteredNames.length) {
-
-              namesString = `${ensParam} Completo`;
-            }
-            else {
-              var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
-              // Shorten each name to the first two characters of each word (initials) plus one additional letter
-              if (nombresCompletosChecked) { }
-              else {
-                filteredNames = filteredNames.map(name => {
-                  const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
-
-                  return initials;
-                });
-              }
-
-              // Join the shortened names back into a string with "|" separator
-              namesString = filteredNames.join('-');
-            }
-
-            // Add the shortened names to the row
-            row += '<p>' + namesString + '</p>';
-          }
+          namesString = `${ensParam} Completo`;
         }
         else {
-          row += '<p>' + value + '</p>';
+          var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
+          /*// Shorten each name to the first two characters of each word (initials) plus one additional letter
+          if (nombresCompletosChecked) { }
+          else {
+            filteredNames = filteredNames.map(name => {
+              const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
+
+              return initials;
+            });
+          }*/
+
+          // Join the shortened names back into a string with "|" separator
+          namesString = filteredNames.join('-');
         }
-      })*/
+
+        // Add the shortened names to the row
+        row += '<p>' + namesString + '</p>';
+      }
+
+
       row += '</td></tr>';
       tbody.append(row);
     });
