@@ -467,25 +467,41 @@ p {
 
 }
 
+/* Styles for floating filters */
+.floating-filtros {
+  position: fixed;
+  top: 200px; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 9999; /* Ensure it's above other content */
+  display: none; /* Initially hide */
+}
 
+.floating-filtros.show {
+  display: block; /* Show when toggled */
+}
 /* Media query for mobile devices */
-@media only screen and (max-width: 600px) {
+@media only screen  {
   body {
-    margin: 0;
+    margin: auto;
     padding: 0;
-
     display: flex;
     flex-direction: column;
-
   }
 
-  .ensemble-grid {
+  /* Adjust ensemble grid within floating filters */
+  .floating-filtros .ensemble-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
 
-  #filtros {
+  /* Adjust filters within floating filters */
+  .floating-filtros #filtros {
     display: flex;
     flex-direction: column;
   }
 }
+

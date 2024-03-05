@@ -364,7 +364,7 @@ function getData() {
 
       }
       else {
-        toggleFiltros();
+        //toggleFiltros();
       }
       filterData(false);
       //convert the values to valid dates
@@ -1204,14 +1204,11 @@ function uncheckAll() {
   });
   filterData();
 }
+
+
 function toggleFiltros() {
-  const filtros = document.getElementById('filtros');
-  filtros.classList.toggle('mobile-minimized');
-  const checkboxes = document.getElementById('ensembleCheckboxes');
-  checkboxes.classList.toggle('mobile-minimized');
-  const toggle = document.getElementById('toggleFiltros');
-  if (toggle.textContent == '⇓') { toggle.textContent = '⇑' }
-  else { toggle.textContent = '⇓' }
+  const floatingFiltros = document.getElementById('floatingFiltros');
+  floatingFiltros.classList.toggle('show');
 }
 document.addEventListener('DOMContentLoaded', loadClient);
 
