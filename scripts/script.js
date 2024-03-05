@@ -371,24 +371,39 @@ function getData() {
       let isDragging = false;
 
       floatingFiltros.addEventListener('mousedown', startDragging);
+      floatingFiltros.addEventListener('touchstart', startDragging);
       document.addEventListener('mousemove', drag);
+      document.addEventListener('touchmove', drag);
       document.addEventListener('mouseup', stopDragging);
+      document.addEventListener('touchend', stopDragging);
 
       function startDragging(event) {
+        if (event.type === 'mousedown') {
+          offsetX = event.clientX - floatingFiltros.getBoundingClientRect().left;
+          offsetY = event.clientY - floatingFiltros.getBoundingClientRect().top;
+        } else if (event.type === 'touchstart') {
+          offsetX = event.touches[0].clientX - floatingFiltros.getBoundingClientRect().left;
+          offsetY = event.touches[0].clientY - floatingFiltros.getBoundingClientRect().top;
+        }
+
         isDragging = true;
-        offsetX = event.clientX - floatingFiltros.getBoundingClientRect().left;
-        offsetY = event.clientY - floatingFiltros.getBoundingClientRect().top;
       }
 
       function drag(event) {
-        if (isDragging) {
-          let x = event.clientX - offsetX;
-          let y = event.clientY - offsetY;
+        event.preventDefault();
 
-          // Ensure the panel stays within the viewport
-          let boundingRect = floatingFiltros.getBoundingClientRect();
-          let maxX = window.innerWidth - boundingRect.width;
-          let maxY = window.innerHeight - boundingRect.height;
+        if (isDragging) {
+          let x, y;
+          if (event.type === 'mousemove') {
+            x = event.clientX - offsetX;
+            y = event.clientY - offsetY;
+          } else if (event.type === 'touchmove') {
+            x = event.touches[0].clientX - offsetX;
+            y = event.touches[0].clientY - offsetY;
+          }
+
+          let maxX = window.innerWidth - floatingFiltros.offsetWidth;
+          let maxY = window.innerHeight - floatingFiltros.offsetHeight;
           x = Math.min(Math.max(x, 0), maxX);
           y = Math.min(Math.max(y, 0), maxY);
 
@@ -400,6 +415,7 @@ function getData() {
       function stopDragging() {
         isDragging = false;
       }
+
 
 
       filterData(false);
