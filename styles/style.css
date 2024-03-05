@@ -472,8 +472,8 @@ p {
   position: fixed;
   top: 30%; /* Center vertically */
   left: 30%; /* Center horizontally */
-  width: 450px;
-  height: 700px;
+  width: 410px;
+  height: 600px;
   background-color: white;
   border: 1px solid #ccc;
   padding: 10px;
@@ -502,7 +502,7 @@ p {
   /* Adjust ensemble grid within floating filters */
   .floating-filtros .ensemble-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   /* Adjust filters within floating filters */
