@@ -470,15 +470,18 @@ p {
 /* Styles for floating filters */
 .floating-filtros {
   position: fixed;
-  top: 200px; /* Center vertically */
-  left: 50%; /* Center horizontally */
+  top: 30%; /* Center vertically */
+  left: 30%; /* Center horizontally */
+  
   background-color: white;
   border: 1px solid #ccc;
   padding: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   z-index: 9999; /* Ensure it's above other content */
   display: none; /* Initially hide */
+  cursor: grab; /* Set cursor to indicate draggable */
 }
+
 
 .floating-filtros.show {
   display: block; /* Show when toggled */

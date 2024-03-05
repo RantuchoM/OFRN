@@ -366,6 +366,42 @@ function getData() {
       else {
         //toggleFiltros();
       }
+      let floatingFiltros = document.getElementById('floatingFiltros');
+      let offsetX, offsetY;
+      let isDragging = false;
+
+      floatingFiltros.addEventListener('mousedown', startDragging);
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', stopDragging);
+
+      function startDragging(event) {
+        isDragging = true;
+        offsetX = event.clientX - floatingFiltros.getBoundingClientRect().left;
+        offsetY = event.clientY - floatingFiltros.getBoundingClientRect().top;
+      }
+
+      function drag(event) {
+        if (isDragging) {
+          let x = event.clientX - offsetX;
+          let y = event.clientY - offsetY;
+
+          // Ensure the panel stays within the viewport
+          let boundingRect = floatingFiltros.getBoundingClientRect();
+          let maxX = window.innerWidth - boundingRect.width;
+          let maxY = window.innerHeight - boundingRect.height;
+          x = Math.min(Math.max(x, 0), maxX);
+          y = Math.min(Math.max(y, 0), maxY);
+
+          floatingFiltros.style.left = x + 'px';
+          floatingFiltros.style.top = y + 'px';
+        }
+      }
+
+      function stopDragging() {
+        isDragging = false;
+      }
+
+
       filterData(false);
       //convert the values to valid dates
       function isMobileView() {
@@ -835,7 +871,7 @@ async function filterData(completarDias = false) {
         }
         row += '<p style="line-height: 2  "><i>Progr:</i> ' + programColored + '</p>';
       }
-      else {row+= '<p>Sin programa asignado</p>'}
+      else { row += '<p>Sin programa asignado</p>' }
       /*
       var programColored;
       var backgroundColor;
@@ -856,7 +892,7 @@ async function filterData(completarDias = false) {
         obs = data[8].replace('Ensayo Integrado:', '');
       }
       if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + obs + '</p>' }
-      else{row += '<p>Partic: '+data[6]+'</p>'};
+      else { row += '<p>Partic: ' + data[6] + '</p>' };
       if (ensParam) {
         const namesArray = data[7].split('|');
         let namesString = ""
