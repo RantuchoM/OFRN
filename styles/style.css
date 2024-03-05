@@ -472,7 +472,8 @@ p {
   position: fixed;
   top: 30%; /* Center vertically */
   left: 30%; /* Center horizontally */
-  
+  width: 450px;
+  height: 700px;
   background-color: white;
   border: 1px solid #ccc;
   padding: 10px;
@@ -480,6 +481,9 @@ p {
   z-index: 9999; /* Ensure it's above other content */
   display: none; /* Initially hide */
   cursor: grab; /* Set cursor to indicate draggable */
+  touch-action: none; /* Disable default touch behavior */
+
+  
 }
 
 
