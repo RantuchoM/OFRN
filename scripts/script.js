@@ -350,8 +350,8 @@ function getData() {
       dataArray = extractData(values);
       headers = dataArray[0];
       dataArray.shift();
-      
-      dataArray = dataArray.filter(row => row[0].length > 1);
+      console.log(dataArray);
+      dataArray = dataArray.filter(row => row[0] != undefined);
       //console.log("Última fila: " + dataArray[dataArray.length - 1][0])
       for (i = 0; i < dataArray.length; i++) {
         var dateParts = dataArray[i][1].split("/");
