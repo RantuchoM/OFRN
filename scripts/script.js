@@ -343,13 +343,14 @@ function getData() {
   return new Promise((resolve, reject) => {
     gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: '1l4t9hnGrJhpxWii8WbqxO9yWd_oOLaxx3BT8oxGFHFw',
-      range: 'Listado!E:M',
+      range: 'Listado!E:O',
     }).then(response => {
       const values = response.result.values;
       //console.log(values);
       dataArray = extractData(values);
       headers = dataArray[0];
       dataArray.shift();
+      
       dataArray = dataArray.filter(row => row[0].length > 1);
       //console.log("Última fila: " + dataArray[dataArray.length - 1][0])
       for (i = 0; i < dataArray.length; i++) {
@@ -359,7 +360,7 @@ function getData() {
       }
       //console.log(dataArray)
 
-      if (!isMobileView) {
+      if (!isMobileView()) {
         showData(dataArray, 12, 18);
 
       }
@@ -427,6 +428,7 @@ function getData() {
       resolve(dataArray);
     }).catch(error => {
       console.error('Error fetching data:', error);
+      document.getElementById('table-data').innerHTML = '<p style="color: red; text-align: center">No funciona Google en este momento</p>'
       reject(error);
     });
 
@@ -615,6 +617,9 @@ async function filterData(completarDias = false) {
 
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
     var columnaEnsambles = data[6];
+    var esCancelado = false;
+
+    if (data.length > 10) { esCancelado = data[10].toLowerCase().match('cancelado') };
 
     // Check if "Ocultar Ensayos" checkbox is checked and if the word "ensayo" is present in column 6
     var ocultarEnsayosCondition = !ocultarEnsayosChecked || !columnaEnsambles.toLowerCase().includes('ensayo') || columnaEnsambles.toLowerCase().includes('gira');
@@ -624,6 +629,7 @@ async function filterData(completarDias = false) {
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
       (!dropdownValue || (data[7] && data[7].match(dropdownValue))) &&
+      !esCancelado &&
       (passFilter(data, filterValues)) &&
       ocultarEnsayosCondition && ocultarEnsGirCondition
     );
@@ -846,8 +852,41 @@ async function filterData(completarDias = false) {
       }
 
       row += '>'
-      let cantidadNombres;
-      row += '<h4>' + longDate(data[1]) + ' - ' + data[2] + '</h4>';
+      let estado;
+      let estadoColor = '';
+
+      if (data[10] == undefined || !esCoordEns) {
+        estado = '';
+      } else {
+        switch (data[10]) {
+          case 'REVISAR':
+            estadoColor = 'red';
+            break;
+          case 'Auto-gestionado':
+            estadoColor = 'blue';
+            break;
+          case 'Confirmado':
+            estadoColor = 'green';
+            break;
+          case 'CANCELADO':
+            estadoColor = 'purple';
+            break;
+          case 'Pedido':
+            estadoColor = 'yellow';
+            break;
+          case 'Estimado':
+            estadoColor = 'orange';
+            break;
+          default:
+            estadoColor = '';
+        }
+
+        estado = estadoColor
+          ? ' - <span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
+          : '<span>' + data[10] + '</span>';
+      }
+
+      row += '<h4>' + longDate(data[1]) + ' - ' + data[2] + estado + '</h4>';
 
       if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
       //console.log(data[8].toLowerCase())
