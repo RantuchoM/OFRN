@@ -21,7 +21,7 @@ function initClient() {
     discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
   }).then(() => {
     // Call the function to fetch data
-    getData().then(() => {
+    getDataFromTextFile().then(() => {
       // Now that the data is loaded, call the function to get names
       getNames();
       getNamesWithMus();
@@ -337,7 +337,175 @@ document.querySelector('#completarDiasButton').addEventListener('click', functio
   filterData(true);
 });
 //people = getDropdownData();
+function getDataFromTextFile() {
+  // Replace with the actual URL of your "/backup.txt" file
+  var txtFileUrl = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup.txt';
 
+  return fetch(txtFileUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch text file');
+      }
+      return response.text();
+    })
+    .then(base64Text => {
+      dataArray = decodeAndRevertText(base64Text);
+
+      // Split the text into an array based on the specified delimiter ("/")
+      //dataArray = decodedAndRevertedText.split('/');
+
+      // Split each data entry based on the reversed characters ("=/")
+      //dataArray = dataArray.map(data => data.split('=/'));
+
+      //console.log(dataArray);
+      //return dataArray;
+
+      headers = dataArray[0];
+      dataArray.shift();
+      console.log(dataArray);
+      dataArray = dataArray.filter(row => row[0] != undefined);
+      //console.log("Última fila: " + dataArray[dataArray.length - 1][0])
+      for (i = 0; i < dataArray.length; i++) {
+        //var dateParts = dataArray[i][1].split("/");
+        //var formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+        dataArray[i][1] = new Date(dataArray[i][1])
+        var inputString = dataArray[i][2];
+        if (inputString.includes('Sat')) {
+          // Parse the date using Date constructor
+          const date = new Date(inputString);
+
+          // Extract hours and minutes
+          var hours = date.getHours();
+          const minutes = (date.getMinutes()+1)%60;
+          if(minutes == 0) {hours = (hours +1) %24 }
+
+          // Format the time as HH:mm
+          const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+          dataArray[i][2] = formattedTime;
+        }
+      }
+      console.log(dataArray)
+
+      if (!isMobileView()) {
+        showData(dataArray, 12, 18);
+
+      }
+      else {
+        //toggleFiltros();
+      }
+      let floatingFiltros = document.getElementById('floatingFiltros');
+      let offsetX, offsetY;
+      let isDragging = false;
+
+      floatingFiltros.addEventListener('mousedown', startDragging);
+      floatingFiltros.addEventListener('touchstart', startDragging);
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('touchmove', drag);
+      document.addEventListener('mouseup', stopDragging);
+      document.addEventListener('touchend', stopDragging);
+
+      function startDragging(event) {
+        if (event.type === 'mousedown') {
+          offsetX = event.clientX - floatingFiltros.getBoundingClientRect().left;
+          offsetY = event.clientY - floatingFiltros.getBoundingClientRect().top;
+        } else if (event.type === 'touchstart') {
+          offsetX = event.touches[0].clientX - floatingFiltros.getBoundingClientRect().left;
+          offsetY = event.touches[0].clientY - floatingFiltros.getBoundingClientRect().top;
+        }
+
+        isDragging = true;
+      }
+
+      function drag(event) {
+        event.preventDefault();
+
+        if (isDragging) {
+          let x, y;
+          if (event.type === 'mousemove') {
+            x = event.clientX - offsetX;
+            y = event.clientY - offsetY;
+          } else if (event.type === 'touchmove') {
+            x = event.touches[0].clientX - offsetX;
+            y = event.touches[0].clientY - offsetY;
+          }
+
+          let maxX = window.innerWidth - floatingFiltros.offsetWidth;
+          let maxY = window.innerHeight - floatingFiltros.offsetHeight;
+          x = Math.min(Math.max(x, 0), maxX);
+          y = Math.min(Math.max(y, 0), maxY);
+
+          floatingFiltros.style.left = x + 'px';
+          floatingFiltros.style.top = y + 'px';
+        }
+      }
+
+      function stopDragging() {
+        isDragging = false;
+      }
+
+
+
+      filterData(false);
+      //convert the values to valid dates
+      function isMobileView() {
+        // You can adjust the breakpoint value as needed
+        return window.innerWidth <= 768; // Example: consider screen width <= 768px as mobile view
+      }
+      //resolve(dataArray);
+
+
+    });
+}
+
+getDataFromTextFile();
+// Function to decode Base64 encoded text and revert accent replacements
+function decodeAndRevertText(base64Text) {
+  // Add padding to the Base64 text if needed
+  /*while (base64Text.length % 4) {
+    base64Text += '=';
+  }
+
+  // Decode Base64
+  var decodedText = atob(base64Text.replace(/-/g, '+').replace(/_/g, '/'));*/
+
+  // Reverse the replacement of accented vowels
+  var revertedText = revertAccentedVowels(base64Text);
+
+  // Split the text into an array based on the specified delimiter ("/")
+  var dataArray = revertedText.split('=/');
+  console.log(dataArray.length);
+
+  // Split each data entry based on the reversed characters ("=/")
+  dataArray = dataArray.map(data => data.split('+/'));
+
+  console.log(dataArray);
+  return dataArray;
+}
+
+// Function to revert the replacement of accented vowels
+function revertAccentedVowels(text) {
+  // Define a mapping of non-accented counterparts to their accented vowels
+  var nonAccentedToAccentedMap = {
+    '//a': 'á',
+    '//e': 'é',
+    '//i': 'í',
+    '//o': 'ó',
+    '//u': 'ú',
+    '//A': 'Á',
+    '//E': 'É',
+    '//I': 'Í',
+    '//O': 'Ó',
+    '//U': 'Ú',
+  };
+
+  // Use a regular expression to replace non-accented counterparts with their accented vowels
+  var revertedText = text.replace(/\/\/[aeiouAEIOU]/g, function (match) {
+    return nonAccentedToAccentedMap[match];
+  });
+
+  return revertedText;
+}
 // Function to fetch data from Google Sheets
 function getData() {
   return new Promise((resolve, reject) => {
@@ -350,7 +518,7 @@ function getData() {
       dataArray = extractData(values);
       headers = dataArray[0];
       dataArray.shift();
-      console.log(dataArray);
+      //console.log(dataArray);
       dataArray = dataArray.filter(row => row[0] != undefined);
       //console.log("Última fila: " + dataArray[dataArray.length - 1][0])
       for (i = 0; i < dataArray.length; i++) {
@@ -545,6 +713,7 @@ function showData(data, startColumn, endColumn) {
 async function filterData(completarDias = false) {
   // Ensure headers and dataArray are defined
   if (!headers || !dataArray) {
+    console.log("No headers or dataArray defined")
     return;
   }
 
@@ -634,6 +803,7 @@ async function filterData(completarDias = false) {
       ocultarEnsayosCondition && ocultarEnsGirCondition
     );
   });
+  console.log(filteredData)
 
   var cantidadPresentaciones = 0;
   var cantidadEnsayos = 0;
@@ -882,12 +1052,12 @@ async function filterData(completarDias = false) {
         }
 
         estado = estadoColor
-          ? ' - <span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
+          ? '<span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
           : '<span>' + data[10] + '</span>';
       }
 
-      row += '<h4>' + longDate(data[1]) + ' - ' + data[2] + estado + '</h4>';
-
+      row += '<h4>' + [longDate(data[1]),data[2],estado].filter(Boolean).join(" - ")+ '</h4>';
+      row += '<p>'+ [data[3], data[4]].filter(Boolean).join(' - ')+ '</p>';
       if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
       //console.log(data[8].toLowerCase())
       if (data[8].toLowerCase().startsWith('ensayo')) {
