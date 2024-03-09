@@ -376,8 +376,8 @@ function getDataFromTextFile() {
 
           // Extract hours and minutes
           var hours = date.getHours();
-          const minutes = (date.getMinutes()+1)%60;
-          if(minutes == 0) {hours = (hours +1) %24 }
+          const minutes = (date.getMinutes() + 1) % 60;
+          if (minutes == 0) { hours = (hours + 1) % 24 }
 
           // Format the time as HH:mm
           const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
@@ -387,13 +387,7 @@ function getDataFromTextFile() {
       }
       console.log(dataArray)
 
-      if (!isMobileView()) {
-        showData(dataArray, 12, 18);
 
-      }
-      else {
-        //toggleFiltros();
-      }
       let floatingFiltros = document.getElementById('floatingFiltros');
       let offsetX, offsetY;
       let isDragging = false;
@@ -448,17 +442,27 @@ function getDataFromTextFile() {
 
       filterData(false);
       //convert the values to valid dates
+
+      //resolve(dataArray);
+
+
+    }).then(d => {
+      if (!isMobileView()) {
+        showData(dataArray, 12, 18);
+
+      }
+      else {
+        //toggleFiltros();
+      }
       function isMobileView() {
         // You can adjust the breakpoint value as needed
         return window.innerWidth <= 768; // Example: consider screen width <= 768px as mobile view
       }
-      //resolve(dataArray);
-
-
-    });
+    }
+    );
 }
 
-getDataFromTextFile();
+//getDataFromTextFile();
 // Function to decode Base64 encoded text and revert accent replacements
 function decodeAndRevertText(base64Text) {
   // Add padding to the Base64 text if needed
@@ -638,6 +642,22 @@ function showData(data, startColumn, endColumn) {
   // Dynamically populate the table header
   var thead = $('#table-data thead');
   var headerRowHTML = '<tr>';
+  var order = [0, 1, 2, 3, 4,8,6,9,7]
+
+  for (o = 0; o < order.length; o++) {
+    headerRowHTML += '<th style="padding: 10px">' + headers[order[o]] + '</th>';
+  }
+  headerRowHTML += '</tr>';
+  thead.append(headerRowHTML);
+  var inputRowHTML = '<tr id="filtros-texto">';
+  for (o = 0; o < order.length; o++) {
+    var tbody = $('#table-data tbody');
+    inputRowHTML += '<td class="tooltip"><input type="text" class="filter-input" data-column="' + headers[order[o]] + '" style="width: 80%"><div class="tooltiptext">Escribí los valores que quieras que aparezcan en esta columna, separados por guiones</div></td>';
+
+  }
+  inputRowHTML += '</tr>';
+  thead.append(inputRowHTML);
+  /*
   headers.forEach(function (header) {
     if (header == "Nombres" && !ensParam) { }
     else {
@@ -655,28 +675,30 @@ function showData(data, startColumn, endColumn) {
       inputRowHTML += '<td class="tooltip"><input type="text" class="filter-input" data-column="' + header + '"><div class="tooltiptext">Escribí los valores que quieras que aparezcan en esta columna, separados por guiones</div></td>';
     }
   });
-  inputRowHTML += '</tr>';
-  thead.append(inputRowHTML);
+  inputRowHTML += '</tr>';*/
+
 
   // Dynamically populate the table data
+  /*
+    for (let i = 1; i < data.length; i++) {
+      const rowData = data[i].slice(startColumn - 1, endColumn);
+      var rowHTML = '<tr>';
+  
+      rowData.forEach(function (value, columnIndex) {
+  
+        if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
+          // Assuming data[headers[columnIndex]] contains the link
+          rowHTML += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
+        } else {
+          rowHTML += '<td>' + value + '</td>';
+        }
+      });
+  
+      rowHTML += '</tr>';
+  
+      tbody.append(rowHTML);
+      */
 
-  for (let i = 1; i < data.length; i++) {
-    const rowData = data[i].slice(startColumn - 1, endColumn);
-    var rowHTML = '<tr>';
-
-    rowData.forEach(function (value, columnIndex) {
-
-      if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-        // Assuming data[headers[columnIndex]] contains the link
-        rowHTML += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
-      } else {
-        rowHTML += '<td>' + value + '</td>';
-      }
-    });
-
-    rowHTML += '</tr>';
-    tbody.append(rowHTML);
-  }
 
 
 
@@ -869,6 +891,175 @@ async function filterData(completarDias = false) {
   function createTable() {
     filteredData.forEach(function (data) {
       var rowMonth = new Date(data[1]).getMonth();
+      var rowDay = new Date(data[1]);
+      var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
+      if (diff > 1 && currentDay !== 0) {
+        //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
+        for (i = 1; i < diff; i++) {
+          let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
+          rowMonth = nextDay.getMonth();
+          if (currentMonth !== rowMonth) {
+            // Insert a separator row with the name of the month
+            var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+            tbody.append(monthSeparatorRow);
+
+          }
+          currentMonth = rowMonth; // Update the current month
+          let fD = longDate(nextDay);
+          let dom = '';
+          if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
+          tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td>Día sin actividad</td><td><span' + dom + '>' + fD + '</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
+
+        };
+      }
+
+      currentDay = rowDay
+      if (currentMonth !== rowMonth) {
+        // Insert a separator row with the name of the month
+        var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+        tbody.append(monthSeparatorRow);
+        currentMonth = rowMonth; // Update the current month
+      }
+
+      var row = '<tr style="text-align: center; padding: 0px;';
+
+      if (data[6].toLowerCase().includes('ensayo')) {
+        row += 'background: linear-gradient(violet, white) content-box;"';
+      }
+      else if (data[8].toLowerCase().startsWith('ensay')) {
+        row += 'background: linear-gradient(blue, white) content-box;"';
+      }
+      else if (data[8].includes('Present')) {
+        row += 'background: linear-gradient(yellow, white) content-box;"';
+      }
+
+      row += '>'
+      let estado;
+      let estadoColor = '';
+
+      if (data[10] == undefined || !esCoordEns) {
+        estado = '';
+      } else {
+        switch (data[10]) {
+          case 'REVISAR':
+            estadoColor = 'red';
+            break;
+          case 'Auto-gestionado':
+            estadoColor = 'blue';
+            break;
+          case 'Confirmado':
+            estadoColor = 'green';
+            break;
+          case 'CANCELADO':
+            estadoColor = 'purple';
+            break;
+          case 'Pedido':
+            estadoColor = 'yellow';
+            break;
+          case 'Estimado':
+            estadoColor = 'orange';
+            break;
+          default:
+            estadoColor = '';
+        }
+
+        estado = estadoColor
+          ? '<span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
+          : '<span>' + data[10] + '</span>';
+      }
+      if (data[0] != "Sin programa asignado") {
+        var progrs = data[0].split(' ♪ ');
+        var drives = data[5].split(' ♪ ');
+        var programColored = "";
+        // Process each value separately
+        row += '<td>'
+        for (var i = 0; i < progrs.length; i++) {
+          var backgroundColor;
+
+          if (progrs[i].startsWith('Sinf')) {
+            backgroundColor = '#5f51db';
+          } else if (progrs[i].startsWith('CFVal')) {
+            backgroundColor = '#E1C16E';
+          } else if (progrs[i].startsWith('CFMon')) {
+            backgroundColor = '#A8A8A8';
+          } else if (progrs[i].startsWith('CFMar')) {
+            backgroundColor = '#89CFF0';
+          } else if (progrs[i].startsWith('CFCuer')) {
+            backgroundColor = '#ffccff';
+          } else {
+            backgroundColor = '#baee29';
+          }
+
+          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>';
+
+        }
+        row += '<div style="line-height: 2  ">' + programColored + '</div>';
+        row += '</td>'
+      }
+      else { row += '<td>Sin programa asignado</td>' }
+
+      row += '<td>' + longDate(data[1]) + '</td>'
+      row += '<td>' + data[2] + '</td>'
+
+      row += '<td>' + data[3] + '</td>'
+      row += '<td>' + data[4] + '</td>'
+
+      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
+      //console.log(data[8].toLowerCase())
+      if (data[8].toLowerCase().startsWith('ensayo')) {
+        row += '<td>Ensayo Integrado</td>'
+      }
+      else if (data[8].toLowerCase().startsWith('present')) {
+        row += '<td>Presentación</td>'
+      }
+      else {
+        row += '<td>' + data[6] + '</td>';
+      }
+      if (data[8] != "Presentación") { row += '<td><i>Observ: </i>' + obs + '</td>' }
+      else { row += '<td>Ens: ' + data[6] + '</td>' };
+
+
+      var obs = data[8]
+      if (data[8].includes('Integrado')) {
+        obs = data[8].replace('Ensayo Integrado:', '');
+      }
+      row += '<td>' + estado + '</td>'
+      if (ensParam) {
+        const namesArray = data[7].split('|');
+        let namesString = ""
+        // Filter the names based on the matching names in dropdownValue
+        let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
+        if (cantidadNombres.length == filteredNames.length) {
+
+          namesString = `${ensParam} Completo`;
+        }
+        else {
+          var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
+          /*// Shorten each name to the first two characters of each word (initials) plus one additional letter
+          if (nombresCompletosChecked) { }
+          else {
+            filteredNames = filteredNames.map(name => {
+              const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
+
+              return initials;
+            });
+          }*/
+
+          // Join the shortened names back into a string with "|" separator
+          namesString = filteredNames.join('-');
+        }
+
+        // Add the shortened names to the row
+        row += '<td>' + namesString + '</td>';
+      }
+
+
+      row += '</td></tr>';
+      tbody.append(row);
+    });
+
+    /*filteredData.forEach(function (data) {
+      var rowMonth = new Date(data[1]).getMonth();
 
 
       if (currentMonth !== rowMonth) {
@@ -961,7 +1152,7 @@ async function filterData(completarDias = false) {
 
       row += '</tr>';
       tbody.append(row);
-    });
+    });*/
   }
 
   function createTableAsCards() {
@@ -970,15 +1161,6 @@ async function filterData(completarDias = false) {
       var rowMonth = new Date(data[1]).getMonth();
       var rowDay = new Date(data[1]);
       var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
-      function formatDate(milliseconds) {
-        const date = new Date(milliseconds);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are zero-based
-        const year = date.getFullYear();
-
-        return `${day}/${month}/${year}`;
-      }
-
       if (diff > 1 && currentDay !== 0) {
         //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
         for (i = 1; i < diff; i++) {
@@ -1056,8 +1238,8 @@ async function filterData(completarDias = false) {
           : '<span>' + data[10] + '</span>';
       }
 
-      row += '<h4>' + [longDate(data[1]),data[2],estado].filter(Boolean).join(" - ")+ '</h4>';
-      row += '<p>'+ [data[3], data[4]].filter(Boolean).join(' - ')+ '</p>';
+      row += '<h4>' + [longDate(data[1]), data[2], estado].filter(Boolean).join(" - ") + '</h4>';
+      row += '<p>' + [data[3], data[4]].filter(Boolean).join(' - ') + '</p>';
       if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
       //console.log(data[8].toLowerCase())
       if (data[8].toLowerCase().startsWith('ensayo')) {
@@ -1097,21 +1279,7 @@ async function filterData(completarDias = false) {
         row += '<p style="line-height: 2  "><i>Progr:</i> ' + programColored + '</p>';
       }
       else { row += '<p>Sin programa asignado</p>' }
-      /*
-      var programColored;
-      var backgroundColor;
 
-      if (data[0].startsWith('Sinf')) { backgroundColor = '#5f51db' }
-      else if (data[0].startsWith('CFVal')) { backgroundColor = '#E1C16E' }
-      else if (data[0].startsWith('CFMon')) { backgroundColor = '#A8A8A8' }
-      else if (data[0].startsWith('CFMar')) { backgroundColor = '#89CFF0' }
-      else if (data[0].startsWith('CFCuer')) { backgroundColor = '#ffccff' }
-      else { backgroundColor = 'lightgray' }
-
-
-      programColored = '<span style="background: ' + backgroundColor + '">' + data[0] + '</span>'
-      row += '<p><i>Progr:</i> ' + programColored + '</p>';
-*/
       var obs = data[8]
       if (data[8].includes('Integrado')) {
         obs = data[8].replace('Ensayo Integrado:', '');

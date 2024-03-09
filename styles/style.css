@@ -352,10 +352,14 @@ h2 {
   border: 1px solid #808080;
   /*text-align: left;*/
   padding: 10px 0px;
+  overflow-wrap: break-word;
 }
+
 
 #table-data th {
   text-align: center;
+  
+
 }
 
 #table-data th {
