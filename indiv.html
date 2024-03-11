@@ -28,17 +28,21 @@
 
                 <br>
                 <div id="filtros">
-                    <button onclick="checkAll()">Marcar todas</button>
-                    <button onclick="uncheckAll()">Desmarcar todas</button>
+                    <button id="closeButton" class="close-button" onclick="toggleFiltros()">X</button>
+
+                    <div id="marcar">
+                        <button onclick="checkAll()">Marcar todas</button>
+                        <button onclick="uncheckAll()">Desmarcar todas</button>
+                    </div>
                     <div id="fechas">
-                        <label for="fromDate">Fecha desde:</label>
-                        <input type="date" id="fromDate" class="filter-date">
-
-                        <label for="untilDate">Fecha hasta: </label>
-                        <input type="date" id="untilDate" class="filter-date">
-                        <div id="botonesFechas">
-
+                        <div style="display: flex;flex-direction: row;">
+                            <label for="fromDate">Fecha desde:</label>
+                            <input type="date" id="fromDate" class="filter-date">
+    
+                            <br><label for="untilDate">Fecha hasta: </label>
+                            <input type="date" id="untilDate" class="filter-date">
                         </div>
+                        <div id="botonesFechas"></div>
                         <div id="errorMessage" style="color: red;"></div>
                     </div>
                     <label id="dropdown-container" style="display:none"></label>

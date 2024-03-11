@@ -128,16 +128,19 @@ createButton("Próxima semana", setNextWeek);
 createButton("Próximos 30 días", setNext30Days);
 
 // Function to create the "Completar Días" checkbox
-function createCompletarDiasButton() {
-  var completarDiasButton = document.createElement('button');
-  completarDiasButton.type = 'button'; // Set the type to button
-  completarDiasButton.id = 'completarDiasButton';
-  completarDiasButton.textContent = 'Completar Días';
+function createOcultarDiasVaciosCheckbox() {
+  var ocultarDiasVaciosCheckbox = document.createElement('input');
+  ocultarDiasVaciosCheckbox.type = 'checkbox';
+  ocultarDiasVaciosCheckbox.id = 'ocultarDiasVaciosCheckbox';
 
+  var label = document.createElement('label');
+  label.appendChild(ocultarDiasVaciosCheckbox);
+  label.appendChild(document.createTextNode('Ocultar Días Vacíos'));
 
   var buttonContainer = document.getElementById('filtros');
-  buttonContainer.appendChild(completarDiasButton);
+  buttonContainer.appendChild(label);
 }
+
 function createDownloadPDFButton() {
   var downloadPDFButton = document.createElement('button');
   downloadPDFButton.type = 'button';
@@ -232,7 +235,7 @@ fechaDeHoy();
 
 
 // Call the function to create the "Completar Días" checkbox
-createCompletarDiasButton();
+createOcultarDiasVaciosCheckbox();
 createOcultarEnsayosCheckbox();
 createOcultarEnsGirCheckbox();
 const urlParams = new URLSearchParams(window.location.search)

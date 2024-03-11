@@ -1,16 +1,20 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
   display: flex;
   flex-direction: column;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
+body * {
+  font-family:'Karla', sans-serif;
+
+}
 
 h1 {
   text-align: center;
+  font-family: "Crimson Pro", serif;
   color: #333;
   /* Choose your preferred text color */
   font-size: 3em;
@@ -37,7 +41,7 @@ h1 {
 .table,
 .table th,
 .table td {
-  border: 1px solid #ccc;
+  border: 1px solid #0a0a0a;
 }
 
 .table th,
@@ -64,7 +68,7 @@ h1 {
 }
 
 .resizable {
-  border: 1px solid gray;
+  border: 1px solid rgb(32, 32, 32);
   height: 100px;
   width: 100px;
   position: relative;
@@ -230,7 +234,7 @@ footer nav a img {
 
 #table-data {
   border-collapse: collapse;
-  width: 100%;
+  /*width: 100%;*/
   overflow: auto;
 }
 
@@ -342,17 +346,23 @@ h2 {
 }
 
 #filtros * {
-  margin: 5px;
+  margin: 3px 2px;
 }
 
 
 
 #table-data th,
 #table-data td {
-  border: 1px solid #808080;
+  border: 1px solid #4e4e4e;
   /*text-align: left;*/
   padding: 10px 0px;
-  overflow-wrap: break-word;
+  
+  
+}
+
+#table-data td {
+  word-break: break-word;
+  font-size: 1em;
 }
 
 
@@ -466,18 +476,20 @@ p {
   .table,
   .table th,
   .table td {
-    font-size: 12px;
+    font-size: 0.8em;
   }
 
 }
 
 /* Styles for floating filters */
 .floating-filtros {
+  
   position: fixed;
   top: 30%; /* Center vertically */
   left: 30%; /* Center horizontally */
   width: 410px;
-  height: 600px;
+  height: 450px;
+  resize: none;
   background-color: white;
   border: 1px solid #ccc;
   padding: 10px;
@@ -486,11 +498,31 @@ p {
   display: none; /* Initially hide */
   cursor: grab; /* Set cursor to indicate draggable */
   touch-action: none; /* Disable default touch behavior */
-
+  
   
 }
 
-
+.floating-filtros *{
+  font-size: 0.8em;
+    
+}
+.marcar {
+  display: flex;
+  flex-direction: row;
+}
+.close-button {
+  position: absolute;
+  background-color: red;
+  color: white;
+  font-size: 0.7em;
+  padding: 2px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
 .floating-filtros.show {
   display: block; /* Show when toggled */
 }
@@ -513,6 +545,12 @@ p {
   .floating-filtros #filtros {
     display: flex;
     flex-direction: column;
+    
+  }
+  #marcar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 }
 

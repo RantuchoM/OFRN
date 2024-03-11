@@ -328,14 +328,16 @@ document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
 });
 document.querySelector('#ocultarEnsayosCheckbox').addEventListener('change', function () { filterData(false); });
 document.querySelector('#ocultarEnsGirCheckbox').addEventListener('change', function () { filterData(false); });
+document.querySelector('#ocultarDiasVaciosCheckbox').addEventListener('change', function () { filterData(false); });
+
 
 
 document.querySelectorAll('.filter-date').forEach(function (dateInput) {
   dateInput.addEventListener('change', function () { filterData(false); });
 });
-document.querySelector('#completarDiasButton').addEventListener('click', function () {
+/*document.querySelector('#completarDiasButton').addEventListener('click', function () {
   filterData(true);
-});
+});*/
 //people = getDropdownData();
 function getDataFromTextFile() {
   // Replace with the actual URL of your "/backup.txt" file
@@ -642,8 +644,8 @@ function showData(data, startColumn, endColumn) {
   // Dynamically populate the table header
   var thead = $('#table-data thead');
   var headerRowHTML = '<tr>';
-  var order = [0, 1, 2, 3, 4,8,6,9,7]
-
+  var order = [0, 1, 2, 3, 4, 6, 8, 9]
+  if (esCoordEns) { order.push(7); }
   for (o = 0; o < order.length; o++) {
     headerRowHTML += '<th style="padding: 10px">' + headers[order[o]] + '</th>';
   }
@@ -652,7 +654,7 @@ function showData(data, startColumn, endColumn) {
   var inputRowHTML = '<tr id="filtros-texto">';
   for (o = 0; o < order.length; o++) {
     var tbody = $('#table-data tbody');
-    inputRowHTML += '<td class="tooltip"><input type="text" class="filter-input" data-column="' + headers[order[o]] + '" style="width: 80%"><div class="tooltiptext">Escribí los valores que quieras que aparezcan en esta columna, separados por guiones</div></td>';
+    inputRowHTML += '<th class="tooltip"><input type="text" class="filter-input" data-column="' + headers[order[o]] + '" style="width: 80%"><div class="tooltiptext">Escribí los valores que quieras que aparezcan en esta columna, separados por guiones</div></th>';
 
   }
   inputRowHTML += '</tr>';
@@ -703,9 +705,15 @@ function showData(data, startColumn, endColumn) {
 
 
   // Attach event handlers to the input fields for dynamic filtering
+  var debounceTimer;
+
   $('.filter-input').on('input', function () {
-    filterData();
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () {
+      filterData();
+    }, 1500); // Adjust the delay time (in milliseconds) as needed
   });
+
   /*
   // Dynamically populate the table data
   var tbody = $('#table-data tbody');
@@ -750,7 +758,7 @@ async function filterData(completarDias = false) {
   var currentDay = 0;
 
   // Clear existing rows
-  tbody.empty().css('width', 'auto');
+  //tbody.empty().css('width', 'auto');
 
 
   // Get the dropdown value and check if the container exists
@@ -867,9 +875,9 @@ async function filterData(completarDias = false) {
   createView();
 
   // Apply background color to the first column based on conditions
-  if (dropdownValue) {
+  /*if (dropdownValue) {
     applyBackgroundColorToFirstColumn();
-  }
+  }*/
   function formatDate(dateString) {
     var options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('es-ES', options);
@@ -880,7 +888,7 @@ async function filterData(completarDias = false) {
   // Update the counts in the HTML
   $('#cant-elem').text('Programas: ' + uniquePrograms.size);
   $('#cant-pres').text(' -- Presentaciones: ' + cantidadPresentaciones + ' -- Ensayos: ' + cantidadEnsayos + ' -- Ensayos de Gira/Progr.: ' + cantidadEnsGir);
-  $('#table-data').css('width', 'auto');
+  //$('#table-data').css('width', 'auto');
   const destroyResizableTable = function (table) {
     const resizers = table.querySelectorAll('.resizer');
     resizers.forEach(function (resizer) {
@@ -889,296 +897,241 @@ async function filterData(completarDias = false) {
   };
 
   function createTable() {
-    filteredData.forEach(function (data) {
-      var rowMonth = new Date(data[1]).getMonth();
-      var rowDay = new Date(data[1]);
-      var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
-      if (diff > 1 && currentDay !== 0) {
-        //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
-        for (i = 1; i < diff; i++) {
-          let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
-          rowMonth = nextDay.getMonth();
-          if (currentMonth !== rowMonth) {
-            // Insert a separator row with the name of the month
-            var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-            tbody.append(monthSeparatorRow);
+    return new Promise(function (resolve) {
+      //destroyResizableTable(document.getElementById('table-data'));
+      var table = document.getElementById('table-data')
+      // Check if the table exists
+      if (table) {
+        // Get all rows in the table except the first one (index 0)
+        var rowsToRemove = Array.from(table.rows).slice(2);
 
-          }
-          currentMonth = rowMonth; // Update the current month
-          let fD = longDate(nextDay);
-          let dom = '';
-          if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-          tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td>Día sin actividad</td><td><span' + dom + '>' + fD + '</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
-
-        };
-      }
-
-      currentDay = rowDay
-      if (currentMonth !== rowMonth) {
-        // Insert a separator row with the name of the month
-        var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-        tbody.append(monthSeparatorRow);
-        currentMonth = rowMonth; // Update the current month
-      }
-
-      var row = '<tr style="text-align: center; padding: 0px;';
-
-      if (data[6].toLowerCase().includes('ensayo')) {
-        row += 'background: linear-gradient(violet, white) content-box;"';
-      }
-      else if (data[8].toLowerCase().startsWith('ensay')) {
-        row += 'background: linear-gradient(blue, white) content-box;"';
-      }
-      else if (data[8].includes('Present')) {
-        row += 'background: linear-gradient(yellow, white) content-box;"';
-      }
-
-      row += '>'
-      let estado;
-      let estadoColor = '';
-
-      if (data[10] == undefined || !esCoordEns) {
-        estado = '';
+        // Remove each row
+        rowsToRemove.forEach(function (row) {
+          table.deleteRow(row.rowIndex);
+        });
       } else {
-        switch (data[10]) {
-          case 'REVISAR':
-            estadoColor = 'red';
-            break;
-          case 'Auto-gestionado':
-            estadoColor = 'blue';
-            break;
-          case 'Confirmado':
-            estadoColor = 'green';
-            break;
-          case 'CANCELADO':
-            estadoColor = 'purple';
-            break;
-          case 'Pedido':
-            estadoColor = 'yellow';
-            break;
-          case 'Estimado':
-            estadoColor = 'orange';
-            break;
-          default:
-            estadoColor = '';
+        console.error("Table not found");
+      }
+      filteredData.forEach(function (data) {
+        var rowMonth = new Date(data[1]).getMonth();
+        var rowDay = new Date(data[1]);
+        var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
+        if (!isOcultarDias) {
+          var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
+          if (diff > 1 && currentDay !== 0) {
+            //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
+            for (i = 1; i < diff; i++) {
+              let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
+              rowMonth = nextDay.getMonth();
+              if (currentMonth !== rowMonth) {
+                // Insert a separator row with the name of the month
+                var monthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+                tbody.append(monthSeparatorRow);
+
+              }
+              currentMonth = rowMonth; // Update the current month
+              let fD = longDate(nextDay);
+              let dom = '';
+              if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
+              tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white 150%) content-box;"><td style="width: 20%">Día sin actividad</td><td><span' + dom + '>' + fD + '</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
+              if (fD.startsWith('D')) { tbody.append('<tr style="height: 1px; background: #557985; width: 20%"><td colspan=9 style=" font-size: 2px;"></td></tr>'); };
+
+            };
+          }
         }
 
-        estado = estadoColor
-          ? '<span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
-          : '<span>' + data[10] + '</span>';
-      }
-      if (data[0] != "Sin programa asignado") {
-        var progrs = data[0].split(' ♪ ');
-        var drives = data[5].split(' ♪ ');
-        var programColored = "";
-        // Process each value separately
-        row += '<td>'
-        for (var i = 0; i < progrs.length; i++) {
-          var backgroundColor;
+        currentDay = rowDay
+        if (currentMonth !== rowMonth) {
+          // Insert a separator row with the name of the month
+          var monthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+          tbody.append(monthSeparatorRow);
+          currentMonth = rowMonth; // Update the current month
+        }
 
-          if (progrs[i].startsWith('Sinf')) {
-            backgroundColor = '#5f51db';
-          } else if (progrs[i].startsWith('CFVal')) {
-            backgroundColor = '#E1C16E';
-          } else if (progrs[i].startsWith('CFMon')) {
-            backgroundColor = '#A8A8A8';
-          } else if (progrs[i].startsWith('CFMar')) {
-            backgroundColor = '#89CFF0';
-          } else if (progrs[i].startsWith('CFCuer')) {
-            backgroundColor = '#ffccff';
-          } else {
-            backgroundColor = '#baee29';
+        var row = '<tr style="text-align: center; padding: 0px;';
+
+        if (data[6].toLowerCase().includes('ensayo')) {
+          row += 'background: linear-gradient(violet, white 150%) content-box;"';
+        }
+        else if (data[8].toLowerCase().startsWith('ensay')) {
+          row += 'background: linear-gradient(blue, white 150%) content-box;"';
+        }
+        else if (data[8].includes('Present')) {
+          row += 'background: linear-gradient(yellow, white 150%) content-box;"';
+        }
+
+        row += '>'
+        let estado;
+        let estadoColor = '';
+
+        if (data[10] == undefined || !esCoordEns) {
+          estado = '';
+        } else {
+          switch (data[10]) {
+            case 'REVISAR':
+              estadoColor = 'red';
+              break;
+            case 'Auto-gestionado':
+              estadoColor = 'blue';
+              break;
+            case 'Confirmado':
+              estadoColor = 'green';
+              break;
+            case 'CANCELADO':
+              estadoColor = 'purple';
+              break;
+            case 'Pedido':
+              estadoColor = 'yellow';
+              break;
+            case 'Estimado':
+              estadoColor = 'orange';
+              break;
+            default:
+              estadoColor = '';
           }
 
-          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>';
-
+          estado = estadoColor
+            ? '<span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
+            : '<span>' + data[10] + '</span>';
         }
-        row += '<div style="line-height: 2  ">' + programColored + '</div>';
-        row += '</td>'
-      }
-      else { row += '<td>Sin programa asignado</td>' }
+        if (data[0] != "Sin programa asignado") {
+          var progrs = data[0].split(' ♪ ');
+          var drives = data[5].split(' ♪ ');
+          var programColored = "";
+          // Process each value separately
+          row += '<td>'
+          for (var i = 0; i < progrs.length; i++) {
+            var backgroundColor;
 
-      row += '<td>' + longDate(data[1]) + '</td>'
-      row += '<td>' + data[2] + '</td>'
+            if (progrs[i].startsWith('Sinf')) {
+              backgroundColor = '#5f51db';
+            } else if (progrs[i].startsWith('CFVal')) {
+              backgroundColor = '#E1C16E';
+            } else if (progrs[i].startsWith('CFMon')) {
+              backgroundColor = '#A8A8A8';
+            } else if (progrs[i].startsWith('CFMar')) {
+              backgroundColor = '#89CFF0';
+            } else if (progrs[i].startsWith('CFCuer')) {
+              backgroundColor = '#ffccff';
+            } else {
+              backgroundColor = '#baee29';
+            }
 
-      row += '<td>' + data[3] + '</td>'
-      row += '<td>' + data[4] + '</td>'
+            programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>';
 
-      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
-      //console.log(data[8].toLowerCase())
-      if (data[8].toLowerCase().startsWith('ensayo')) {
-        row += '<td>Ensayo Integrado</td>'
-      }
-      else if (data[8].toLowerCase().startsWith('present')) {
-        row += '<td>Presentación</td>'
-      }
-      else {
-        row += '<td>' + data[6] + '</td>';
-      }
-      if (data[8] != "Presentación") { row += '<td><i>Observ: </i>' + obs + '</td>' }
-      else { row += '<td>Ens: ' + data[6] + '</td>' };
+          }
+          row += '<div style="line-height: 2  ">' + programColored + '</div>';
+          row += '</td>'
+        }
+        else { row += '<td>Sin programa asignado</td>' }
 
+        row += '<td>' + longDate(data[1]) + '</td>'
+        row += '<td>' + data[2] + '</td>'
 
-      var obs = data[8]
-      if (data[8].includes('Integrado')) {
-        obs = data[8].replace('Ensayo Integrado:', '');
-      }
-      row += '<td>' + estado + '</td>'
-      if (ensParam) {
-        const namesArray = data[7].split('|');
-        let namesString = ""
-        // Filter the names based on the matching names in dropdownValue
-        let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
-        if (cantidadNombres.length == filteredNames.length) {
+        row += '<td>' + data[3] + '</td>'
+        row += '<td>' + data[4] + '</td>'
 
-          namesString = `${ensParam} Completo`;
+        if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
+        //console.log(data[8].toLowerCase())
+        if (data[8].toLowerCase().startsWith('ensayo')) {
+          row += '<td>Ensayo Integrado</td>'
+        }
+        else if (data[8].toLowerCase().startsWith('present')) {
+          row += '<td>Presentación</td>'
         }
         else {
-          var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
-          /*// Shorten each name to the first two characters of each word (initials) plus one additional letter
-          if (nombresCompletosChecked) { }
-          else {
-            filteredNames = filteredNames.map(name => {
-              const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
-
-              return initials;
-            });
-          }*/
-
-          // Join the shortened names back into a string with "|" separator
-          namesString = filteredNames.join('-');
+          row += '<td>' + data[6] + '</td>';
         }
 
-        // Add the shortened names to the row
-        row += '<td>' + namesString + '</td>';
-      }
 
 
-      row += '</td></tr>';
-      tbody.append(row);
-    });
+        var obs = data[8]
+        if (obs.includes('Integrado')) {
+          obs = data[8].replace('Ensayo Integrado:', '');
+        }
+        if (data[8] != "Presentación") { row += '<td><i></i>' + obs + '</td>' }
+        else { row += '<td>Ens: ' + data[6] + '</td>' };
+        row += '<td>' + estado + '</td>'
+        if (ensParam) {
+          const namesArray = data[7].split('|');
+          let namesString = ""
+          // Filter the names based on the matching names in dropdownValue
+          let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
+          if (cantidadNombres.length == filteredNames.length) {
 
-    /*filteredData.forEach(function (data) {
-      var rowMonth = new Date(data[1]).getMonth();
-
-
-      if (currentMonth !== rowMonth) {
-        // Insert a separator row with the name of the month
-        var monthSeparatorRow = '<tr style="background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-        tbody.append(monthSeparatorRow);
-        currentMonth = rowMonth; // Update the current month
-      }
-
-      var row = '<tr';
-
-      // Add background color based on the value in the first column
-      var columnaEnsambles = data[0]; // Assuming the second column contains 'Ensambles'
-      if (columnaEnsambles.startsWith('Sinf')) {
-        row += ' style="background-color: #dabcff;"';
-      } else if (columnaEnsambles.startsWith('CFVal')) {
-        row += ' style="background-color: #E1C16E;"';
-      } else if (columnaEnsambles.startsWith('CFMon')) {
-        row += ' style="background-color: #A8A8A8;"';
-      } else if (columnaEnsambles.startsWith('CFMar')) {
-        row += ' style="background-color: #89CFF0;"';
-      } else if (columnaEnsambles.startsWith('CFCuer')) {
-        row += ' style="background-color: #ffccff;"';
-      } else if (columnaEnsambles.startsWith('Día sin')) {
-        row += ' style="background-color: #808080;"';
-      }
-
-      row += '>';
-      let cantidadNombres;
-      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
-      data.forEach(function (value, columnIndex) {
-        if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-          // Assuming data[headers[columnIndex]] contains the link
-          if (data[0] == "Día sin actividad" || data[5] == "" || data[5].includes('#')) { row += "<td></td>" }
-          else { row += '<td><a href="' + value + '" target="_blank">Drive</a></td>'; }
-        } else if (columnIndex == 7) {
-          if (!ensParam) {
-            // Do not show names
-          } else {
-            // Split the value string into an array of names
-            const namesArray = value.split('|');
-            let namesString = ""
-            // Filter the names based on the matching names in dropdownValue
-            let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
-            if (cantidadNombres.length == filteredNames.length) {
-
-              namesString = `${ensParam} Completo`;
-            }
+            namesString = `${ensParam} Completo`;
+          }
+          else {
+            var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
+            /*// Shorten each name to the first two characters of each word (initials) plus one additional letter
+            if (nombresCompletosChecked) { }
             else {
-              var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
-              // Shorten each name to the first two characters of each word (initials) plus one additional letter
-              if (nombresCompletosChecked) { }
-              else {
-                filteredNames = filteredNames.map(name => {
-                  const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
+              filteredNames = filteredNames.map(name => {
+                const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
+  
+                return initials;
+              });
+            }*/
 
-                  return initials;
-                });
-              }
+            // Join the shortened names back into a string with "|" separator
+            namesString = filteredNames.join('-');
+          }
 
-              // Join the shortened names back into a string with "|" separator
-              namesString = filteredNames.join('-');
-            }
-
-            // Add the shortened names to the row
-            row += '<td>' + namesString + '</td>';
-          }
-        } else if (columnIndex == 6) {
-          row += '<td';
-          if (value.toLowerCase().includes('ensayo')) {
-            row += ' style="background-color: #0000FF; color: #FFFFFF;"'; // Apply blue background for 'Ensayo' with white text
-          }
-          else if (value == 'Sinf, Cuerdas, Maderas, Bronces, Percusión' || value == 'Sinf, Cuerdas, Percusión, Bronces, Maderas') {
-            value = "Orquesta Completa";
-          }
-          // Add the content of the cell
-          row += '>' + value + '</td>';
+          // Add the shortened names to the row
+          row += '<td>' + namesString + '</td>';
         }
-        else if (columnIndex == 1) {
-          if (longDate(value).charAt(0) == "D") {
-            row += '<td class = "domingo">' + longDate(value) + '</td>'
-          }
-          else {
-            row += '<td>' + longDate(value) + '</td>';
-          }
-        } else {
-          row += '<td>' + value + '</td>';
-        }
+
+
+        row += '</td></tr>';
+        tbody.append(row);
+        resolve(); // Resolve the promise when the table is created
       });
 
-      row += '</tr>';
-      tbody.append(row);
-    });*/
+
+
+
+    });
   }
 
   function createTableAsCards() {
+    var table = document.getElementById('table-data')
+    // Check if the table exists
+    if (table) {
+      // Get all rows in the table except the first one (index 0)
+      var rowsToRemove = Array.from(table.rows)
 
+      // Remove each row
+      rowsToRemove.forEach(function (row) {
+        table.deleteRow(row.rowIndex);
+      });
+    } else {
+      console.error("Table not found");
+    }
     filteredData.forEach(function (data) {
       var rowMonth = new Date(data[1]).getMonth();
       var rowDay = new Date(data[1]);
-      var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
-      if (diff > 1 && currentDay !== 0) {
-        //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
-        for (i = 1; i < diff; i++) {
-          let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
-          rowMonth = nextDay.getMonth();
-          if (currentMonth !== rowMonth) {
-            // Insert a separator row with the name of the month
-            var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="1">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-            tbody.append(monthSeparatorRow);
+      var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
+      if (!isOcultarDias) {
+        var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
+        if (diff > 1 && currentDay !== 0) {
+          //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
+          for (i = 1; i < diff; i++) {
+            let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
+            rowMonth = nextDay.getMonth();
+            if (currentMonth !== rowMonth) {
+              // Insert a separator row with the name of the month
+              var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="1">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+              tbody.append(monthSeparatorRow);
 
-          }
-          currentMonth = rowMonth; // Update the current month
-          let fD = longDate(nextDay);
-          let dom = '';
-          if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-          tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
-
-        };
+            }
+            currentMonth = rowMonth; // Update the current month
+            let fD = longDate(nextDay);
+            let dom = '';
+            if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
+            tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
+            if (fD.startsWith('D')) { tbody.append('<tr><td></td></tr>'); };
+          };
+        }
       }
 
       currentDay = rowDay
@@ -1333,13 +1286,88 @@ async function filterData(completarDias = false) {
     if (isMobileView()) {
       createTableAsCards();
     } else {
-      createTable();
+      createTable().then(setColumnWidths);
+
     }
   }
 
   // Call createView initially when the page loads
   createView();
 
+  function setColumnWidths() {
+    var table = document.querySelector('#table-data');
+    var columns = table.querySelectorAll('td');
+
+    var columnWidths = [17, 8, 20, 5, 10, 8, 12, 10, 10]; // Percentage values
+
+    columns.forEach(function (column, index) {
+      column.style.width = columnWidths[index] + '%';
+    });
+
+    if (!esCoordEns) {
+      deleteColumn('table-data', 8);
+    }
+    function deleteColumn(tableId, columnIndex) {
+      var table = document.getElementById(tableId);
+
+      if (table) {
+        for (var i = 0; i < table.rows.length; i++) {
+          var row = table.rows[i];
+
+          for (var j = 0; j < row.cells.length; j++) {
+            var cell = row.cells[j];
+
+            // Check if the cell overlaps with the target column
+            if (columnIndex >= j && columnIndex < j + cell.colSpan) {
+              // Adjust colspan if the cell spans multiple columns
+              if (cell.colSpan > 1) {
+                cell.colSpan--;
+
+                // Adjust the loop counter to skip cells covered by colspan
+                j += cell.colSpan - 1;
+              } else {
+                // Delete the cell if it doesn't have colspan
+                row.deleteCell(j);
+              }
+            }
+          }
+        }
+
+        // Check if the table has a thead section
+        if (table.tHead) {
+          for (var rowIdx = 0; rowIdx < table.tHead.rows.length; rowIdx++) {
+            var headerRow = table.tHead.rows[rowIdx];
+
+            // Check if the header row has cells
+            if (headerRow && headerRow.cells) {
+              for (var k = 0; k < headerRow.cells.length; k++) {
+                var headerCell = headerRow.cells[k];
+
+                // Check if the header cell overlaps with the target column
+                if (columnIndex >= k && columnIndex < k + headerCell.colSpan) {
+                  // Adjust colspan if the header cell spans multiple columns
+                  if (headerCell.colSpan > 1) {
+                    headerCell.colSpan--;
+
+                    // Adjust the loop counter to skip cells covered by colspan
+                    k += headerCell.colSpan - 1;
+                  } else {
+                    // Delete the header cell if it doesn't have colspan
+                    headerRow.deleteCell(k);
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else {
+        console.error("Table not found");
+      }
+    }
+
+
+
+  }
 
 
 
@@ -1538,8 +1566,9 @@ function longDate(date) {
 function passFilter(data, filterValues) {
   for (var column in filterValues) {
     var columnIndex = headers.indexOf(column);
-    if (columnIndex !== -1 && data[columnIndex]) {
+    if (columnIndex !== -1 && data[columnIndex] !== undefined && data[columnIndex] !== null) {
       var cellValue = data[columnIndex];
+      
       var filterValue = filterValues[column].toLowerCase(); // Convert to lowercase for case-insensitive comparison
 
       // Check if the column represents a date
@@ -1554,14 +1583,30 @@ function passFilter(data, filterValues) {
       // Split filterValue by dash to get multiple values
       var filterList = filterValue.split('-').map(value => value.trim());
 
+      // Filter out empty values from filterList
+      filterList = filterList.filter(value => value !== '');
+
       // Check if any of the filter values match the cell value
-      if (!filterList.some(filter => cellValue.includes(filter))) {
-        return false; // Data doesn't pass the filter for this column
+      if (filterList.length > 0) {
+        // Check if the last filter value ends with a dash
+        const lastFilter = filterList[filterList.length - 1];
+        if(cellValue == "" && filterValue.endsWith('-')){ return true}
+        // Check if the cellValue includes any non-empty filter value
+        if (!(lastFilter.endsWith('-') && cellValue === '')) {
+          if (!filterList.some(filter => cellValue.includes(filter))) {
+            return false; // Data doesn't pass the filter for this column
+          }
+          
+        }
       }
     }
   }
   return true; // Data passes all filter input textboxes
 }
+
+
+
+
 function applyBackgroundColorToFirstColumn(table) {
   table = table || document.getElementById('table-data');
   var rows = table.getElementsByTagName('tr');
