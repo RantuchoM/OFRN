@@ -161,6 +161,7 @@ header {
 
 .header-content {
   display: flex;
+  
   align-items: center;
   justify-content: center;
 }
@@ -527,7 +528,7 @@ p {
   display: block; /* Show when toggled */
 }
 /* Media query for mobile devices */
-@media only screen  {
+@media screen and (max-width: 700px){
   body {
     margin: auto;
     padding: 0;
@@ -535,6 +536,10 @@ p {
     flex-direction: column;
   }
 
+  .header-content {
+    display: flex;
+    flex-direction: column;
+  }
   /* Adjust ensemble grid within floating filters */
   .floating-filtros .ensemble-grid {
     display: grid;
