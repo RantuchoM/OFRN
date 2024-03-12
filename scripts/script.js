@@ -997,6 +997,8 @@ async function filterData(completarDias = false) {
         if (data[0] != "Sin programa asignado") {
           var progrs = data[0].split(' ♪ ');
           var drives = data[5].split(' ♪ ');
+          var planillas = data[11].split(' ♪ ');
+          var planilla = '';
           var programColored = "";
           // Process each value separately
           row += '<td>'
@@ -1016,10 +1018,14 @@ async function filterData(completarDias = false) {
             } else {
               backgroundColor = '#baee29';
             }
-
-            programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>';
-
+            if (esCoordEns) {
+              planilla = ' <a href="'+planillas[i]+'" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
+            }
+            programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>'+planilla;
+            
           }
+          
+          
           row += '<div style="line-height: 2  ">' + programColored + '</div>';
           row += '</td>'
         }
@@ -1208,6 +1214,8 @@ async function filterData(completarDias = false) {
         var progrs = data[0].split(' ♪ ');
         var drives = data[5].split(' ♪ ');
         var programColored = "";
+        var planillas = data[11].split(' ♪ ');
+          var planilla = '';
         // Process each value separately
         for (var i = 0; i < progrs.length; i++) {
           var backgroundColor;
@@ -1225,8 +1233,10 @@ async function filterData(completarDias = false) {
           } else {
             backgroundColor = '#baee29';
           }
-
-          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>';
+          if (esCoordEns) {
+            planilla = ' <a href="'+planillas[i]+'" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
+          }
+          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>'+planilla;
 
         }
         row += '<p style="line-height: 2  "><i>Progr:</i> ' + programColored + '</p>';
@@ -1568,7 +1578,7 @@ function passFilter(data, filterValues) {
     var columnIndex = headers.indexOf(column);
     if (columnIndex !== -1 && data[columnIndex] !== undefined && data[columnIndex] !== null) {
       var cellValue = data[columnIndex];
-      
+
       var filterValue = filterValues[column].toLowerCase(); // Convert to lowercase for case-insensitive comparison
 
       // Check if the column represents a date
@@ -1590,13 +1600,13 @@ function passFilter(data, filterValues) {
       if (filterList.length > 0) {
         // Check if the last filter value ends with a dash
         const lastFilter = filterList[filterList.length - 1];
-        if(cellValue == "" && filterValue.endsWith('-')){ return true}
+        if (cellValue == "" && filterValue.endsWith('-')) { return true }
         // Check if the cellValue includes any non-empty filter value
         if (!(lastFilter.endsWith('-') && cellValue === '')) {
           if (!filterList.some(filter => cellValue.includes(filter))) {
             return false; // Data doesn't pass the filter for this column
           }
-          
+
         }
       }
     }

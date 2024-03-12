@@ -540,6 +540,7 @@ p {
     display: flex;
     flex-direction: column;
   }
+  
   /* Adjust ensemble grid within floating filters */
   .floating-filtros .ensemble-grid {
     display: grid;
