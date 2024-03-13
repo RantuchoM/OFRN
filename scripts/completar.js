@@ -137,7 +137,7 @@ function createOcultarDiasVaciosCheckbox() {
   label.appendChild(ocultarDiasVaciosCheckbox);
   label.appendChild(document.createTextNode('Ocultar Días Vacíos'));
 
-  var buttonContainer = document.getElementById('filtros');
+  var buttonContainer = document.getElementById('checks');
   buttonContainer.appendChild(label);
 }
 
@@ -162,7 +162,7 @@ function createOcultarEnsayosCheckbox() {
   label.appendChild(ocultarEnsayosCheckbox);
   label.appendChild(document.createTextNode('Ocultar Ensayos'));
 
-  var buttonContainer = document.getElementById('filtros');
+  var buttonContainer = document.getElementById('checks');
   buttonContainer.appendChild(label);
 }
 function createOcultarEnsGirCheckbox() {
@@ -174,7 +174,7 @@ function createOcultarEnsGirCheckbox() {
   label.appendChild(ocultarEnsayosCheckbox);
   label.appendChild(document.createTextNode('Ocultar Ensayos de Gira/Progr.'));
 
-  var buttonContainer = document.getElementById('filtros');
+  var buttonContainer = document.getElementById('checks');
   buttonContainer.appendChild(label);
 }
 
@@ -191,7 +191,7 @@ function createMostrarNombresCheckbox() {
   label.appendChild(ocultarEnsayosCheckbox);
   label.appendChild(document.createTextNode('Mostrar Nombres Completos'));
 
-  var buttonContainer = document.getElementById('filtros');
+  var buttonContainer = document.getElementById('checks');
   buttonContainer.appendChild(label);
   document.querySelector('#mostrarNombresCheckbox').addEventListener('change', function () { filterData(false); });
 }

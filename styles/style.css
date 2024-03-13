@@ -524,6 +524,13 @@ p {
   right: 10px;
   cursor: pointer;
 }
+.checks {
+  display: flex;
+  flex-direction: column;
+  
+
+}
+
 .floating-filtros.show {
   display: block; /* Show when toggled */
 }
@@ -549,10 +556,11 @@ p {
 
   /* Adjust filters within floating filters */
   .floating-filtros #filtros {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     
   }
+  
   #marcar {
     display: flex;
     flex-direction: row;
