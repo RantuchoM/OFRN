@@ -34,7 +34,7 @@ function initClient() {
 function getNames() {
   //console.log("getDropdownData")
   const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
-  fetch(url)
+  return fetch(url)
     .then(response => response.text())
     .then(html => {
       const parser = new DOMParser();
@@ -43,6 +43,7 @@ function getNames() {
       names = extractColumnData(doc, 3);
       names.shift()
       names.sort() // Extract data from the 4th column
+      console.log(names)
       resumenPersonas();
     })
     .catch(error => console.error('Error fetching data:', error));
@@ -57,19 +58,19 @@ function getNamesWithMus() {
       const doc = parser.parseFromString(html, 'text/html');
       const allNames = extractAllColumnData(doc, 3); // Assuming 3rd column contains names
       allNames.shift(); // Remove header
-      allMus = extractAllColumnData(doc, 9);
+      let allMus = extractAllColumnData(doc, 9);
       allMus.shift();
       // Filter names based on the presence of musical terms in column 10
       namesWithMus = allNames.filter(name => {
+        
+        const musValue = allMus[allNames.indexOf(name) + 1];
+        console.log(name+" - "+musValue+" - " +["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
 
-        const musValue = extractAllColumnData(doc, 9)[allNames.indexOf(name) + 1];
-        //console.log(name+" - "+musValue+" - " +["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
-
-        return ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword));
+        return (name!='') && ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword));
       });
 
       // Sorting names alphabetically
-      namesWithMus.sort();
+      
       resumenPersonas();
 
 
@@ -81,6 +82,7 @@ function getNamesWithMus() {
 }
 
 function resumenPersonas() {
+  console.log("Resumen Personas")
   var detailsContainer = $('#people-details');
   var mostrarDetalleCheckbox = $('#mostrarDetalle');
   var mostrarProduccion = $('#mostrarProduccion');
@@ -100,6 +102,7 @@ function resumenPersonas() {
   else {
     namesResumen = namesWithMus;
   }
+  console.log(namesResumen)
   // Initialize tableHTML with headers
   var tableHTML = '';
   if (!mostrarDetalleCheckbox.is(':checked')) {
@@ -321,15 +324,16 @@ function extractAllColumnData(doc, columnIndex) {
 
   return columnData;
 }
-
-// Attach the event handlers to the checkbox and date input change events
-document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
-  checkbox.addEventListener('change', function () { filterData(false); });
-});
-document.querySelector('#ocultarEnsayosCheckbox').addEventListener('change', function () { filterData(false); });
-document.querySelector('#ocultarEnsGirCheckbox').addEventListener('change', function () { filterData(false); });
-document.querySelector('#ocultarDiasVaciosCheckbox').addEventListener('change', function () { filterData(false); });
-
+try {
+  // Attach the event handlers to the checkbox and date input change events
+  document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
+    checkbox.addEventListener('change', function () { filterData(false); });
+  });
+  document.querySelector('#ocultarEnsayosCheckbox').addEventListener('change', function () { filterData(false); });
+  document.querySelector('#ocultarEnsGirCheckbox').addEventListener('change', function () { filterData(false); });
+  document.querySelector('#ocultarDiasVaciosCheckbox').addEventListener('change', function () { filterData(false); });
+}
+catch{}
 
 
 document.querySelectorAll('.filter-date').forEach(function (dateInput) {
@@ -903,7 +907,7 @@ async function filterData(completarDias = false) {
       // Check if the table exists
       if (table) {
         // Get all rows in the table except the first one (index 0)
-        var rowsToRemove = Array.from(table.rows).slice(2);
+        var rowsToRemove = Array.from(table.rows).slice(0);
 
         // Remove each row
         rowsToRemove.forEach(function (row) {
@@ -1019,13 +1023,13 @@ async function filterData(completarDias = false) {
               backgroundColor = '#baee29';
             }
             if (esCoordEns) {
-              planilla = ' <a href="'+planillas[i]+'" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
+              planilla = ' <a href="' + planillas[i] + '" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
             }
-            programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>'+planilla;
-            
+            programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>' + planilla;
+
           }
-          
-          
+
+
           row += '<div style="line-height: 2  ">' + programColored + '</div>';
           row += '</td>'
         }
@@ -1215,7 +1219,7 @@ async function filterData(completarDias = false) {
         var drives = data[5].split(' ♪ ');
         var programColored = "";
         var planillas = data[11].split(' ♪ ');
-          var planilla = '';
+        var planilla = '';
         // Process each value separately
         for (var i = 0; i < progrs.length; i++) {
           var backgroundColor;
@@ -1234,9 +1238,9 @@ async function filterData(completarDias = false) {
             backgroundColor = '#baee29';
           }
           if (esCoordEns) {
-            planilla = ' <a href="'+planillas[i]+'" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
+            planilla = ' <a href="' + planillas[i] + '" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
           }
-          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>'+planilla;
+          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>' + planilla;
 
         }
         row += '<p style="line-height: 2  "><i>Progr:</i> ' + programColored + '</p>';

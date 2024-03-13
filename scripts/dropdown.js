@@ -1,16 +1,16 @@
 function getDropdownData() {
   //console.log("getDropdownData")
-const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
-fetch(url)
-.then(response => response.text())
-.then(html => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const data = extractColumnData(doc, 3); // Extract data from the 4th column
-  createDropdown(data);
-})
-.catch(error => console.error('Error fetching data:', error));
-return data;
+  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const data = extractColumnData(doc, 3); // Extract data from the 4th column
+      createDropdown(data);
+    })
+    .catch(error => console.error('Error fetching data:', error));
+  return data;
 }
 // Function to extract data from the specified column
 function extractColumnData(doc, columnIndex) {
@@ -65,13 +65,14 @@ function createDropdown(data) {
   // Wait for the document to be ready
   $(document).ready(function () {
     // Initialize Select2 on the dropdown using its class
-    $('.js-select2').select2();
+    $('.js-select2')
 
     // Add an event listener to handle changes in the dropdown
-    $(dropdown).on('select2:select', function (e) {
+    $('.js-select2').on('change', function (e) {
       filterData();
     });
   });
+
 }
 
 getDropdownData()
