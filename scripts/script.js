@@ -8,6 +8,7 @@ var namesWithMus;
 const urlParameters = new URLSearchParams(window.location.search)
 const ensParam = urlParameters.get('ens');
 let esCoordEns = false;
+let primeraVez = true;
 if (ensParam) { esCoordEns = true; }
 
 function loadClient() {
@@ -684,7 +685,7 @@ function showData(data, startColumn, endColumn) {
   }
   inputRowHTML += '</tr>';
   thead.append(inputRowHTML);
- 
+
   var debounceTimer;
 
   $('.filter-input').on('input', function () {
@@ -707,6 +708,7 @@ async function filterData(completarDias = false) {
     return;
   }
 
+
   var selectedValues = $('.filter-checkbox:checked').map(function () {
     return $(this).val();
   }).get();
@@ -716,6 +718,7 @@ async function filterData(completarDias = false) {
   var tbody = $('#table-data tbody');
   var currentMonth = null;
   var currentDay = 0;
+
 
   // Clear existing rows
   //tbody.empty().css('width', 'auto');
@@ -859,31 +862,40 @@ async function filterData(completarDias = false) {
   function createTable() {
     return new Promise(function (resolve) {
       //destroyResizableTable(document.getElementById('table-data'));
+      
       var table = document.getElementById('table-data')
       // Check if the table exists
-      if (table) {
-        // Get all rows in the table except the first one (index 0)
+      if (table && !primeraVez) {
         var rowsToRemove = Array.from(table.rows).slice(2);
+
 
         // Remove each row
         rowsToRemove.forEach(function (row) {
           table.deleteRow(row.rowIndex);
         });
+        primeraVez = false;
       } else {
         console.error("Table not found");
       }
+      console.log(filteredData);
+      /*var firstRowMonth = new Date(filteredData[0][1]).getMonth();
+      var firstmonthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(firstRowMonth) + '  ' + new Date(filteredData[0][1]).getFullYear() + '</td></tr>';
+      tbody.append(firstmonthSeparatorRow);
+      */
+      
       filteredData.forEach(function (data) {
         var rowMonth = new Date(data[1]).getMonth();
         var rowDay = new Date(data[1]);
         var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
-        if (!isOcultarDias) {
+        if (!isOcultarDias && currentDay !== 0) {
+
           var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
           if (diff > 1 && currentDay !== 0) {
             //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
             for (i = 1; i < diff; i++) {
               let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
               rowMonth = nextDay.getMonth();
-              if (currentMonth !== rowMonth) {
+              if (currentMonth && rowMonth) {
                 // Insert a separator row with the name of the month
                 var monthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
                 tbody.append(monthSeparatorRow);
@@ -898,8 +910,11 @@ async function filterData(completarDias = false) {
 
             };
           }
+          currentDay = rowDay
+          currentMonth = rowMonth;
         }
 
+        //console.log(currentMonth)
         currentDay = rowDay
         if (currentMonth !== rowMonth) {
           // Insert a separator row with the name of the month
@@ -1657,8 +1672,8 @@ function toggleFiltros() {
   const floatingFiltros = document.getElementById('floatingFiltros');
   floatingFiltros.classList.toggle('show');
   const toggleButton = document.getElementById('toggleFiltros');
-  if(toggleButton.textContent == "⇓") {toggleButton.textContent = "⇑"}
-  else {toggleButton.textContent = "⇓";} 
+  if (toggleButton.textContent == "⇓") { toggleButton.textContent = "⇑" }
+  else { toggleButton.textContent = "⇓"; }
 }
 document.addEventListener('DOMContentLoaded', loadClient);
 
