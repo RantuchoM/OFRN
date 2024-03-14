@@ -619,7 +619,7 @@ function getData() {
 
 
 
-      filterData(false);
+      filterData();
       //convert the values to valid dates
       function isMobileView() {
         // You can adjust the breakpoint value as needed
@@ -873,21 +873,22 @@ async function filterData(completarDias = false) {
         rowsToRemove.forEach(function (row) {
           table.deleteRow(row.rowIndex);
         });
-        primeraVez = false;
+        
       } else {
         console.error("Table not found");
       }
+      primeraVez = false;
       console.log(filteredData);
       /*var firstRowMonth = new Date(filteredData[0][1]).getMonth();
-      var firstmonthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(firstRowMonth) + '  ' + new Date(filteredData[0][1]).getFullYear() + '</td></tr>';
-      tbody.append(firstmonthSeparatorRow);
-      */
+      var firstmonthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 25px; text-align: center !important;"><td colspan="9">' + getMonthName(firstRowMonth) + '  ' + new Date(filteredData[0][1]).getFullYear() + '</td></tr>';
+      tbody.append(firstmonthSeparatorRow);*/
+      
       
       filteredData.forEach(function (data) {
         var rowMonth = new Date(data[1]).getMonth();
         var rowDay = new Date(data[1]);
         var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
-        if (!isOcultarDias && currentDay !== 0) {
+        if (!isOcultarDias) {
 
           var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
           if (diff > 1 && currentDay !== 0) {
@@ -895,9 +896,9 @@ async function filterData(completarDias = false) {
             for (i = 1; i < diff; i++) {
               let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
               rowMonth = nextDay.getMonth();
-              if (currentMonth && rowMonth) {
+              if (currentMonth !== rowMonth) {
                 // Insert a separator row with the name of the month
-                var monthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+                var monthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 25px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
                 tbody.append(monthSeparatorRow);
 
               }
@@ -911,7 +912,7 @@ async function filterData(completarDias = false) {
             };
           }
           currentDay = rowDay
-          currentMonth = rowMonth;
+          //currentMonth = rowMonth;
         }
 
         //console.log(currentMonth)
@@ -1277,7 +1278,7 @@ async function filterData(completarDias = false) {
   }
 
   // Call createView initially when the page loads
-  createView();
+  //createView();
 
   function setColumnWidths() {
     var table = document.querySelector('#table-data');
@@ -1455,7 +1456,7 @@ async function filterData(completarDias = false) {
 
 
 
-filterData();
+//filterData();
 
 function getMonthName(month) {
   var months = [

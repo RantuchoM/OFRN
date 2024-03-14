@@ -1,12 +1,12 @@
 function getDropdownData() {
+ 
   //console.log("getDropdownData")
-  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
-  fetch(url)
+  const url = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt'; // Replace with the actual URL of the external page
+  return fetch(url)
     .then(response => response.text())
-    .then(html => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const data = extractColumnData(doc, 3); // Extract data from the 4th column
+    .then(base64Text => {
+      doc = decodeAndRevertGeneral(base64Text);
+      const data = doc.map(n=>n[3]);
       createDropdown(data);
     })
     .catch(error => console.error('Error fetching data:', error));
