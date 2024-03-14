@@ -33,14 +33,18 @@ function initClient() {
 
 function getNames() {
   //console.log("getDropdownData")
-  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
+  const url = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt'; // Replace with the actual URL of the external page
   return fetch(url)
     .then(response => response.text())
-    .then(html => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
+    .then(base64Text => {
+      doc = decodeAndRevertText(base64Text);
+      
+
+      //const parser = new DOMParser();
+      //const doc = dataArray;
       //console.log(extractColumnData(doc, 3))
       names = extractColumnData(doc, 3);
+      console.log(names)
       names.shift()
       names.sort() // Extract data from the 4th column
       console.log(names)
@@ -64,7 +68,7 @@ function getNamesWithMus() {
       namesWithMus = allNames.filter(name => {
         
         const musValue = allMus[allNames.indexOf(name) + 1];
-        console.log(name+" - "+musValue+" - " +["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
+        //console.log(name+" - "+musValue+" - " +["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
 
         return (name!='') && ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword));
       });
@@ -102,7 +106,7 @@ function resumenPersonas() {
   else {
     namesResumen = namesWithMus;
   }
-  console.log(namesResumen)
+  //console.log(namesResumen)
   // Initialize tableHTML with headers
   var tableHTML = '';
   if (!mostrarDetalleCheckbox.is(':checked')) {
@@ -357,23 +361,13 @@ function getDataFromTextFile() {
     .then(base64Text => {
       dataArray = decodeAndRevertText(base64Text);
 
-      // Split the text into an array based on the specified delimiter ("/")
-      //dataArray = decodedAndRevertedText.split('/');
-
-      // Split each data entry based on the reversed characters ("=/")
-      //dataArray = dataArray.map(data => data.split('=/'));
-
-      //console.log(dataArray);
-      //return dataArray;
-
       headers = dataArray[0];
       dataArray.shift();
       console.log(dataArray);
       dataArray = dataArray.filter(row => row[0] != undefined);
-      //console.log("Última fila: " + dataArray[dataArray.length - 1][0])
+
       for (i = 0; i < dataArray.length; i++) {
-        //var dateParts = dataArray[i][1].split("/");
-        //var formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+
         dataArray[i][1] = new Date(dataArray[i][1])
         var inputString = dataArray[i][2];
         if (inputString.includes('Sat')) {
@@ -391,7 +385,7 @@ function getDataFromTextFile() {
           dataArray[i][2] = formattedTime;
         }
       }
-      console.log(dataArray)
+      //console.log(dataArray)
 
 
       let floatingFiltros = document.getElementById('floatingFiltros');
@@ -484,12 +478,12 @@ function decodeAndRevertText(base64Text) {
 
   // Split the text into an array based on the specified delimiter ("/")
   var dataArray = revertedText.split('=/');
-  console.log(dataArray.length);
+  //console.log(dataArray.length);
 
   // Split each data entry based on the reversed characters ("=/")
   dataArray = dataArray.map(data => data.split('+/'));
 
-  console.log(dataArray);
+  //console.log(dataArray);
   return dataArray;
 }
 
@@ -815,7 +809,7 @@ async function filterData(completarDias = false) {
   var ocultarEnsGirChecked = document.getElementById('ocultarEnsGirCheckbox').checked;
 
   // Filter and display rows based on checkboxes, date range, dropdown value, and filter input textboxes
-  console.log(dataArray);
+  //console.log(dataArray);
   var filteredData = dataArray.filter(function (data) {
 
     var dateInRange = isDateInRange(data[1], fromDate, untilDate);
@@ -837,7 +831,7 @@ async function filterData(completarDias = false) {
       ocultarEnsayosCondition && ocultarEnsGirCondition
     );
   });
-  console.log(filteredData)
+  //console.log(filteredData)
 
   var cantidadPresentaciones = 0;
   var cantidadEnsayos = 0;
@@ -1495,21 +1489,24 @@ function getMonthName(month) {
 }
 // Updated function to fetch corresponding value from the spreadsheet and update h1 element
 function fetchSpreadsheetValue(nombreParam) {
-  const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
+  const spreadsheetUrl = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt'; // Replace with the actual URL of the external page
 
   return fetch(spreadsheetUrl)
     .then(response => response.text())
-    .then(html => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      console.log(doc);
-      const dataAB = extractColumnData(doc, 14); // Extract data from the 28th column (AB column)
+    .then(base64Text => {
+      //const parser = new DOMParser();
+      doc = decodeAndRevertText(base64Text);
+      //console.log(doc);
+      
+
+      const dataAB = doc.map(n=>n[13]) // Extract data from the 28th column (AB column)
       console.log(dataAB);
+      //console.log(dataAB);
       // Find the corresponding value in column AB
       const index = dataAB.indexOf(nombreParam);
       if (index !== -1) {
         // If the value is found in column AB, fetch the corresponding value in column D
-        const dataD = extractColumnData(doc, 3); // Extract data from the 4th column (D column)
+        const dataD = doc.map(n=>n[3]); // Extract data from the 4th column (D column)
         const valueInD = dataD[index];
 
         // Update the h1 element with the fetched valueInD
