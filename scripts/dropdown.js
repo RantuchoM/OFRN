@@ -52,12 +52,16 @@ function createDropdown(data) {
   // Add an option for each value in the sorted data array
   data.forEach(value => {
     const option = document.createElement('option');
-    option.text = value;
+    option.text = toTitleCase(value);
     dropdown.add(option);
   });
-
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  }
   // Add a class to the dropdown for Select2 to recognize
-  dropdown.classList.add('js-select2');
+  //dropdown.classList.add('js-select2');
 
   // Add the dropdown to the container
   dropdownContainer.appendChild(dropdown);
@@ -65,10 +69,10 @@ function createDropdown(data) {
   // Wait for the document to be ready
   $(document).ready(function () {
     // Initialize Select2 on the dropdown using its class
-    $('.js-select2')
+    //$('.js-select2')
 
     // Add an event listener to handle changes in the dropdown
-    $('.js-select2').on('change', function (e) {
+    $('#dropdown-container').on('change', function (e) {
       filterData();
     });
   });

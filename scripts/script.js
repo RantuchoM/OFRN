@@ -47,13 +47,13 @@ function getNames() {
       //console.log(names)
       names.shift()
       names.sort() // Extract data from the 4th column
-      console.log(names)
+      //console.log(names)
       resumenPersonas();
     })
     .catch(error => console.error('Error fetching data:', error));
 }
 function getNamesWithMus() {
-  console.log("Names withMus")
+  //console.log("Names withMus")
   const url = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt'; // Replace with the actual URL of the external page
   return fetch(url)
     .then(response => response.text())
@@ -62,15 +62,15 @@ function getNamesWithMus() {
       let allNames = doc.map(n => n[3]); // Assuming 3rd column contains names
       allNames.shift(); // Remove header
       let allMus = doc.map(n => n[9])
-      console.log(allNames)
+      //console.log(allNames)
 
       //allMus.shift();
-      console.log(allMus)
+      //console.log(allMus)
       // Filter names based on the presence of musical terms in column 10
       namesWithMus = allNames.filter(name => {
 
         const musValue = allMus[allNames.indexOf(name) + 1];
-        console.log(name + " - " + musValue + " - " + ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
+        //console.log(name + " - " + musValue + " - " + ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
         if (musValue) {
           return (name != '') && ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword));
         }
@@ -78,8 +78,8 @@ function getNamesWithMus() {
       });
 
       // Sorting names alphabetically
-      console.log("Nombres filtrados")
-      console.log(namesWithMus)
+      //console.log("Nombres filtrados")
+      //console.log(namesWithMus)
       resumenPersonas();
 
 
@@ -91,7 +91,7 @@ function getNamesWithMus() {
 }
 
 function resumenPersonas() {
-  console.log("Resumen Personas")
+  //console.log("Resumen Personas")
   var detailsContainer = $('#people-details');
   var mostrarDetalleCheckbox = $('#mostrarDetalle');
   var mostrarProduccion = $('#mostrarProduccion');
@@ -368,7 +368,7 @@ function getDataFromTextFile() {
 
       headers = dataArray[0];
       dataArray.shift();
-      console.log(dataArray);
+      //console.log(dataArray);
       dataArray = dataArray.filter(row => row[0] != undefined);
 
       for (i = 0; i < dataArray.length; i++) {
@@ -664,7 +664,7 @@ function showData(data, startColumn, endColumn) {
     return;
   }
 
-  console.log(ensParam);
+  //console.log(ensParam);
 
   // Dynamically populate the table header
   var thead = $('#table-data thead');
@@ -794,7 +794,7 @@ async function filterData(completarDias = false) {
 
   if (!ensParam) {
     const nombreParam = urlParameters.get('nombre');
-    console.log(nombreParam);
+    //console.log(nombreParam);
 
     if (!nombreParam) {
       // Proceed with the original functionality
@@ -852,7 +852,7 @@ async function filterData(completarDias = false) {
     return (
       (selectedValues.length === 0 || contieneValor(columnaEnsambles, selectedValues)) &&
       dateInRange &&
-      (!dropdownValue || (data[7] && data[7].match(dropdownValue))) &&
+      (!dropdownValue || (data[7] && data[7].toLowerCase().match(dropdownValue.toLowerCase()))) &&
       !esCancelado &&
       (passFilter(data, filterValues)) &&
       ocultarEnsayosCondition && ocultarEnsGirCondition
@@ -1278,7 +1278,7 @@ async function filterData(completarDias = false) {
         const namesArray = data[7].split('|');
         let namesString = ""
         // Filter the names based on the matching names in dropdownValue
-        let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
+        let filteredNames = namesArray.filter(name => dropdownValue.toLowerCase().includes(name.toLowerCase()));
         if (cantidadNombres.length == filteredNames.length) {
 
           namesString = `${ensParam} Completo`;
@@ -1560,20 +1560,20 @@ function fetchEnsamble(ens) {
 
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      console.log(ens);
+      //console.log(ens);
       const ensambles = extractColumnData(doc, 2); // Extract data from the 4th column (AB column)
       const miembros = extractColumnData(doc, 3); // Extract data from the 3rd column (AB column)
-      console.log(ensambles);
-      console.log(miembros);
+      //console.log(ensambles);
+      //console.log(miembros);
 
       // Filter miembros based on the condition that the corresponding ensambles value matches the variable "ens"
       const filteredMiembros = miembros.filter((miembro, index) => ensambles[index].includes(ens));
-      console.log(filteredMiembros);
+      //console.log(filteredMiembros);
       // Create a string by joining the values of filteredMiembros with "|"
       const resultString = `${filteredMiembros.join('|')}`;
 
       // Use resultString for further processing or display
-      console.log(`Ens: ${resultString}`);
+      //console.log(`Ens: ${resultString}`);
 
       // Rest of your code...
       document.querySelector('h1').innerHTML = `${ens} <br> Coordinación`;
@@ -1721,6 +1721,9 @@ function uncheckAll() {
 function toggleFiltros() {
   const floatingFiltros = document.getElementById('floatingFiltros');
   floatingFiltros.classList.toggle('show');
+  const toggleButton = document.getElementById('toggleFiltros');
+  if(toggleButton.textContent == "⇓") {toggleButton.textContent = "⇑"}
+  else {toggleButton.textContent = "⇓";} 
 }
 document.addEventListener('DOMContentLoaded', loadClient);
 

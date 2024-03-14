@@ -6,10 +6,39 @@ body {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-}
-body * {
-  font-family:'Karla', sans-serif;
 
+}
+
+body * {
+  font-family: 'Karla', sans-serif;
+
+
+}
+
+main {
+  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#dropdown-container {
+  display: flex;
+  justify-content: center;
+
+
+
+  width: 100%;
+  /* Ensure it takes up the full width of its container */
+  margin-top: 20px;
+  /* Adjust as needed */
+  margin-bottom: 20px;
+  /* Adjust as needed */
+}
+
+#dropdown-container select {
+  align-items: center;
+  font-size: 1.5em;
+  height: 30px;
 }
 
 h1 {
@@ -161,7 +190,7 @@ header {
 
 .header-content {
   display: flex;
-  
+
   align-items: center;
   justify-content: center;
 }
@@ -357,8 +386,8 @@ h2 {
   border: 1px solid #4e4e4e;
   /*text-align: left;*/
   padding: 10px 0px;
-  
-  
+
+
 }
 
 #table-data td {
@@ -369,7 +398,7 @@ h2 {
 
 #table-data th {
   text-align: center;
-  
+
 
 }
 
@@ -484,10 +513,12 @@ p {
 
 /* Styles for floating filters */
 .floating-filtros {
-  
+
   position: fixed;
-  top: 30%; /* Center vertically */
-  left: 30%; /* Center horizontally */
+  top: 30%;
+  /* Center vertically */
+  left: 30%;
+  /* Center horizontally */
   width: 410px;
   height: 450px;
   resize: none;
@@ -495,22 +526,28 @@ p {
   border: 1px solid #ccc;
   padding: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 9999; /* Ensure it's above other content */
-  display: none; /* Initially hide */
-  cursor: grab; /* Set cursor to indicate draggable */
-  touch-action: none; /* Disable default touch behavior */
-  
-  
+  z-index: 9999;
+  /* Ensure it's above other content */
+  display: none;
+  /* Initially hide */
+  cursor: grab;
+  /* Set cursor to indicate draggable */
+  touch-action: none;
+  /* Disable default touch behavior */
+
+
 }
 
-.floating-filtros *{
+.floating-filtros * {
   font-size: 0.8em;
-    
+
 }
+
 .marcar {
   display: flex;
   flex-direction: row;
 }
+
 .close-button {
   position: absolute;
   background-color: red;
@@ -524,18 +561,20 @@ p {
   right: 10px;
   cursor: pointer;
 }
+
 .checks {
   display: flex;
   flex-direction: column;
-  
 
 }
 
 .floating-filtros.show {
-  display: block; /* Show when toggled */
+  display: block;
+  /* Show when toggled */
 }
+
 /* Media query for mobile devices */
-@media screen and (max-width: 700px){
+@media screen and (max-width: 700px) {
   body {
     margin: auto;
     padding: 0;
@@ -547,7 +586,7 @@ p {
     display: flex;
     flex-direction: column;
   }
-  
+
   /* Adjust ensemble grid within floating filters */
   .floating-filtros .ensemble-grid {
     display: grid;
@@ -558,13 +597,12 @@ p {
   .floating-filtros #filtros {
     display: flex !important;
     flex-direction: column !important;
-    
+
   }
-  
+
   #marcar {
     display: flex;
     flex-direction: row;
     align-items: center;
   }
 }
-
