@@ -37,14 +37,14 @@ function getNames() {
   return fetch(url)
     .then(response => response.text())
     .then(base64Text => {
-      doc = decodeAndRevertText(base64Text);
-      
+      doc = decodeAndRevertGeneral(base64Text);
+
 
       //const parser = new DOMParser();
       //const doc = dataArray;
       //console.log(extractColumnData(doc, 3))
-      names = extractColumnData(doc, 3);
-      console.log(names)
+      names = doc.map(n => n[3])
+      //console.log(names)
       names.shift()
       names.sort() // Extract data from the 4th column
       console.log(names)
@@ -53,28 +53,33 @@ function getNames() {
     .catch(error => console.error('Error fetching data:', error));
 }
 function getNamesWithMus() {
-  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true';
-
+  console.log("Names withMus")
+  const url = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt'; // Replace with the actual URL of the external page
   return fetch(url)
     .then(response => response.text())
-    .then(html => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const allNames = extractAllColumnData(doc, 3); // Assuming 3rd column contains names
+    .then(base64Text => {
+      doc = decodeAndRevertGeneral(base64Text);
+      let allNames = doc.map(n => n[3]); // Assuming 3rd column contains names
       allNames.shift(); // Remove header
-      let allMus = extractAllColumnData(doc, 9);
-      allMus.shift();
+      let allMus = doc.map(n => n[9])
+      console.log(allNames)
+
+      //allMus.shift();
+      console.log(allMus)
       // Filter names based on the presence of musical terms in column 10
       namesWithMus = allNames.filter(name => {
-        
-        const musValue = allMus[allNames.indexOf(name) + 1];
-        //console.log(name+" - "+musValue+" - " +["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
 
-        return (name!='') && ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword));
+        const musValue = allMus[allNames.indexOf(name) + 1];
+        console.log(name + " - " + musValue + " - " + ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword)));
+        if (musValue) {
+          return (name != '') && ["Maderas", "Percusión", "Cuerdas", "Bronces"].some(keyword => musValue.includes(keyword));
+        }
+        else { return false }
       });
 
       // Sorting names alphabetically
-      
+      console.log("Nombres filtrados")
+      console.log(namesWithMus)
       resumenPersonas();
 
 
@@ -337,7 +342,7 @@ try {
   document.querySelector('#ocultarEnsGirCheckbox').addEventListener('change', function () { filterData(false); });
   document.querySelector('#ocultarDiasVaciosCheckbox').addEventListener('change', function () { filterData(false); });
 }
-catch{}
+catch { }
 
 
 document.querySelectorAll('.filter-date').forEach(function (dateInput) {
@@ -485,6 +490,28 @@ function decodeAndRevertText(base64Text) {
 
   //console.log(dataArray);
   return dataArray;
+}
+function decodeAndRevertGeneral(base64Text) {
+  // Add padding to the Base64 text if needed
+  /*while (base64Text.length % 4) {
+    base64Text += '=';
+  }
+
+  // Decode Base64
+  var decodedText = atob(base64Text.replace(/-/g, '+').replace(/_/g, '/'));*/
+
+  // Reverse the replacement of accented vowels
+  var revertedText = revertAccentedVowels(base64Text);
+
+  // Split the text into an array based on the specified delimiter ("/")
+  var data = revertedText.split('=/');
+  //console.log(dataArray.length);
+
+  // Split each data entry based on the reversed characters ("=/")
+  data = data.map(data => data.split('+/'));
+
+  //console.log(dataArray);
+  return data;
 }
 
 // Function to revert the replacement of accented vowels
@@ -1497,16 +1524,16 @@ function fetchSpreadsheetValue(nombreParam) {
       //const parser = new DOMParser();
       doc = decodeAndRevertText(base64Text);
       //console.log(doc);
-      
 
-      const dataAB = doc.map(n=>n[13]) // Extract data from the 28th column (AB column)
+
+      const dataAB = doc.map(n => n[13]) // Extract data from the 28th column (AB column)
       console.log(dataAB);
       //console.log(dataAB);
       // Find the corresponding value in column AB
       const index = dataAB.indexOf(nombreParam);
       if (index !== -1) {
         // If the value is found in column AB, fetch the corresponding value in column D
-        const dataD = doc.map(n=>n[3]); // Extract data from the 4th column (D column)
+        const dataD = doc.map(n => n[3]); // Extract data from the 4th column (D column)
         const valueInD = dataD[index];
 
         // Update the h1 element with the fetched valueInD
