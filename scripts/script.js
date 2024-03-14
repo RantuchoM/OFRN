@@ -907,7 +907,7 @@ async function filterData(completarDias = false) {
       // Check if the table exists
       if (table) {
         // Get all rows in the table except the first one (index 0)
-        var rowsToRemove = Array.from(table.rows).slice(0);
+        var rowsToRemove = Array.from(table.rows).slice(2);
 
         // Remove each row
         rowsToRemove.forEach(function (row) {
