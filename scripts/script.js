@@ -684,52 +684,7 @@ function showData(data, startColumn, endColumn) {
   }
   inputRowHTML += '</tr>';
   thead.append(inputRowHTML);
-  /*
-  headers.forEach(function (header) {
-    if (header == "Nombres" && !ensParam) { }
-    else {
-      headerRowHTML += '<th>' + header + '</th>';
-    }
-  });
-  headerRowHTML += '</tr>';
-  thead.html(headerRowHTML);
-  // Add a row for input fields
-  var inputRowHTML = '<tr id="filtros-texto">';
-  var tbody = $('#table-data tbody');
-  headers.forEach(function (header) {
-    if (header == "Nombres" & !ensParam) { }
-    else {
-      inputRowHTML += '<td class="tooltip"><input type="text" class="filter-input" data-column="' + header + '"><div class="tooltiptext">Escribí los valores que quieras que aparezcan en esta columna, separados por guiones</div></td>';
-    }
-  });
-  inputRowHTML += '</tr>';*/
-
-
-  // Dynamically populate the table data
-  /*
-    for (let i = 1; i < data.length; i++) {
-      const rowData = data[i].slice(startColumn - 1, endColumn);
-      var rowHTML = '<tr>';
-  
-      rowData.forEach(function (value, columnIndex) {
-  
-        if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-          // Assuming data[headers[columnIndex]] contains the link
-          rowHTML += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
-        } else {
-          rowHTML += '<td>' + value + '</td>';
-        }
-      });
-  
-      rowHTML += '</tr>';
-  
-      tbody.append(rowHTML);
-      */
-
-
-
-
-  // Attach event handlers to the input fields for dynamic filtering
+ 
   var debounceTimer;
 
   $('.filter-input').on('input', function () {
@@ -739,26 +694,6 @@ function showData(data, startColumn, endColumn) {
     }, 1500); // Adjust the delay time (in milliseconds) as needed
   });
 
-  /*
-  // Dynamically populate the table data
-  var tbody = $('#table-data tbody');
-  for (let i = 1; i < data.length; i++) {
-    const rowData = data[i].slice(startColumn - 1, endColumn);
-    var rowHTML = '<tr>';
- 
-    rowData.forEach(function (value, columnIndex) {
- 
-      if (columnIndex === 5) { // Check if it's the 6th column (assuming 0-based index)
-        // Assuming data[headers[columnIndex]] contains the link
-        rowHTML += '<td><a href="' + value + '" target="_blank">Drive</a></td>';
-      } else {
-        rowHTML += '<td>' + value + '</td>';
-      }
-    });
-    rowHTML += '</tr>';
-    tbody.append(rowHTML);
-  }
-  */
 
 
 }
