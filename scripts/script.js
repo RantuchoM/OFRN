@@ -447,6 +447,8 @@ function getDataFromTextFile() {
 
 
       filterData(false);
+  
+
       //convert the values to valid dates
 
       //resolve(dataArray);
@@ -935,6 +937,9 @@ async function filterData(completarDias = false) {
         else if (data[8].includes('Present')) {
           row += 'background: linear-gradient(yellow, white 150%) content-box;"';
         }
+        else{
+          row +='"';
+        }
 
         row += '>'
         let estado;
@@ -1137,6 +1142,7 @@ async function filterData(completarDias = false) {
       else if (data[8].includes('Present')) {
         row += ' style="background: linear-gradient(yellow, white) content-box;"';
       }
+      
 
       row += '>'
       let estado;
@@ -1453,6 +1459,7 @@ async function filterData(completarDias = false) {
   }, 100);
 
 }
+
 
 
 
