@@ -1233,6 +1233,7 @@ async function filterData(completarDias = false) {
           } else {
             backgroundColor = '#baee29';
             tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ','');
+            tipo = tipo.split(' ')[0];
             
           }
           if (esCoordEns) {
@@ -1248,8 +1249,9 @@ async function filterData(completarDias = false) {
       else {
         detailedRow += '<p>Sin asignar</p>';
         tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ','');
+        tipo = tipo.split(' ')[0];
       }
-      if (data[6].includes('Ensayo de')) { tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ',''); }
+      if (data[6].includes('Ensayo de')) { tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ',''); tipo = tipo.split(' ')[0]; }
 
       //OBSERVACIONES
       var obs = data[8]
