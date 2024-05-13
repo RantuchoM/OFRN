@@ -455,7 +455,10 @@ p {
   font-size: 1em;
   padding: 0.2em;
 }
+.ensayoGira {
+  background: linear-gradient(rgb(101, 111, 255), white) content-box !important;
 
+}
 @media print {
   body * {
     visibility: hidden;

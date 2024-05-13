@@ -1133,10 +1133,11 @@ async function filterData(completarDias = false) {
       //var detailedRow = '<tr class="detailed-row" data-date="' + formattedDate + '" style="text-align: center; display: none">';
       var esPresentacion = "";
       if (data[8].toLowerCase().startsWith('presentación')) { esPresentacion = " es_present" }
-      var detailedRow = '<tr class="detailed-row' + esPresentacion + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
+      var esEnsayoGira = data[6].includes('Gira/Progr') ? ' ensayoGira' : '';
+      var detailedRow = '<tr class="detailed-row' + esPresentacion + esEnsayoGira + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
 
 
-
+      
       if (data[6].toLowerCase().includes('ensayo')) {
         detailedRow += ' background: linear-gradient(violet, white) border-box;"';
       }
@@ -1231,7 +1232,8 @@ async function filterData(completarDias = false) {
             tipo = "CFCuer";
           } else {
             backgroundColor = '#baee29';
-            tipo = data[6].replace('Ensayo de ', '');
+            tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ','');
+            
           }
           if (esCoordEns) {
             planilla = ' <a href="' + planillas[i] + '" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
@@ -1245,9 +1247,9 @@ async function filterData(completarDias = false) {
       }
       else {
         detailedRow += '<p>Sin asignar</p>';
-        tipo = data[6].replace('Ensayo de ', '');
+        tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ','');
       }
-      if(data[6].includes('Ensayo de')){tipo = data[6].replace('Ensayo de ', '');}
+      if (data[6].includes('Ensayo de')) { tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ',''); }
 
       //OBSERVACIONES
       var obs = data[8]
@@ -1358,7 +1360,22 @@ async function filterData(completarDias = false) {
 
 
       } else {
-        summaryRow += `${ensayos} ensayos y ${presentaciones} conciertos`;
+        
+        let ensStr;
+        let presStr;
+        if (ensayos > 1) {
+          ensStr = ensayos + " Ensayos";
+        } else if (ensayos === 1) {
+          ensStr = "1 Ensayo";
+        }
+
+        if (presentaciones > 1) {
+          presStr = presentaciones + " Conciertos";
+        } else if (presentaciones === 1) {
+          presStr = "1 Concierto";
+        }
+
+        summaryRow += ensStr ? (ensStr + (presStr ? " y " + presStr : "")) : presStr;
       }
 
 
@@ -1469,7 +1486,7 @@ async function filterData(completarDias = false) {
     row.classList.add('event-row', 'hidden'); // Add classes for styling and visibility control
     return row;
   }
-  
+
   function groupDataByDay(data) {
     var groupedData = {};
     data.forEach(function (event) {
