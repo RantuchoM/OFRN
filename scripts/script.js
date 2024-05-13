@@ -1469,6 +1469,7 @@ async function filterData(completarDias = false) {
     row.classList.add('event-row', 'hidden'); // Add classes for styling and visibility control
     return row;
   }
+  
 
   function groupDataByDay(data) {
     var groupedData = {};
