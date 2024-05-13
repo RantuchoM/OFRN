@@ -21,6 +21,7 @@ function initClient() {
     apiKey: 'AIzaSyAxQ63EFfI-ackr9PrPOxJepog7DDh5_dE',
     discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
   }).then(() => {
+    //setValueTest()
     // Call the function to fetch data
     getDataFromTextFile().then(() => {
       // Now that the data is loaded, call the function to get names
@@ -356,7 +357,7 @@ document.querySelectorAll('.filter-date').forEach(function (dateInput) {
 function getDataFromTextFile() {
   // Replace with the actual URL of your "/backup.txt" file
   var txtFileUrl = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup.txt';
-
+  //setValueTest();
   return fetch(txtFileUrl)
     .then(response => {
       if (!response.ok) {
@@ -447,7 +448,7 @@ function getDataFromTextFile() {
 
 
       filterData(false);
-  
+
 
       //convert the values to valid dates
 
@@ -540,6 +541,29 @@ function revertAccentedVowels(text) {
 
   return revertedText;
 }
+function setValueTest() {
+  gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: '1l4t9hnGrJhpxWii8WbqxO9yWd_oOLaxx3BT8oxGFHFw',
+    range: 'Listado!A15',
+    valueInputOption: 'USER_ENTERED',
+    values: [["123"]]
+  }).then(function (response) {
+    console.log(response);
+  });
+}
+function updateOneCell() {
+  var spreadsheetId = "someSpreadsheetId";
+  var request = {
+    majorDimension: "ROWS",
+    values: [[new Date()]]
+  };
+  Sheets.Spreadsheets.Values.update(
+    request,
+    spreadsheetId,
+    "Sheet1!A1",
+    { valueInputOption: "USER_ENTERED" }
+  );
+}
 // Function to fetch data from Google Sheets
 function getData() {
   return new Promise((resolve, reject) => {
@@ -547,6 +571,7 @@ function getData() {
       spreadsheetId: '1l4t9hnGrJhpxWii8WbqxO9yWd_oOLaxx3BT8oxGFHFw',
       range: 'Listado!E:O',
     }).then(response => {
+      setValueTest();
       const values = response.result.values;
       //console.log(values);
       dataArray = extractData(values);
@@ -864,7 +889,7 @@ async function filterData(completarDias = false) {
   function createTable() {
     return new Promise(function (resolve) {
       //destroyResizableTable(document.getElementById('table-data'));
-      
+
       var table = document.getElementById('table-data')
       // Check if the table exists
       if (table && !primeraVez) {
@@ -875,7 +900,7 @@ async function filterData(completarDias = false) {
         rowsToRemove.forEach(function (row) {
           table.deleteRow(row.rowIndex);
         });
-        
+
       } else {
         console.error("Table not found");
       }
@@ -884,8 +909,8 @@ async function filterData(completarDias = false) {
       /*var firstRowMonth = new Date(filteredData[0][1]).getMonth();
       var firstmonthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 25px; text-align: center !important;"><td colspan="9">' + getMonthName(firstRowMonth) + '  ' + new Date(filteredData[0][1]).getFullYear() + '</td></tr>';
       tbody.append(firstmonthSeparatorRow);*/
-      
-      
+
+
       filteredData.forEach(function (data) {
         var rowMonth = new Date(data[1]).getMonth();
         var rowDay = new Date(data[1]);
@@ -937,8 +962,8 @@ async function filterData(completarDias = false) {
         else if (data[8].includes('Present')) {
           row += 'background: linear-gradient(yellow, white 150%) content-box;"';
         }
-        else{
-          row +='"';
+        else {
+          row += '"';
         }
 
         row += '>'
@@ -1079,8 +1104,394 @@ async function filterData(completarDias = false) {
 
     });
   }
-
   function createTableAsCards() {
+    var table = document.getElementById('table-data');
+    // Check if the table exists
+    if (!table) {
+      console.error("Table not found");
+      return;
+    }
+
+    var tbody = table.getElementsByTagName('tbody')[0];
+    // Clear existing rows
+    tbody.innerHTML = '';
+
+    // Object to store detailed rows by date
+    var detailedRowsByDate = {};
+
+    filteredData.forEach(function (data) {
+      let estado;
+      var rowDay = data[1];
+      var formattedDate = semiLongDate(rowDay);
+
+      // Check if detailed rows for this date already exist
+      if (!detailedRowsByDate[rowDay]) {
+        detailedRowsByDate[rowDay] = [];
+      }
+
+      // Construct the detailed row
+      //var detailedRow = '<tr class="detailed-row" data-date="' + formattedDate + '" style="text-align: center; display: none">';
+      var esPresentacion = "";
+      if (data[8].toLowerCase().startsWith('presentación')) { esPresentacion = " es_present" }
+      var detailedRow = '<tr class="detailed-row' + esPresentacion + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
+
+
+
+      if (data[6].toLowerCase().includes('ensayo')) {
+        detailedRow += ' background: linear-gradient(violet, white) border-box;"';
+      }
+      else if (data[8].toLowerCase().startsWith('ensay')) {
+        detailedRow += ' background: linear-gradient(blue, white) border-box;"';
+      }
+      else if (data[8].includes('Present')) {
+        detailedRow += ' background: linear-gradient(yellow, white) border-box;"';
+      }
+
+
+      detailedRow += '><td style="width: 18%">'
+      //let estado;
+      let estadoColor = '';
+
+      if (data[10] == undefined || !esCoordEns) {
+        estado = '';
+      } else {
+        switch (data[10]) {
+          case 'REVISAR':
+            estadoColor = 'red';
+            break;
+          case 'Auto-gestionado':
+            estadoColor = 'blue';
+            break;
+          case 'Confirmado':
+            estadoColor = 'green';
+            break;
+          case 'CANCELADO':
+            estadoColor = 'purple';
+            break;
+          case 'Pedido':
+            estadoColor = 'yellow';
+            break;
+          case 'Estimado':
+            estadoColor = 'orange';
+            break;
+          default:
+            estadoColor = '';
+        }
+
+        estado = estadoColor
+          ? '<span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
+          : '<span>' + data[10] + '</span>';
+      }
+      //FECHA
+      detailedRow += '<p>' + [data[2], estado].filter(Boolean).join("</p><p>") + '</p>';
+      detailedRow += '</td><td style="width: 30%">'
+      //Lugares
+      detailedRow += '<p>' + [data[3], data[4]].filter(Boolean).join('</p><p>') + '</p>';
+      detailedRow += '</td><td style="width: 50%">'
+      //Agregar tipo de programa
+      /*
+      
+      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
+      //console.log(data[8].toLowerCase())
+      if (data[8].toLowerCase().startsWith('ensayo')) {
+        row += '<h3>Ensayo Integrado</h3>'
+      }
+      else if (data[8].toLowerCase().startsWith('present')) {
+        row += '<h3>Presentación</h3>'
+      }
+      else {
+        row += '<h3>' + data[6] + '</h3>';
+      }
+      */
+      var tipo;
+      if (data[0] != "Sin programa asign.") {
+        var progrs = data[0].split(' ♪ ');
+        var drives = data[5].split(' ♪ ');
+        var programColored = "";
+        var planillas = data[11].split(' ♪ ');
+        var planilla = '';
+        // Process each value separately
+        for (var i = 0; i < progrs.length; i++) {
+          var backgroundColor;
+
+          if (progrs[i].startsWith('Sinf')) {
+            backgroundColor = '#5f51db';
+            tipo = "Sinf";
+          } else if (progrs[i].startsWith('CFVal')) {
+            backgroundColor = '#E1C16E';
+            tipo = "CFVal";
+          } else if (progrs[i].startsWith('CFMon')) {
+            backgroundColor = '#A8A8A8';
+            tipo = "CFMon";
+          } else if (progrs[i].startsWith('CFMar')) {
+            backgroundColor = '#89CFF0';
+            tipo = "CFMar";
+          } else if (progrs[i].startsWith('CFCuer')) {
+            backgroundColor = '#ffccff';
+            tipo = "CFCuer";
+          } else {
+            backgroundColor = '#baee29';
+            tipo = data[6].replace('Ensayo de ', '');
+          }
+          if (esCoordEns) {
+            planilla = ' <a href="' + planillas[i] + '" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
+          }
+
+          programColored += '<a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i].substring(0, 12) + ' </a>' + planilla + '<br>';
+
+        }
+        if (!tipo) { tipo = "Sin asignar" }
+        detailedRow += '<p style="line-height: 1.2  "> ' + programColored + '</p>';
+      }
+      else {
+        detailedRow += '<p>Sin asignar</p>';
+        tipo = data[6].replace('Ensayo de ', '');
+      }
+      if(data[6].includes('Ensayo de')){tipo = data[6].replace('Ensayo de ', '');}
+
+      //OBSERVACIONES
+      var obs = data[8]
+      if (data[8].includes('Integrado')) {
+        obs = data[8].replace('Ensayo Integrado:', '');
+      }
+      if (data[8] != "Presentación") { detailedRow += '<p><i>Observ: </i>' + obs + '</p>' }
+      /*
+      else { row += '<p>Partic: ' + data[6] + '</p>' };
+      if (ensParam) {
+        const namesArray = data[7].split('|');
+        let namesString = ""
+        // Filter the names based on the matching names in dropdownValue
+        let filteredNames = namesArray.filter(name => dropdownValue.toLowerCase().includes(name.toLowerCase()));
+        if (cantidadNombres.length == filteredNames.length) {
+
+          namesString = `${ensParam} Completo`;
+        }
+        else {
+          var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
+          /*\// Shorten each name to the first two characters of each word (initials) plus one additional letter
+          if (nombresCompletosChecked) { }
+          else {
+            filteredNames = filteredNames.map(name => {
+              const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
+
+              return initials;
+            });
+          }*\/
+
+          // Join the shortened names back into a string with "|" separator
+          namesString = filteredNames.join('-');
+        }
+
+        // Add the shortened names to the row
+        row += '<p>' + namesString + '</p>';
+      }
+      */
+
+
+
+      detailedRow += '</td> <!–-tipo: ' + tipo + '  -–><!–-hora: ' + data[2] + '  /hora-–></tr>';
+
+      // Push detailed row to the corresponding date
+      detailedRowsByDate[rowDay].push(detailedRow);
+    });
+
+    // Create summary rows and attach event listeners
+    for (var date in detailedRowsByDate) {
+      var rowMonth = new Date(date).getMonth();
+      var rowDay = new Date(date);
+      var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
+      if (!isOcultarDias) {
+        var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
+        if (diff > 1 && currentDay !== 0) {
+          //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
+          for (i = 1; i < diff; i++) {
+            let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
+            rowMonth = nextDay.getMonth();
+            if (currentMonth !== rowMonth) {
+              // Insert a separator row with the name of the month
+              var monthSeparatorRow = '<tr style="width: 100%; height: 40px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 15px; text-align: center !important;"><td colspan="4">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
+              tbody.insertAdjacentHTML('beforeend', monthSeparatorRow);
+
+            }
+            currentMonth = rowMonth; // Update the current month
+            let fD = semiLongDate(nextDay);
+            let dom = '';
+            if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
+            tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="4" ' + dom + '><p>' + fD + '</p></td></tr>');
+            if (fD.startsWith('D')) { tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="4" style="height: 5px; background-color: gray;"></td></tr>'); };
+          };
+        }
+      }
+
+      currentDay = rowDay
+      if (currentMonth !== rowMonth) {
+        // Insert a separator row with the name of the month
+        var monthSeparatorRow = '<tr style="width: 100%; height: 40px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="4">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
+        tbody.insertAdjacentHTML('beforeend', monthSeparatorRow);
+        currentMonth = rowMonth; // Update the current month
+      }
+
+      const events = detailedRowsByDate[date];
+
+
+
+
+      const presentaciones = events.filter(event => event.includes("es_present")).length;
+      const ensayos = events.length - presentaciones;
+      const esUnico = (events.length == 1)
+      var esDesplegado;
+      if (esUnico) { esDesplegado = ' desplegado' }
+      else { esDesplegado = '' }
+      var summaryRow = '<tr class="summary-row' + '" data-date="' + date + '" style="cursor: pointer; background: linear-gradient(white,rgb(37, 207, 94), rgb(37, 207, 94)) content-box; text-align: center; background: linear-gradient(light green, white); font-size: 18px;">';
+      summaryRow += '<td colspan="4"><p>' + semiLongDate(new Date(date)) + ' - ';
+
+      if (esUnico) {
+        if (presentaciones == 1) {
+          summaryRow += `Concierto`;
+
+        }
+        else {
+          summaryRow += `Ensayo`;
+        }
+        console.log(events[0])
+        summaryRow += `: ${events[0].substring(events[0].indexOf("hora: ") + 6, events[0].indexOf(" /hora-–>"))}`;
+
+
+      } else {
+        summaryRow += `${ensayos} ensayos y ${presentaciones} conciertos`;
+      }
+
+
+
+      var tipos = new Set(events.map(str => {
+        // Find the starting and ending positions of "THIS"
+        const startPos = str.indexOf("tipo: ") + 6; // Skip "tipo: "
+        const endPos = str.indexOf("  -–>");
+
+        // Extract the value
+        return str.substring(startPos, endPos);
+      }));
+
+      console.log(tipos.size)
+
+      var tipoPrograma = ""
+      if (tipos.size == 1) {
+        for (const tipo of tipos) {
+          tipoPrograma = tipo;
+          break; // Exit the loop after getting the first element
+        }
+      }
+      else { tipoPrograma = "Varios" }
+      summaryRow += ` (${tipoPrograma})`
+
+      summaryRow += '</p></td></tr>';
+      tbody.insertAdjacentHTML('beforeend', summaryRow);
+
+
+      // Insert detailed rows into tbody but keep them hidden initially
+      detailedRowsByDate[date].forEach(function (detailedRow) {
+
+        tbody.insertAdjacentHTML('beforeend', detailedRow);
+        if (esUnico) {
+          tbody.lastChild.style.display = 'none';
+
+        }
+        else {
+          tbody.lastChild.classList.add('chico');
+        }
+      });
+
+    }
+
+    // Add event listeners to summary rows for toggling detailed rows
+    var summaryRows = document.querySelectorAll('.summary-row');
+    summaryRows.forEach(function (row) {
+      row.addEventListener('click', function () {
+        var date = this.getAttribute('data-date');
+        this.classList.toggle('desplegado')
+        var detailedRows = document.querySelectorAll('.detailed-row[data-date="' + date + '"]');
+        detailedRows.forEach(function (detailedRow) {
+          detailedRow.style.display = (detailedRow.style.display === 'none') ? 'table-row' : 'none';
+        });
+      });
+    });
+  }
+
+
+
+
+  function groupDataByDay(data) {
+    var groupedData = {};
+    data.forEach(function (event) {
+      var day = new Date(event[1]).toDateString();
+      if (!groupedData[day]) {
+        groupedData[day] = [];
+      }
+      groupedData[day].push(event);
+    });
+    return groupedData;
+  }
+
+  function createSummaryRow(day, eventCount) {
+    var summaryRow = document.createElement('tr');
+    summaryRow.innerHTML = '<td colspan="3" class="summary-row">' +
+      '<span class="summary-text">There are ' + eventCount + ' events on ' + day + '</span>' +
+      '</td>';
+    summaryRow.classList.add('summary-row');
+    return summaryRow;
+  }
+
+  function createEventRow(event) {
+    var row = document.createElement('tr');
+    row.innerHTML = '<td style="width: 33%">' + event[1] + '</td>' +
+      '<td>' + event[2] + ' - ' + event[3] + '</td>' +
+      '<td style="width: 33%">' + event[0] + '</td>';
+    return row;
+  }
+
+  function groupDataByDay(data) {
+    var groupedData = {};
+    data.forEach(function (event) {
+      var day = new Date(event[1]).toDateString();
+      if (!groupedData[day]) {
+        groupedData[day] = [];
+      }
+      groupedData[day].push(event);
+    });
+    return groupedData;
+  }
+
+  function createEventRow(event) {
+    var row = document.createElement('tr');
+    row.innerHTML = '<td style="width: 33%">' + event[1] + '</td>' +
+      '<td>' + event[2] + ' - ' + event[3] + '</td>' +
+      '<td style="width: 33%">' + event[0] + '</td>';
+    row.classList.add('event-row', 'hidden'); // Add classes for styling and visibility control
+    return row;
+  }
+
+  function groupDataByDay(data) {
+    var groupedData = {};
+    data.forEach(function (event) {
+      var day = new Date(event[1]).toDateString();
+      if (!groupedData[day]) {
+        groupedData[day] = [];
+      }
+      groupedData[day].push(event);
+    });
+    return groupedData;
+  }
+
+  function createEventRow(event) {
+    var row = document.createElement('tr');
+    row.innerHTML = '<td style="width: 33%">' + event[1] + '</td>' +
+      '<td>' + event[2] + ' - ' + event[3] + '</td>' +
+      '<td style="width: 33%">' + event[0] + '</td>';
+    row.classList.add('hidden'); // Initially hide all event rows
+    return row;
+  }
+
+  function createTableAsCardsOriginal() {
     var table = document.getElementById('table-data')
     // Check if the table exists
     if (table) {
@@ -1115,7 +1526,7 @@ async function filterData(completarDias = false) {
             let fD = longDate(nextDay);
             let dom = '';
             if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-            tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
+            tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td colspan="1"><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
             if (fD.startsWith('D')) { tbody.append('<tr><td></td></tr>'); };
           };
         }
@@ -1124,7 +1535,7 @@ async function filterData(completarDias = false) {
       currentDay = rowDay
       if (currentMonth !== rowMonth) {
         // Insert a separator row with the name of the month
-        var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="1">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
+        var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="3">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
         tbody.append(monthSeparatorRow);
         currentMonth = rowMonth; // Update the current month
       }
@@ -1142,7 +1553,7 @@ async function filterData(completarDias = false) {
       else if (data[8].includes('Present')) {
         row += ' style="background: linear-gradient(yellow, white) content-box;"';
       }
-      
+
 
       row += '>'
       let estado;
@@ -1247,7 +1658,7 @@ async function filterData(completarDias = false) {
           else {
             filteredNames = filteredNames.map(name => {
               const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
-
+ 
               return initials;
             });
           }*/
@@ -1543,7 +1954,19 @@ function fetchEnsamble(ens) {
       return null;
     });
 }
+function semiLongDate(date) {
+  var options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+  var formattedDate = date.toLocaleDateString('es-ES', options);
 
+  // Extract and format day, month, and year
+  var parts = formattedDate.split(' ');
+  var dayOfWeek = parts[0].charAt(0).toUpperCase() + parts[0].slice(1); // Capitalize the first letter
+  var day = parts[1].padStart(2, '0'); // Ensure two digits for the day
+  var monthAbbreviation = parts[2];
+  var year = parts[3];
+
+  return `${dayOfWeek} ${day}/${monthAbbreviation}`;
+}
 
 function longDate(date) {
   var options = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };

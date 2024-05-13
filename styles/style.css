@@ -264,8 +264,8 @@ footer nav a img {
 
 #table-data {
   border-collapse: collapse;
-  /*width: 100%;*/
-  overflow: auto;
+  width: 100%;
+  /*overflow: auto;*/
 }
 
 #table-container {
@@ -298,6 +298,11 @@ footer nav a img {
   }
 
 }
+
+.desplegado {
+  background: linear-gradient(rgb(37, 207, 94),rgb(37, 207, 94), white) content-box !important;
+}
+
 
 h2 {
   font-size: 3em;
@@ -385,7 +390,8 @@ h2 {
 #table-data td {
   border: 1px solid #4e4e4e;
   /*text-align: left;*/
-  padding: 10px 0px;
+  padding: 00px 0px;
+  
 
 
 }
@@ -398,9 +404,8 @@ h2 {
 
 #table-data th {
   text-align: center;
-
-
 }
+
 
 #table-data th {
   background-color: #f2f2f2;
@@ -429,14 +434,14 @@ h3 {
 
 td * {
   line-height: 1;
-  margin: 0.4em;
+  margin: 0.2em;
 }
 
 td a {
-  font-size: 1em;
+  font-size: 0.7em;
   box-sizing: border-box;
   background-color: lightblue;
-  padding: 5px 10px;
+  padding: 1px 1px;
   margin: 1px;
 }
 
@@ -448,7 +453,7 @@ h4 {
 
 p {
   font-size: 1em;
-  padding: 0.3em;
+  padding: 0.2em;
 }
 
 @media print {
