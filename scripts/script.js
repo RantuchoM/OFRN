@@ -1470,7 +1470,6 @@ async function filterData(completarDias = false) {
     return row;
   }
   
-
   function groupDataByDay(data) {
     var groupedData = {};
     data.forEach(function (event) {
