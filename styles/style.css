@@ -452,30 +452,57 @@ p {
   font-size: 1em;
   padding: 0.2em;
 }
-
+.summary-row.ensayoGira{
+  background-image: linear-gradient(to right, rgb(101, 111, 255) 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, rgb(101, 111, 255) 100%); /* Blue on both sides, transparent in the middle */
+}
 .ensayoGira {
-  background: linear-gradient(rgb(101, 111, 255), white) content-box !important;
+  background-image: linear-gradient(to right, rgb(101, 111, 255) 0%, rgb(236, 233, 233) 5%); /* Blue on both sides, transparent in the middle */
 }
 .ensayoGira.desplegado{
-  background: linear-gradient(white,rgb(101, 111, 255)) content-box !important;
+  background-image: linear-gradient(to right, rgb(101, 111, 255) 0%, rgb(236, 233, 233) 10%, rgb(236, 233, 233) 90%, rgb(101, 111, 255) 100%); /* Blue on both sides, transparent in the middle */
+}
+
+.summary-row.presentacion{
+  background-image: linear-gradient(to right, yellow 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, yellow 100%); /* Blue on both sides, transparent in the middle */
 }
 .presentacion {
-  background: linear-gradient(yellow, white) content-box !important;
+  background: linear-gradient(to left, rgb(236, 233, 233) calc(100% - 5%), yellow 100%);
 }
 .presentacion.desplegado{
-  background: linear-gradient(white,yellow) content-box !important;
+  background-image: linear-gradient(to right, yellow 0%, rgb(236, 233, 233) 10%, rgb(236, 233, 233) 90%, yellow 100%); /* Blue on both sides, transparent in the middle */
+}
+.summary-row.ensayo{
+  background-image: linear-gradient(to right, violet 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, violet 100%); /* Blue on both sides, transparent in the middle */
 }
 .ensayo {
-  background: linear-gradient(violet, white) content-box !important;
+  background: linear-gradient(to left, rgb(236, 233, 233) calc(100% - 5%), violet 100%);
 }
 .ensayo.desplegado {
-  background: linear-gradient(white,violet) content-box !important;
+  background-image: linear-gradient(to right, violet 0%, rgb(236, 233, 233) 10%, rgb(236, 233, 233) 90%, violet 100%); /* Blue on both sides, transparent in the middle */
+}
+.summary-row.mixto { 
+  background-image: linear-gradient(to right, rgb(37, 207, 94) 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, rgb(37, 207, 94) 100%); /* Blue on both sides, transparent in the middle */
 }
 .mixto {
-  background: linear-gradient(rgb(37, 207, 94), rgb(37, 207, 94), white) content-box !important;
+  background: linear-gradient(to left, rgb(236, 233, 233) calc(100% - 5%), rgb(37, 207, 94) 100%);
 }
 .mixto.desplegado{
-  background: linear-gradient(white,rgb(37, 207, 94), rgb(37, 207, 94)) content-box !important;
+  background-image: linear-gradient(to right, rgb(37, 207, 94) 0%, rgb(236, 233, 233) 10%, rgb(236, 233, 233) 90%, rgb(37, 207, 94) 100%); /* Blue on both sides, transparent in the middle */
+}
+.sepGira{
+  border: 2px dashed rgb(51, 51, 51) !important;
+  background-color: rgb(70, 68, 68);
+  color: black;
+  font-weight: bold;
+  font-size: 15px;
+  text-align: center;
+  padding: 0px;
+  margin: 0px;
+}
+.sepGira a{
+  background-color: rgb(168, 167, 167);
+  margin: 0px;
+  line-height: 1px;
 }
 
 .summary-row {
@@ -552,7 +579,7 @@ p {
   width: 410px;
   height: 450px;
   resize: none;
-  background-color: white;
+  background-color: rgb(236, 233, 233);
   border: 1px solid #ccc;
   padding: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -581,7 +608,7 @@ p {
 .close-button {
   position: absolute;
   background-color: red;
-  color: white;
+  color: rgb(236, 233, 233);
   font-size: 0.7em;
   padding: 2px;
   width: 30px;

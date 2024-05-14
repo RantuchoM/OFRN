@@ -2,6 +2,7 @@
 
 // Define dataArray and headers globally
 var dataArray;
+var girasArray;
 var headers;
 var names;
 var namesWithMus;
@@ -21,15 +22,19 @@ function initClient() {
     apiKey: 'AIzaSyAxQ63EFfI-ackr9PrPOxJepog7DDh5_dE',
     discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
   }).then(() => {
+    getGirasFromTextFile()
+  }).then(() => {
     //setValueTest()
     // Call the function to fetch data
     getDataFromTextFile().then(() => {
       // Now that the data is loaded, call the function to get names
       getNames();
       getNamesWithMus();
+
     });
 
-  });
+
+  })
 }
 
 
@@ -470,6 +475,24 @@ function getDataFromTextFile() {
     }
     );
 }
+function getGirasFromTextFile() {
+  // Replace with the actual URL of your "/backup.txt" file
+  var txtFileUrl = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras2.txt';
+  //setValueTest();
+  return fetch(txtFileUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch text file');
+      }
+      return response.text();
+    })
+    .then(base64Text => {
+      girasArray = decodeAndRevertText(base64Text);
+      //console.log(dataArray);
+      girasArray = girasArray.filter(row => row[0] != undefined);     
+      console.log(girasArray);
+    })
+}
 
 //getDataFromTextFile();
 // Function to decode Base64 encoded text and revert accent replacements
@@ -740,6 +763,7 @@ async function filterData(completarDias = false) {
     return $(this).val();
   }).get();
 
+
   var fromDate = $('#fromDate').val();
   var untilDate = $('#untilDate').val();
   var tbody = $('#table-data tbody');
@@ -823,7 +847,21 @@ async function filterData(completarDias = false) {
       ocultarEnsayosCondition && ocultarEnsGirCondition
     );
   });
+  console.log(girasArray);
+  console.log(selectedValues);
+  var filteredGiras = girasArray.filter(function (gira) {
+    var isNombre = dropdownValue ? gira[1].toLowerCase().match(dropdownValue.toLowerCase()) : true;
+    var isEnsamble = (selectedValues.length === 0 || contieneValor(gira[2], selectedValues))
+    return (isNombre && isEnsamble);
+  })
+
+  console.log(filteredGiras);
   //console.log(filteredData)
+  var nombresGiras = filteredGiras.map(n => n[0]);
+  var inicioGiras = filteredGiras.map(n => new Date(n[3]));
+  console.log(inicioGiras);
+  var finGiras = filteredGiras.map(n => new Date(n[4]));
+  var linkGiras = filteredGiras.map(n => n[5]);
 
   var cantidadPresentaciones = 0;
   var cantidadEnsayos = 0;
@@ -1299,6 +1337,7 @@ async function filterData(completarDias = false) {
           //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
           for (i = 1; i < diff; i++) {
             let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
+            
             rowMonth = nextDay.getMonth();
             if (currentMonth !== rowMonth) {
               // Insert a separator row with the name of the month
@@ -1307,6 +1346,30 @@ async function filterData(completarDias = false) {
 
             }
             currentMonth = rowMonth; // Update the current month
+            function isSameDay(date1, date2) {
+              return new Date(date1).getTime() === new Date(date2).getTime();
+            }
+            //console.log(inicioGiras)
+            //console.log(nextDay)
+            /*
+            if (inicioGiras.some(date => isSameDay(date, nextDay))) {
+              // Find the index of matching date in inicioGiras
+              const giraIndex = inicioGiras.findIndex(date => isSameDay(date, nextDay));
+              // Use the index to access the corresponding element in nombresGiras
+              var estaGira = nombresGiras[giraIndex];
+            
+              tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="4"><p>Inicio Gira:<br>' + estaGira + '</p></td></tr>');
+
+            }
+            else if (finGiras.some(date => isSameDay(date, nextDay))) {
+              // Similar logic for Fin Gira
+              const giraIndex = finGiras.findIndex(date => isSameDay(date, nextDay));
+              var estaGira = nombresGiras[giraIndex];
+              tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="4"><p>Fin Gira:<br>' + estaGira + '</p></td></tr>');
+
+            }
+            */
+            
             let fD = semiLongDate(nextDay);
             let dom = '';
             if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
@@ -1323,29 +1386,42 @@ async function filterData(completarDias = false) {
         tbody.insertAdjacentHTML('beforeend', monthSeparatorRow);
         currentMonth = rowMonth; // Update the current month
       }
+      function isSameDay(date1, date2) {
+        return new Date(date1).getTime() === new Date(date2).getTime();
+      }
+      //console.log(inicioGiras)
+      //console.log(nextDay)
+      
+      if (inicioGiras.some(date => isSameDay(date, currentDay))) {
+        // Find the index of matching date in inicioGiras
+        const giraIndex = inicioGiras.findIndex(date => isSameDay(date, currentDay));
+        // Use the index to access the corresponding element in nombresGiras
+        var estaGira = nombresGiras[giraIndex];
+        var esteLink = linkGiras[giraIndex];
+        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="4"><a href="'+esteLink+'">' + estaGira + '</a></td></tr>');
+
+      }
+      
+     
 
       const events = detailedRowsByDate[date];
-
-
-
-
       const presentaciones = events.filter(event => event.includes("presentacion")).length;
       const ensGira = events.filter(event => event.includes("ensayoGira")).length;
       const ensayos = events.length - presentaciones - ensGira;
       let tipoResumen;
 
-      if (presentaciones === events.length ) {
+      if (presentaciones === events.length) {
         tipoResumen = " presentacion";
-      } else if ( ensGira === events.length ) {
+      } else if (ensGira === events.length) {
         tipoResumen = " ensayoGira";
-      } else if (ensayos === events.length ) {
+      } else if (ensayos === events.length) {
         tipoResumen = " ensayo";
       } else {
         tipoResumen = " mixto";
       }
 
       const esUnico = (events.length == 1)
-      var summaryRow = '<tr class="summary-row' +tipoResumen+ '" data-date="' + date + '" style="cursor: pointer; text-align: center; background: linear-gradient(light green, white); font-size: 18px;">';
+      var summaryRow = '<tr class="summary-row' + tipoResumen + '" data-date="' + date + '" style="cursor: pointer; text-align: center; background: linear-gradient(light green, white); font-size: 18px;">';
       summaryRow += '<td colspan="4"><p>' + semiLongDate(new Date(date)) + ' - ';
 
       if (esUnico) {
@@ -1358,7 +1434,6 @@ async function filterData(completarDias = false) {
         else {
           summaryRow += `Ensayo`;
         }
-        console.log(events[0])
         summaryRow += `: ${events[0].substring(events[0].indexOf("hora: ") + 6, events[0].indexOf(" /hora-–>"))}`;
       } else {
 
@@ -1384,7 +1459,8 @@ async function filterData(completarDias = false) {
         }
 
 
-        summaryRow += ensStr ? (ensStr + (presStr ? ", " + presStr : "") + (ensGirStr ? ", " + ensGirStr : "")) : (presStr ? presStr + (ensGirStr ? ", " + ensGirStr : "") : ensGirStr);
+        summaryRow += ensStr ? (ensStr + (ensGirStr ? ", " + ensGirStr : "") + (presStr ? ", " + presStr : "")) : (ensGirStr ? ensGirStr + (presStr ? ", " + presStr : "") : presStr);
+
       }
 
 
@@ -1398,8 +1474,6 @@ async function filterData(completarDias = false) {
         return str.substring(startPos, endPos);
       }));
 
-      console.log(tipos.size)
-
       var tipoPrograma = ""
       if (tipos.size == 1) {
         for (const tipo of tipos) {
@@ -1412,7 +1486,12 @@ async function filterData(completarDias = false) {
 
       summaryRow += '</p></td></tr>';
       tbody.insertAdjacentHTML('beforeend', summaryRow);
-
+      if (finGiras.some(date => isSameDay(date, currentDay))) {
+        // Similar logic for Fin Gira
+        const giraIndex = finGiras.findIndex(date => isSameDay(date, currentDay));
+        var estaGira = nombresGiras[giraIndex];
+        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="4"></td></tr>');
+      }
 
       // Insert detailed rows into tbody but keep them hidden initially
       detailedRowsByDate[date].forEach(function (detailedRow) {
