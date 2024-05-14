@@ -490,11 +490,11 @@ p {
   background-image: linear-gradient(to right, rgb(37, 207, 94) 0%, rgb(236, 233, 233) 10%, rgb(236, 233, 233) 90%, rgb(37, 207, 94) 100%); /* Blue on both sides, transparent in the middle */
 }
 .sepGira{
-  border: 2px dashed rgb(51, 51, 51) !important;
+  border: 3px dashed rgb(51, 51, 51) !important;
   background-color: rgb(70, 68, 68);
   color: black;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 17px;
   text-align: center;
   padding: 0px;
   margin: 0px;
