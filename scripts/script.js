@@ -1334,11 +1334,11 @@ async function filterData(completarDias = false) {
       const ensayos = events.length - presentaciones - ensGira;
       let tipoResumen;
 
-      if (presentaciones === 1 && ensGira === 0 && ensayos === 0) {
+      if (presentaciones === events.length ) {
         tipoResumen = " presentacion";
-      } else if (presentaciones === 0 && ensGira === 1 && ensayos === 0) {
+      } else if ( ensGira === events.length ) {
         tipoResumen = " ensayoGira";
-      } else if (ensayos === 1 && presentaciones === 0 && ensGira === 0) {
+      } else if (ensayos === events.length ) {
         tipoResumen = " ensayo";
       } else {
         tipoResumen = " mixto";
