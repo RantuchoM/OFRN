@@ -299,9 +299,6 @@ footer nav a img {
 
 }
 
-.desplegado {
-  background: linear-gradient(rgb(37, 207, 94),rgb(37, 207, 94), white) content-box !important;
-}
 
 
 h2 {
@@ -391,7 +388,7 @@ h2 {
   border: 1px solid #4e4e4e;
   /*text-align: left;*/
   padding: 00px 0px;
-  
+
 
 
 }
@@ -455,9 +452,34 @@ p {
   font-size: 1em;
   padding: 0.2em;
 }
+
 .ensayoGira {
   background: linear-gradient(rgb(101, 111, 255), white) content-box !important;
+}
+.ensayoGira.desplegado{
+  background: linear-gradient(white,rgb(101, 111, 255)) content-box !important;
+}
+.presentacion {
+  background: linear-gradient(yellow, white) content-box !important;
+}
+.presentacion.desplegado{
+  background: linear-gradient(white,yellow) content-box !important;
+}
+.ensayo {
+  background: linear-gradient(violet, white) content-box !important;
+}
+.ensayo.desplegado {
+  background: linear-gradient(white,violet) content-box !important;
+}
+.mixto {
+  background: linear-gradient(rgb(37, 207, 94), rgb(37, 207, 94), white) content-box !important;
+}
+.mixto.desplegado{
+  background: linear-gradient(white,rgb(37, 207, 94), rgb(37, 207, 94)) content-box !important;
+}
 
+.summary-row {
+  border: 0.12em solid gray !important;
 }
 @media print {
   body * {

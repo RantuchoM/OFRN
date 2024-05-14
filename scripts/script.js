@@ -1131,25 +1131,14 @@ async function filterData(completarDias = false) {
 
       // Construct the detailed row
       //var detailedRow = '<tr class="detailed-row" data-date="' + formattedDate + '" style="text-align: center; display: none">';
-      var esPresentacion = "";
-      if (data[8].toLowerCase().startsWith('presentación')) { esPresentacion = " es_present" }
-      var esEnsayoGira = data[6].includes('Gira/Progr') ? ' ensayoGira' : '';
-      var detailedRow = '<tr class="detailed-row' + esPresentacion + esEnsayoGira + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
+      var tipoPres = "";
+      if (data[8].toLowerCase().startsWith('presentación')) { tipoPres = " presentacion" }
+      else if (data[6].includes('Gira/Progr')) { tipoPres = ' ensayoGira'; }
+      else { tipoPres = ' ensayo'; }
+      var detailedRow = '<tr class="detailed-row' + tipoPres + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
 
 
-      
-      if (data[6].toLowerCase().includes('ensayo')) {
-        detailedRow += ' background: linear-gradient(violet, white) border-box;"';
-      }
-      else if (data[8].toLowerCase().startsWith('ensay')) {
-        detailedRow += ' background: linear-gradient(blue, white) border-box;"';
-      }
-      else if (data[8].includes('Present')) {
-        detailedRow += ' background: linear-gradient(yellow, white) border-box;"';
-      }
-
-
-      detailedRow += '><td style="width: 18%">'
+      detailedRow += '"><td style="width: 18%">'
       //let estado;
       let estadoColor = '';
 
@@ -1232,9 +1221,9 @@ async function filterData(completarDias = false) {
             tipo = "CFCuer";
           } else {
             backgroundColor = '#baee29';
-            tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ','');
+            tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ', '');
             tipo = tipo.split(' ')[0];
-            
+
           }
           if (esCoordEns) {
             planilla = ' <a href="' + planillas[i] + '" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
@@ -1248,10 +1237,10 @@ async function filterData(completarDias = false) {
       }
       else {
         detailedRow += '<p>Sin asignar</p>';
-        tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ','');
+        tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ', '');
         tipo = tipo.split(' ')[0];
       }
-      if (data[6].includes('Ensayo de')) { tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ',''); tipo = tipo.split(' ')[0]; }
+      if (data[6].includes('Ensayo de')) { tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ', ''); tipo = tipo.split(' ')[0]; }
 
       //OBSERVACIONES
       var obs = data[8]
@@ -1340,31 +1329,42 @@ async function filterData(completarDias = false) {
 
 
 
-      const presentaciones = events.filter(event => event.includes("es_present")).length;
-      const ensayos = events.length - presentaciones;
+      const presentaciones = events.filter(event => event.includes("presentacion")).length;
+      const ensGira = events.filter(event => event.includes("ensayoGira")).length;
+      const ensayos = events.length - presentaciones - ensGira;
+      let tipoResumen;
+
+      if (presentaciones === 1 && ensGira === 0 && ensayos === 0) {
+        tipoResumen = " presentacion";
+      } else if (presentaciones === 0 && ensGira === 1 && ensayos === 0) {
+        tipoResumen = " ensayoGira";
+      } else if (ensayos === 1 && presentaciones === 0 && ensGira === 0) {
+        tipoResumen = " ensayo";
+      } else {
+        tipoResumen = " mixto";
+      }
+
       const esUnico = (events.length == 1)
-      var esDesplegado;
-      if (esUnico) { esDesplegado = ' desplegado' }
-      else { esDesplegado = '' }
-      var summaryRow = '<tr class="summary-row' + '" data-date="' + date + '" style="cursor: pointer; background: linear-gradient(white,rgb(37, 207, 94), rgb(37, 207, 94)) content-box; text-align: center; background: linear-gradient(light green, white); font-size: 18px;">';
+      var summaryRow = '<tr class="summary-row' +tipoResumen+ '" data-date="' + date + '" style="cursor: pointer; text-align: center; background: linear-gradient(light green, white); font-size: 18px;">';
       summaryRow += '<td colspan="4"><p>' + semiLongDate(new Date(date)) + ' - ';
 
       if (esUnico) {
         if (presentaciones == 1) {
           summaryRow += `Concierto`;
-
+        }
+        else if (ensGira == 1) {
+          summaryRow += "EnsGira";
         }
         else {
           summaryRow += `Ensayo`;
         }
         console.log(events[0])
         summaryRow += `: ${events[0].substring(events[0].indexOf("hora: ") + 6, events[0].indexOf(" /hora-–>"))}`;
-
-
       } else {
-        
+
         let ensStr;
         let presStr;
+        let ensGirStr;
         if (ensayos > 1) {
           ensStr = ensayos + " Ensayos";
         } else if (ensayos === 1) {
@@ -1377,7 +1377,14 @@ async function filterData(completarDias = false) {
           presStr = "1 Concierto";
         }
 
-        summaryRow += ensStr ? (ensStr + (presStr ? " y " + presStr : "")) : presStr;
+        if (ensGira > 1) {
+          ensGirStr = ensGira + " EnsGira";
+        } else if (ensGira === 1) {
+          ensGirStr = "1 EnsGira";
+        }
+
+
+        summaryRow += ensStr ? (ensStr + (presStr ? ", " + presStr : "") + (ensGirStr ? ", " + ensGirStr : "")) : (presStr ? presStr + (ensGirStr ? ", " + ensGirStr : "") : ensGirStr);
       }
 
 
