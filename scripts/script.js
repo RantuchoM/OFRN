@@ -2129,8 +2129,8 @@ function toggleFiltros() {
   const floatingFiltros = document.getElementById('floatingFiltros');
   floatingFiltros.classList.toggle('show');
   const toggleButton = document.getElementById('toggleFiltros');
-  if (toggleButton.textContent == "⇓") { toggleButton.textContent = "⇑" }
-  else { toggleButton.textContent = "⇓"; }
+  if (toggleButton.textContent == "⇓ Mostrar filtros") { toggleButton.textContent = "⇑ Ocultar filtros" }
+  else { toggleButton.textContent = "⇓ Mostrar filtros"; }
 }
 document.addEventListener('DOMContentLoaded', loadClient);
 

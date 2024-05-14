@@ -59,7 +59,7 @@ function agregarOcultar() {
   const mainElement = document.querySelector('main');
   const toggleButton = document.createElement('button');
   toggleButton.id = 'toggleFiltros';
-  toggleButton.textContent = '⇑';
+  toggleButton.textContent = '⇓ Mostrar filtros';
   toggleButton.onclick = toggleFiltros;
 
   // Style the button for centering
