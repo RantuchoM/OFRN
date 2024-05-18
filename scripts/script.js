@@ -462,7 +462,7 @@ function getDataFromTextFile() {
 
     }).then(d => {
       if (!isMobileView()) {
-        showData(dataArray, 12, 18);
+        //showData(dataArray, 12, 18);
 
       }
       else {
@@ -611,7 +611,7 @@ function getData() {
       //console.log(dataArray)
 
       if (!isMobileView()) {
-        showData(dataArray, 12, 18);
+        //showData(dataArray, 12, 18);
 
       }
       else {
@@ -1794,7 +1794,8 @@ async function filterData(completarDias = false) {
     if (isMobileView()) {
       createTableAsCards();
     } else {
-      createTable().then(setColumnWidths);
+      //createTable().then(setColumnWidths);
+      createTableAsCards();
 
     }
   }
