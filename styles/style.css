@@ -453,7 +453,7 @@ p {
   padding: 0.2em;
 }
 .summary-row.ensayoGira{
-  background-image: linear-gradient(to right, rgb(101, 111, 255) 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, rgb(101, 111, 255) 100%); /* Blue on both sides, transparent in the middle */
+  background-image: linear-gradient(to right, rgb(101, 111, 255) 0%, rgb(236, 233, 233) 30%, rgb(236, 233, 233) 70%, rgb(101, 111, 255) 100%); /* Blue on both sides, transparent in the middle */
 }
 .ensayoGira {
   background-image: linear-gradient(to right, rgb(101, 111, 255) 0%, rgb(236, 233, 233) 5%); /* Blue on both sides, transparent in the middle */
@@ -463,7 +463,7 @@ p {
 }
 
 .summary-row.presentacion{
-  background-image: linear-gradient(to right, yellow 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, yellow 100%); /* Blue on both sides, transparent in the middle */
+  background-image: linear-gradient(to right, yellow 0%, rgb(236, 233, 233) 30%, rgb(236, 233, 233) 70%, yellow 100%); /* Blue on both sides, transparent in the middle */
 }
 .presentacion {
   background: linear-gradient(to left, rgb(236, 233, 233) calc(100% - 5%), yellow 100%);
@@ -472,7 +472,7 @@ p {
   background-image: linear-gradient(to right, yellow 0%, rgb(236, 233, 233) 10%, rgb(236, 233, 233) 90%, yellow 100%); /* Blue on both sides, transparent in the middle */
 }
 .summary-row.ensayo{
-  background-image: linear-gradient(to right, violet 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, violet 100%); /* Blue on both sides, transparent in the middle */
+  background-image: linear-gradient(to right, violet 0%, rgb(236, 233, 233) 30%, rgb(236, 233, 233) 70%, violet 100%); /* Blue on both sides, transparent in the middle */
 }
 .ensayo {
   background: linear-gradient(to left, rgb(236, 233, 233) calc(100% - 5%), violet 100%);
@@ -481,7 +481,7 @@ p {
   background-image: linear-gradient(to right, violet 0%, rgb(236, 233, 233) 10%, rgb(236, 233, 233) 90%, violet 100%); /* Blue on both sides, transparent in the middle */
 }
 .summary-row.mixto { 
-  background-image: linear-gradient(to right, rgb(37, 207, 94) 0%, rgb(236, 233, 233) 20%, rgb(236, 233, 233) 80%, rgb(37, 207, 94) 100%); /* Blue on both sides, transparent in the middle */
+  background-image: linear-gradient(to right, rgb(37, 207, 94) 0%, rgb(236, 233, 233) 30%, rgb(236, 233, 233) 70%, rgb(37, 207, 94) 100%); /* Blue on both sides, transparent in the middle */
 }
 .mixto {
   background: linear-gradient(to left, rgb(236, 233, 233) calc(100% - 5%), rgb(37, 207, 94) 100%);
@@ -503,6 +503,18 @@ p {
   background-color: rgb(168, 167, 167);
   margin: 0px;
   line-height: 1px;
+}
+
+.tipoNegrita{
+  font-weight: bold;
+}
+
+.tipoSubr{
+  text-decoration: underline;
+}
+.cursiva{
+  color: rgb(51, 51, 51);
+  font-style: italic;
 }
 
 .summary-row {

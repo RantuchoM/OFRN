@@ -489,7 +489,7 @@ function getGirasFromTextFile() {
     .then(base64Text => {
       girasArray = decodeAndRevertText(base64Text);
       //console.log(dataArray);
-      girasArray = girasArray.filter(row => row[0] != undefined);     
+      girasArray = girasArray.filter(row => row[0] != undefined);
       console.log(girasArray);
     })
 }
@@ -1149,6 +1149,25 @@ async function filterData(completarDias = false) {
       console.error("Table not found");
       return;
     }
+    let width1;
+    let width2;
+    let width3;
+    let width4;
+
+    if (isMobileView()) {
+      width1 = '18';
+      width2 = '30';
+      width3 = '50';
+      console.log('Es vista móvil');
+    }
+    else {
+      width1 = '18';
+      width2 = '30';
+      width3 = '15';
+      width4 = '30';
+      console.log('No es vista móvil');
+
+    }
 
     var tbody = table.getElementsByTagName('tbody')[0];
     // Clear existing rows
@@ -1176,7 +1195,7 @@ async function filterData(completarDias = false) {
       var detailedRow = '<tr class="detailed-row' + tipoPres + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
 
 
-      detailedRow += '"><td style="width: 18%">'
+      detailedRow += '"><td style="width: ' + width1 + '%">'
       //let estado;
       let estadoColor = '';
 
@@ -1212,25 +1231,11 @@ async function filterData(completarDias = false) {
       }
       //FECHA
       detailedRow += '<p>' + [data[2], estado].filter(Boolean).join("</p><p>") + '</p>';
-      detailedRow += '</td><td style="width: 30%">'
+      detailedRow += '</td><td style="width: ' + width2 + '%">'
       //Lugares
       detailedRow += '<p>' + [data[3], data[4]].filter(Boolean).join('</p><p>') + '</p>';
-      detailedRow += '</td><td style="width: 50%">'
+      detailedRow += '</td><td style="width: ' + width3 + '%">'
       //Agregar tipo de programa
-      /*
-      
-      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
-      //console.log(data[8].toLowerCase())
-      if (data[8].toLowerCase().startsWith('ensayo')) {
-        row += '<h3>Ensayo Integrado</h3>'
-      }
-      else if (data[8].toLowerCase().startsWith('present')) {
-        row += '<h3>Presentación</h3>'
-      }
-      else {
-        row += '<h3>' + data[6] + '</h3>';
-      }
-      */
       var tipo;
       if (data[0] != "Sin programa asign.") {
         var progrs = data[0].split(' ♪ ');
@@ -1285,7 +1290,10 @@ async function filterData(completarDias = false) {
       if (data[8].includes('Integrado')) {
         obs = data[8].replace('Ensayo Integrado:', '');
       }
-      if (data[8] != "Presentación") { detailedRow += '<p><i>Observ: </i>' + obs + '</p>' }
+      let obsDisplay;
+      if (isMobileView()) { obsDisplay = 'p' }
+      else { obsDisplay = 'td' }
+      if (data[8] != "Presentación") { detailedRow += '<' + obsDisplay + '><i>Observ: </i>' + obs + '</p>' }
       /*
       else { row += '<p>Partic: ' + data[6] + '</p>' };
       if (ensParam) {
@@ -1320,7 +1328,7 @@ async function filterData(completarDias = false) {
 
 
 
-      detailedRow += '</td> <!–-tipo: ' + tipo + '  -–><!–-hora: ' + data[2] + '  /hora-–></tr>';
+      detailedRow += '</td> <!–-tipo: ' + tipo + '  -–><!–-hora: ' + data[2] + '  /hora-–><!–-obs: ' + obs + '  /obs-–></tr>';
 
       // Push detailed row to the corresponding date
       detailedRowsByDate[rowDay].push(detailedRow);
@@ -1337,7 +1345,7 @@ async function filterData(completarDias = false) {
           //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
           for (i = 1; i < diff; i++) {
             let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
-            
+
             rowMonth = nextDay.getMonth();
             if (currentMonth !== rowMonth) {
               // Insert a separator row with the name of the month
@@ -1369,7 +1377,7 @@ async function filterData(completarDias = false) {
 
             }
             */
-            
+
             let fD = semiLongDate(nextDay);
             let dom = '';
             if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
@@ -1391,18 +1399,18 @@ async function filterData(completarDias = false) {
       }
       //console.log(inicioGiras)
       //console.log(nextDay)
-      
+
       if (inicioGiras.some(date => isSameDay(date, currentDay))) {
         // Find the index of matching date in inicioGiras
         const giraIndex = inicioGiras.findIndex(date => isSameDay(date, currentDay));
         // Use the index to access the corresponding element in nombresGiras
         var estaGira = nombresGiras[giraIndex];
         var esteLink = linkGiras[giraIndex];
-        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="4"><a href="'+esteLink+'">' + estaGira + '</a></td></tr>');
+        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="4"><a href="' + esteLink + '">' + estaGira + '</a></td></tr>');
 
       }
-      
-     
+
+
 
       const events = detailedRowsByDate[date];
       const presentaciones = events.filter(event => event.includes("presentacion")).length;
@@ -1426,36 +1434,39 @@ async function filterData(completarDias = false) {
 
       if (esUnico) {
         if (presentaciones == 1) {
-          summaryRow += `Concierto`;
+          summaryRow += `<span class="tipoNegrita tipoSubr">Concierto`;
         }
         else if (ensGira == 1) {
-          summaryRow += "EnsGira";
+          summaryRow += '<span class="tipoNegrita">EnsGira';
         }
         else {
-          summaryRow += `Ensayo`;
+          summaryRow += `<span class="tipoNegrita">Ensayo`;
         }
-        summaryRow += `: ${events[0].substring(events[0].indexOf("hora: ") + 6, events[0].indexOf(" /hora-–>"))}`;
+        summaryRow += `</span>: ${events[0].substring(events[0].indexOf("hora: ") + 6, events[0].indexOf(" /hora-–>"))}`;
+        if (!isMobileView()) {
+          summaryRow += ` || <span class="cursiva">${events[0].substring(events[0].indexOf("obs: ") + 5, events[0].indexOf(" /obs-–>"))}</span>`;
+        }
       } else {
 
         let ensStr;
         let presStr;
         let ensGirStr;
         if (ensayos > 1) {
-          ensStr = ensayos + " Ensayos";
+          ensStr = ensayos + ' <span class="tipoNegrita">Ensayos</span>';
         } else if (ensayos === 1) {
-          ensStr = "1 Ensayo";
+          ensStr = ' 1 <span class="tipoNegrita">Ensayo</span>';
         }
 
         if (presentaciones > 1) {
-          presStr = presentaciones + " Conciertos";
+          presStr = presentaciones + '<span class="tipoNegrita tipoSubr"> Conciertos</span>';
         } else if (presentaciones === 1) {
-          presStr = "1 Concierto";
+          presStr = '1 <span class="tipoNegrita tipoSubr">Concierto</span>';
         }
 
         if (ensGira > 1) {
-          ensGirStr = ensGira + " EnsGira";
+          ensGirStr = ensGira + ' <span class="tipoNegrita">EnsGira</span>';
         } else if (ensGira === 1) {
-          ensGirStr = "1 EnsGira";
+          ensGirStr = '1 <span class="tipoNegrita">EnsGira</span>';
         }
 
 
