@@ -1294,6 +1294,7 @@ async function filterData(completarDias = false) {
       if (isMobileView()) { obsDisplay = 'p' }
       else { obsDisplay = 'td' }
       if (data[8] != "Presentación") { detailedRow += '<' + obsDisplay + '><i>Observ: </i>' + obs + '</p>' }
+      else { detailedRow += '<' + obsDisplay + '><i>Observ: </i>' + data[9] + '</p>' }
       /*
       else { row += '<p>Partic: ' + data[6] + '</p>' };
       if (ensParam) {
@@ -1458,7 +1459,7 @@ async function filterData(completarDias = false) {
         }
 
         if (presentaciones > 1) {
-          presStr = presentaciones + '<span class="tipoNegrita tipoSubr"> Conciertos</span>';
+          presStr = presentaciones + ' <span class="tipoNegrita tipoSubr">Conciertos</span>';
         } else if (presentaciones === 1) {
           presStr = '1 <span class="tipoNegrita tipoSubr">Concierto</span>';
         }
@@ -1756,7 +1757,8 @@ async function filterData(completarDias = false) {
       if (data[8].includes('Integrado')) {
         obs = data[8].replace('Ensayo Integrado:', '');
       }
-      if (data[8] != "Presentación") { row += '<p><i>Observ: </i>' + obs + '</p>' }
+      if (data[8] != "Presentación" || 1 == 1) { 
+        row += '<p><i>Observ: </i>' + obs + '</p>' }
       else { row += '<p>Partic: ' + data[6] + '</p>' };
       if (ensParam) {
         const namesArray = data[7].split('|');
