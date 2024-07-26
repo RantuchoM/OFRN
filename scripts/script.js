@@ -8,9 +8,13 @@ var names;
 var namesWithMus;
 const urlParameters = new URLSearchParams(window.location.search)
 const ensParam = urlParameters.get('ens');
+console.log(ensParam)
 let esCoordEns = false;
 let primeraVez = true;
-if (ensParam) { esCoordEns = true; }
+let totalCols = 4;
+if (ensParam) { esCoordEns = true; totalCols = 5 }
+
+
 
 function loadClient() {
   gapi.load('client', initClient);
@@ -1295,20 +1299,21 @@ async function filterData(completarDias = false) {
       else { obsDisplay = 'td' }
       if (data[8] != "Presentación") { detailedRow += '<' + obsDisplay + '><i>Observ: </i>' + obs + '</p>' }
       else { detailedRow += '<' + obsDisplay + '><i>Observ: </i>' + data[9] + '</p>' }
-      /*
-      else { row += '<p>Partic: ' + data[6] + '</p>' };
-      if (ensParam) {
+
+      //else { row += '<p>Partic: ' + data[6] + '</p>' };
+      if (esCoordEns) {
         const namesArray = data[7].split('|');
         let namesString = ""
         // Filter the names based on the matching names in dropdownValue
-        let filteredNames = namesArray.filter(name => dropdownValue.toLowerCase().includes(name.toLowerCase()));
+        let cantidadNombres = dropdownValue.split("|");
+        let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
         if (cantidadNombres.length == filteredNames.length) {
 
           namesString = `${ensParam} Completo`;
         }
         else {
           var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
-          /*\// Shorten each name to the first two characters of each word (initials) plus one additional letter
+          // Shorten each name to the first two characters of each word (initials) plus one additional letter
           if (nombresCompletosChecked) { }
           else {
             filteredNames = filteredNames.map(name => {
@@ -1316,17 +1321,15 @@ async function filterData(completarDias = false) {
 
               return initials;
             });
-          }*\/
+          }
 
           // Join the shortened names back into a string with "|" separator
           namesString = filteredNames.join('-');
         }
 
         // Add the shortened names to the row
-        row += '<p>' + namesString + '</p>';
+        detailedRow += '<td>' + namesString + '</td>';
       }
-      */
-
 
 
       detailedRow += '</td> <!–-tipo: ' + tipo + '  -–><!–-hora: ' + data[2] + '  /hora-–><!–-obs: ' + obs + '  /obs-–></tr>';
@@ -1350,7 +1353,7 @@ async function filterData(completarDias = false) {
             rowMonth = nextDay.getMonth();
             if (currentMonth !== rowMonth) {
               // Insert a separator row with the name of the month
-              var monthSeparatorRow = '<tr style="width: 100%; height: 40px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 15px; text-align: center !important;"><td colspan="4">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
+              var monthSeparatorRow = '<tr style="width: 100%; height: 40px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 15px; text-align: center !important;"><td colspan="' + totalCols + '">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
               tbody.insertAdjacentHTML('beforeend', monthSeparatorRow);
 
             }
@@ -1382,8 +1385,8 @@ async function filterData(completarDias = false) {
             let fD = semiLongDate(nextDay);
             let dom = '';
             if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-            tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="4" ' + dom + '><p>' + fD + '</p></td></tr>');
-            if (fD.startsWith('D')) { tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="4" style="height: 5px; background-color: gray;"></td></tr>'); };
+            tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="' + totalCols + '" ' + dom + '><p>' + fD + '</p></td></tr>');
+            if (fD.startsWith('D')) { tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="'+totalCols+' style="height: 5px; background-color: gray;"></td></tr>'); };
           };
         }
       }
@@ -1391,7 +1394,7 @@ async function filterData(completarDias = false) {
       currentDay = rowDay
       if (currentMonth !== rowMonth) {
         // Insert a separator row with the name of the month
-        var monthSeparatorRow = '<tr style="width: 100%; height: 40px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="4">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
+        var monthSeparatorRow = '<tr style="width: 100%; height: 40px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="' + totalCols + '">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
         tbody.insertAdjacentHTML('beforeend', monthSeparatorRow);
         currentMonth = rowMonth; // Update the current month
       }
@@ -1407,7 +1410,7 @@ async function filterData(completarDias = false) {
         // Use the index to access the corresponding element in nombresGiras
         var estaGira = nombresGiras[giraIndex];
         var esteLink = linkGiras[giraIndex];
-        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="4"><a href="' + esteLink + '">' + estaGira + '</a></td></tr>');
+        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="' + totalCols + '"><a href="' + esteLink + '">' + estaGira + '</a></td></tr>');
 
       }
 
@@ -1431,7 +1434,7 @@ async function filterData(completarDias = false) {
 
       const esUnico = (events.length == 1)
       var summaryRow = '<tr class="summary-row' + tipoResumen + '" data-date="' + date + '" style="cursor: pointer; text-align: center; background: linear-gradient(light green, white); font-size: 18px;">';
-      summaryRow += '<td colspan="4"><p>' + semiLongDate(new Date(date)) + ' - ';
+      summaryRow += '<td colspan="'+totalCols+'"><p>' + semiLongDate(new Date(date)) + ' - ';
 
       if (esUnico) {
         if (presentaciones == 1) {
@@ -1502,7 +1505,7 @@ async function filterData(completarDias = false) {
         // Similar logic for Fin Gira
         const giraIndex = finGiras.findIndex(date => isSameDay(date, currentDay));
         var estaGira = nombresGiras[giraIndex];
-        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="4"></td></tr>');
+        tbody.insertAdjacentHTML('beforeend', '<tr class="sepGira"><td colspan="' + totalCols + '"></td></tr>');
       }
 
       // Insert detailed rows into tbody but keep them hidden initially
@@ -1757,11 +1760,13 @@ async function filterData(completarDias = false) {
       if (data[8].includes('Integrado')) {
         obs = data[8].replace('Ensayo Integrado:', '');
       }
-      if (data[8] != "Presentación" || 1 == 1) { 
-        row += '<p><i>Observ: </i>' + obs + '</p>' }
+      if (data[8] != "Presentación" || 1 == 1) {
+        row += '<p><i>Observ: </i>' + obs + '</p>'
+      }
       else { row += '<p>Partic: ' + data[6] + '</p>' };
       if (ensParam) {
         const namesArray = data[7].split('|');
+        let cantidadNombres = dropdownValue.split("|");
         let namesString = ""
         // Filter the names based on the matching names in dropdownValue
         let filteredNames = namesArray.filter(name => dropdownValue.toLowerCase().includes(name.toLowerCase()));
@@ -2048,11 +2053,11 @@ function fetchEnsamble(ens) {
 
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      //console.log(ens);
-      const ensambles = extractColumnData(doc, 2); // Extract data from the 4th column (AB column)
-      const miembros = extractColumnData(doc, 3); // Extract data from the 3rd column (AB column)
-      //console.log(ensambles);
-      //console.log(miembros);
+      console.log(ens);
+      const ensambles = extractColumnData(doc, 2); // Extract data from the 4th column
+      const miembros = extractColumnData(doc, 3); // Extract data from the 3rd column
+      console.log(ensambles);
+      console.log(miembros);
 
       // Filter miembros based on the condition that the corresponding ensambles value matches the variable "ens"
       const filteredMiembros = miembros.filter((miembro, index) => ensambles[index].includes(ens));
