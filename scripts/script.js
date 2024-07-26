@@ -1328,7 +1328,7 @@ async function filterData(completarDias = false) {
         }
 
         // Add the shortened names to the row
-        detailedRow += '<td>' + namesString + '</td>';
+        detailedRow += '<td style="width: 20%;">' + namesString + '</td>';
       }
 
 
