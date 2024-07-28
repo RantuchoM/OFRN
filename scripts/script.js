@@ -1333,7 +1333,7 @@ async function filterData(completarDias = false) {
         // Add the shortened names to the row
         if (isMobileView()) {
           if (cantidadNombres.length == filteredNames.length) {
-            detailedRow += `<td class= "partEns" style="width: ${width4}%; cursor: pointer;" title="${namesString}">Comp.</td>`;
+            detailedRow += `<td class= "partEns" style="width: ${width4}%; cursor: pointer;" title="${namesString}">Comp</td>`;
           }
           else {
             detailedRow += `<td class= "partEns" style="width: ${width4}%; cursor: pointer;" title="${namesString}">${filteredNames.length}/${cantidadNombres.length}</td>`;
