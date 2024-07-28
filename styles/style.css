@@ -582,6 +582,8 @@ p {
 .floating-element {
   position: fixed;
   bottom: 80px; /* Adjust position as needed */
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #abf0ba;
   padding: 10px;
   border-radius: 5px;
