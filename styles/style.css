@@ -581,9 +581,8 @@ p {
 }
 .floating-element {
   position: fixed;
-  bottom: 30px; /* Adjust position as needed */
-  right: 30px; /* Adjust position as needed */
-  background-color: #f0f0f0;
+  bottom: 80px; /* Adjust position as needed */
+  background-color: #abf0ba;
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
