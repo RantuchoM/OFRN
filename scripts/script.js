@@ -1161,7 +1161,9 @@ async function filterData(completarDias = false) {
     if (isMobileView()) {
       width1 = '18';
       width2 = '30';
-      width3 = '50';
+      width3 = '40';
+      width4 = '10';
+
       console.log('Es vista móvil');
     }
     else {
@@ -1193,9 +1195,10 @@ async function filterData(completarDias = false) {
       // Construct the detailed row
       //var detailedRow = '<tr class="detailed-row" data-date="' + formattedDate + '" style="text-align: center; display: none">';
       var tipoPres = "";
-      if (data[8].toLowerCase().startsWith('presentación')) { tipoPres = " presentacion" }
-      else if (data[6].includes('Gira/Progr')) { tipoPres = ' ensayoGira'; }
-      else { tipoPres = ' ensayo'; }
+      var tipoCelda = ""; //Para el detalle en la tercer column
+      if (data[8].toLowerCase().startsWith('presentación')) { tipoPres = " presentacion"; tipoCelda = "Concierto" }
+      else if (data[6].includes('Gira/Progr')) { tipoPres = ' ensayoGira'; tipoCelda = 'Ensayo Gira/CF' }
+      else { tipoPres = ' ensayo'; tipoCelda = data[6] }
       var detailedRow = '<tr class="detailed-row' + tipoPres + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
 
 
@@ -1280,10 +1283,10 @@ async function filterData(completarDias = false) {
 
         }
         if (!tipo) { tipo = "Sin asignar" }
-        detailedRow += '<p style="line-height: 1.2  "> ' + programColored + '</p>';
+        detailedRow += '<p style="line-height: 1;"> <span style="font-size: 0.7em">' + tipoCelda + '</span><br>' + programColored + '</p>';
       }
       else {
-        detailedRow += '<p>Sin asignar</p>';
+        detailedRow += '<p> <span style="font-size: 0.7em">' + tipoCelda + '</span><br>Sin asignar</p>';
         tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ', '');
         tipo = tipo.split(' ')[0];
       }
@@ -1314,7 +1317,7 @@ async function filterData(completarDias = false) {
         else {
           var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
           // Shorten each name to the first two characters of each word (initials) plus one additional letter
-          if (nombresCompletosChecked) { }
+          if (nombresCompletosChecked || isMobileView()) { }
           else {
             filteredNames = filteredNames.map(name => {
               const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
@@ -1328,8 +1331,20 @@ async function filterData(completarDias = false) {
         }
 
         // Add the shortened names to the row
-        detailedRow += '<td style="width: 20%;">' + namesString + '</td>';
+        if (isMobileView()) {
+          if (cantidadNombres.length == filteredNames.length) {
+            detailedRow += `<td class= "partEns" style="width: ${width4}%; cursor: pointer;" title="${namesString}">Comp.</td>`;
+          }
+          else {
+            detailedRow += `<td class= "partEns" style="width: ${width4}%; cursor: pointer;" title="${namesString}">${filteredNames.length}/${cantidadNombres.length}</td>`;
+
+          }
+        }
+        else {
+          detailedRow += '<td style="width: 15%;">' + namesString + '</td>';
+        }
       }
+
 
 
       detailedRow += '</td> <!–-tipo: ' + tipo + '  -–><!–-hora: ' + data[2] + '  /hora-–><!–-obs: ' + obs + '  /obs-–></tr>';
@@ -1386,7 +1401,7 @@ async function filterData(completarDias = false) {
             let dom = '';
             if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
             tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="' + totalCols + '" ' + dom + '><p>' + fD + '</p></td></tr>');
-            if (fD.startsWith('D')) { tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="'+totalCols+' style="height: 5px; background-color: gray;"></td></tr>'); };
+            if (fD.startsWith('D')) { tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="' + totalCols + ' style="height: 5px; background-color: gray;"></td></tr>'); };
           };
         }
       }
@@ -1434,7 +1449,7 @@ async function filterData(completarDias = false) {
 
       const esUnico = (events.length == 1)
       var summaryRow = '<tr class="summary-row' + tipoResumen + '" data-date="' + date + '" style="cursor: pointer; text-align: center; background: linear-gradient(light green, white); font-size: 18px;">';
-      summaryRow += '<td colspan="'+totalCols+'"><p>' + semiLongDate(new Date(date)) + ' - ';
+      summaryRow += '<td colspan="' + totalCols + '"><p>' + semiLongDate(new Date(date)) + ' - ';
 
       if (esUnico) {
         if (presentaciones == 1) {
@@ -1535,6 +1550,18 @@ async function filterData(completarDias = false) {
         });
       });
     });
+    if (isMobileView()) {
+      const tableCell = document.querySelectorAll('.partEns'); // Replace with the actual selector for your table cell
+
+      tableCell.forEach(function (thisCell) {
+        thisCell.addEventListener('click', function () {
+          const fullNames = this.getAttribute('title');
+          // You can customize the popup implementation here
+          floatingElement.textContent = fullNames;
+          floatingElement.style.display = 'block';
+        });
+      });
+    }
   }
 
 

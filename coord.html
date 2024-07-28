@@ -135,6 +135,8 @@
             <div id="printableArea">
                 <div id="encabezadoImprimir"></div>
                 <table id="table-data" class="table">
+                    <div class="floating-element">
+                    </div>
                     <thead>
                         <!-- Headers will be populated dynamically using JavaScript -->
                     </thead>
@@ -162,6 +164,12 @@
 
     // Call the function to validate "nombre" parameter
     validateEnsambleParameter();
+
+    const floatingElement = document.querySelector('.floating-element');
+
+    floatingElement.addEventListener('click', () => {
+        floatingElement.style.display = "none";
+    });
 </script>
 
 </html>
