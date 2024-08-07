@@ -132,6 +132,15 @@ button {
   }
 }
 
+button.pulsable {
+  background-color: rgb(212, 40, 40);
+  font-size: 13px;
+}
+
+button.active {
+  background-color: green !important;
+}
+
 /* Add this CSS to your stylesheet or within a <style> tag */
 
 /* Tooltip container */
@@ -597,9 +606,10 @@ p {
  
   top: 30%;
   /* Center vertically */
-  left: 30%;
+  left: 50%;
   /* Center horizontally */
   width: 410px;
+  margin: 0 auto;
   height: 450px;
   resize: none;
   background-color: rgb(236, 233, 233);
@@ -614,9 +624,12 @@ p {
   /* Set cursor to indicate draggable */
   touch-action: none;
   /* Disable default touch behavior */
-
-
 }
+.floating-filtros.show {
+  display: block;
+  /* Show when toggled */
+}
+
 
 .floating-filtros * {
   font-size: 0.8em;
@@ -644,14 +657,9 @@ p {
 
 .checks {
   display: flex;
-  flex-direction: column;
-
+  flex-direction: row;
 }
 
-.floating-filtros.show {
-  display: block;
-  /* Show when toggled */
-}
 
 /* Media query for mobile devices */
 @media screen and (max-width: 700px) {
@@ -665,6 +673,16 @@ p {
   .header-content {
     display: flex;
     flex-direction: column;
+    font-size: 10px;
+    
+  }
+  .header-content *{
+    margin: 0px;
+    padding: 0px;
+  }
+
+  .header-content img{
+    height: 50px;
   }
 
   /* Adjust ensemble grid within floating filters */
@@ -672,11 +690,12 @@ p {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
   }
-
+  
   /* Adjust filters within floating filters */
   .floating-filtros #filtros {
     display: flex !important;
     flex-direction: column !important;
+    width: 80%;
 
   }
 

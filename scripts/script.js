@@ -349,9 +349,9 @@ try {
   document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
     checkbox.addEventListener('change', function () { filterData(false); });
   });
-  document.querySelector('#ocultarEnsayosCheckbox').addEventListener('change', function () { filterData(false); });
-  document.querySelector('#ocultarEnsGirCheckbox').addEventListener('change', function () { filterData(false); });
-  document.querySelector('#ocultarDiasVaciosCheckbox').addEventListener('change', function () { filterData(false); });
+  document.querySelector('#ocultarEnsayosButton').addEventListener('click', function () { filterData(); });
+  document.querySelector('#ocultarEnsGirButton').addEventListener('click', function () { filterData(false); });
+  //document.querySelector('#ocultarDiasVaciosButton').addEventListener('click', function () { filterData(false); });
 }
 catch { }
 
@@ -825,8 +825,8 @@ async function filterData(completarDias = false) {
   console.log(`El valor2 del nombre es ${dropdownValue}`);
 
   // Check if "Ocultar Ensayos" checkbox is checked
-  var ocultarEnsayosChecked = document.getElementById('ocultarEnsayosCheckbox').checked;
-  var ocultarEnsGirChecked = document.getElementById('ocultarEnsGirCheckbox').checked;
+  var ocultarEnsayosChecked = !document.getElementById('ocultarEnsayosButton').classList.contains('active');
+  var ocultarEnsGirChecked = !document.getElementById('ocultarEnsGirButton').classList.contains('active');
 
   // Filter and display rows based on checkboxes, date range, dropdown value, and filter input textboxes
   //console.log(dataArray);
@@ -927,225 +927,7 @@ async function filterData(completarDias = false) {
       resizer.parentNode.removeChild(resizer);
     });
   };
-
-  function createTable() {
-    return new Promise(function (resolve) {
-      //destroyResizableTable(document.getElementById('table-data'));
-
-      var table = document.getElementById('table-data')
-      // Check if the table exists
-      if (table && !primeraVez) {
-        var rowsToRemove = Array.from(table.rows).slice(2);
-
-
-        // Remove each row
-        rowsToRemove.forEach(function (row) {
-          table.deleteRow(row.rowIndex);
-        });
-
-      } else {
-        console.error("Table not found");
-      }
-      primeraVez = false;
-      console.log(filteredData);
-      /*var firstRowMonth = new Date(filteredData[0][1]).getMonth();
-      var firstmonthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 25px; text-align: center !important;"><td colspan="9">' + getMonthName(firstRowMonth) + '  ' + new Date(filteredData[0][1]).getFullYear() + '</td></tr>';
-      tbody.append(firstmonthSeparatorRow);*/
-
-
-      filteredData.forEach(function (data) {
-        var rowMonth = new Date(data[1]).getMonth();
-        var rowDay = new Date(data[1]);
-        var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
-        if (!isOcultarDias) {
-
-          var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
-          if (diff > 1 && currentDay !== 0) {
-            //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
-            for (i = 1; i < diff; i++) {
-              let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
-              rowMonth = nextDay.getMonth();
-              if (currentMonth !== rowMonth) {
-                // Insert a separator row with the name of the month
-                var monthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 25px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-                tbody.append(monthSeparatorRow);
-
-              }
-              currentMonth = rowMonth; // Update the current month
-              let fD = longDate(nextDay);
-              let dom = '';
-              if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-              tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white 150%) content-box;"><td style="width: 20%">Día sin actividad</td><td><span' + dom + '>' + fD + '</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
-              if (fD.startsWith('D')) { tbody.append('<tr style="height: 1px; background: #557985; width: 20%"><td colspan=9 style=" font-size: 2px;"></td></tr>'); };
-
-            };
-          }
-          currentDay = rowDay
-          //currentMonth = rowMonth;
-        }
-
-        //console.log(currentMonth)
-        currentDay = rowDay
-        if (currentMonth !== rowMonth) {
-          // Insert a separator row with the name of the month
-          var monthSeparatorRow = '<tr style="height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="9">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-          tbody.append(monthSeparatorRow);
-          currentMonth = rowMonth; // Update the current month
-        }
-
-        var row = '<tr style="text-align: center; padding: 0px;';
-
-        if (data[6].toLowerCase().includes('ensayo')) {
-          row += 'background: linear-gradient(violet, white 150%) content-box;"';
-        }
-        else if (data[8].toLowerCase().startsWith('ensay')) {
-          row += 'background: linear-gradient(blue, white 150%) content-box;"';
-        }
-        else if (data[8].includes('Present')) {
-          row += 'background: linear-gradient(yellow, white 150%) content-box;"';
-        }
-        else {
-          row += '"';
-        }
-
-        row += '>'
-        let estado;
-        let estadoColor = '';
-
-        if (data[10] == undefined || !esCoordEns) {
-          estado = '';
-        } else {
-          switch (data[10]) {
-            case 'REVISAR':
-              estadoColor = 'red';
-              break;
-            case 'Auto-gestionado':
-              estadoColor = 'blue';
-              break;
-            case 'Confirmado':
-              estadoColor = 'green';
-              break;
-            case 'CANCELADO':
-              estadoColor = 'purple';
-              break;
-            case 'Pedido':
-              estadoColor = 'yellow';
-              break;
-            case 'Estimado':
-              estadoColor = 'orange';
-              break;
-            default:
-              estadoColor = '';
-          }
-
-          estado = estadoColor
-            ? '<span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
-            : '<span>' + data[10] + '</span>';
-        }
-        if (data[0] != "Sin programa asignado") {
-          var progrs = data[0].split(' ♪ ');
-          var drives = data[5].split(' ♪ ');
-          var planillas = data[11].split(' ♪ ');
-          var planilla = '';
-          var programColored = "";
-          // Process each value separately
-          row += '<td>'
-          for (var i = 0; i < progrs.length; i++) {
-            var backgroundColor;
-
-            if (progrs[i].startsWith('Sinf')) {
-              backgroundColor = '#5f51db';
-            } else if (progrs[i].startsWith('CFVal')) {
-              backgroundColor = '#E1C16E';
-            } else if (progrs[i].startsWith('CFMon')) {
-              backgroundColor = '#A8A8A8';
-            } else if (progrs[i].startsWith('CFMar')) {
-              backgroundColor = '#89CFF0';
-            } else if (progrs[i].startsWith('CFCuer')) {
-              backgroundColor = '#ffccff';
-            } else {
-              backgroundColor = '#baee29';
-            }
-            if (esCoordEns) {
-              planilla = ' <a href="' + planillas[i] + '" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
-            }
-            programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>' + planilla;
-
-          }
-
-
-          row += '<div style="line-height: 2  ">' + programColored + '</div>';
-          row += '</td>'
-        }
-        else { row += '<td>Sin programa asignado</td>' }
-
-        row += '<td>' + longDate(data[1]) + '</td>'
-        row += '<td>' + data[2] + '</td>'
-
-        row += '<td>' + data[3] + '</td>'
-        row += '<td>' + data[4] + '</td>'
-
-        if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
-        //console.log(data[8].toLowerCase())
-        if (data[8].toLowerCase().startsWith('ensayo')) {
-          row += '<td>Ensayo Integrado</td>'
-        }
-        else if (data[8].toLowerCase().startsWith('present')) {
-          row += '<td>Presentación</td>'
-        }
-        else {
-          row += '<td>' + data[6] + '</td>';
-        }
-
-
-
-        var obs = data[8]
-        if (obs.includes('Integrado')) {
-          obs = data[8].replace('Ensayo Integrado:', '');
-        }
-        if (data[8] != "Presentación") { row += '<td><i></i>' + obs + '</td>' }
-        else { row += '<td>Ens: ' + data[6] + '</td>' };
-        row += '<td>' + estado + '</td>'
-        if (ensParam) {
-          const namesArray = data[7].split('|');
-          let namesString = ""
-          // Filter the names based on the matching names in dropdownValue
-          let filteredNames = namesArray.filter(name => dropdownValue.includes(name));
-          if (cantidadNombres.length == filteredNames.length) {
-
-            namesString = `${ensParam} Completo`;
-          }
-          else {
-            var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
-            /*// Shorten each name to the first two characters of each word (initials) plus one additional letter
-            if (nombresCompletosChecked) { }
-            else {
-              filteredNames = filteredNames.map(name => {
-                const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
   
-                return initials;
-              });
-            }*/
-
-            // Join the shortened names back into a string with "|" separator
-            namesString = filteredNames.join('-');
-          }
-
-          // Add the shortened names to the row
-          row += '<td>' + namesString + '</td>';
-        }
-
-
-        row += '</td></tr>';
-        tbody.append(row);
-        resolve(); // Resolve the promise when the table is created
-      });
-
-
-
-
-    });
-  }
   function createTableAsCards() {
     var table = document.getElementById('table-data');
     // Check if the table exists
@@ -1315,7 +1097,7 @@ async function filterData(completarDias = false) {
           namesString = `${ensParam} Completo`;
         }
         else {
-          var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
+          var nombresCompletosChecked = document.getElementById('mostrarNombresButton').classList.contains('active');
           // Shorten each name to the first two characters of each word (initials) plus one additional letter
           if (nombresCompletosChecked || isMobileView()) { }
           else {
@@ -1357,7 +1139,7 @@ async function filterData(completarDias = false) {
     for (var date in detailedRowsByDate) {
       var rowMonth = new Date(date).getMonth();
       var rowDay = new Date(date);
-      var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
+      var isOcultarDias = !document.querySelector('#ocultarDiasVaciosButton').classList.contains('active');
       if (!isOcultarDias) {
         var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
         if (diff > 1 && currentDay !== 0) {
@@ -1368,7 +1150,7 @@ async function filterData(completarDias = false) {
             rowMonth = nextDay.getMonth();
             if (currentMonth !== rowMonth) {
               // Insert a separator row with the name of the month
-              var monthSeparatorRow = '<tr style="width: 100%; height: 40px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 15px; text-align: center !important;"><td colspan="' + totalCols + '">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
+              var monthSeparatorRow = '<tr style="width: 100%; height: 30px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 15px; text-align: center !important;"><td colspan="' + totalCols + '">' + getMonthName(rowMonth) + '  ' + new Date(date).getFullYear() + '</td></tr>';
               tbody.insertAdjacentHTML('beforeend', monthSeparatorRow);
 
             }
@@ -1376,31 +1158,10 @@ async function filterData(completarDias = false) {
             function isSameDay(date1, date2) {
               return new Date(date1).getTime() === new Date(date2).getTime();
             }
-            //console.log(inicioGiras)
-            //console.log(nextDay)
-            /*
-            if (inicioGiras.some(date => isSameDay(date, nextDay))) {
-              // Find the index of matching date in inicioGiras
-              const giraIndex = inicioGiras.findIndex(date => isSameDay(date, nextDay));
-              // Use the index to access the corresponding element in nombresGiras
-              var estaGira = nombresGiras[giraIndex];
-            
-              tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="4"><p>Inicio Gira:<br>' + estaGira + '</p></td></tr>');
-
-            }
-            else if (finGiras.some(date => isSameDay(date, nextDay))) {
-              // Similar logic for Fin Gira
-              const giraIndex = finGiras.findIndex(date => isSameDay(date, nextDay));
-              var estaGira = nombresGiras[giraIndex];
-              tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="4"><p>Fin Gira:<br>' + estaGira + '</p></td></tr>');
-
-            }
-            */
-
             let fD = semiLongDate(nextDay);
             let dom = '';
             if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-            tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 18px;"><td colspan="' + totalCols + '" ' + dom + '><p>' + fD + '</p></td></tr>');
+            tbody.insertAdjacentHTML('beforeend', '<tr style="text-align: center;background: linear-gradient(rgb(196, 193, 193),rgb(196, 193, 193), white) content-box;font-size: 14px; height: 17px;"><td colspan="' + totalCols + '" ' + dom + '><p>' + fD + '</p></td></tr>');
             if (fD.startsWith('D')) { tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="' + totalCols + ' style="height: 5px; background-color: gray;"></td></tr>'); };
           };
         }
@@ -1564,268 +1325,6 @@ async function filterData(completarDias = false) {
     }
   }
 
-
-
-
-  function groupDataByDay(data) {
-    var groupedData = {};
-    data.forEach(function (event) {
-      var day = new Date(event[1]).toDateString();
-      if (!groupedData[day]) {
-        groupedData[day] = [];
-      }
-      groupedData[day].push(event);
-    });
-    return groupedData;
-  }
-
-  function createSummaryRow(day, eventCount) {
-    var summaryRow = document.createElement('tr');
-    summaryRow.innerHTML = '<td colspan="3" class="summary-row">' +
-      '<span class="summary-text">There are ' + eventCount + ' events on ' + day + '</span>' +
-      '</td>';
-    summaryRow.classList.add('summary-row');
-    return summaryRow;
-  }
-
-  function createEventRow(event) {
-    var row = document.createElement('tr');
-    row.innerHTML = '<td style="width: 33%">' + event[1] + '</td>' +
-      '<td>' + event[2] + ' - ' + event[3] + '</td>' +
-      '<td style="width: 33%">' + event[0] + '</td>';
-    return row;
-  }
-
-  function groupDataByDay(data) {
-    var groupedData = {};
-    data.forEach(function (event) {
-      var day = new Date(event[1]).toDateString();
-      if (!groupedData[day]) {
-        groupedData[day] = [];
-      }
-      groupedData[day].push(event);
-    });
-    return groupedData;
-  }
-
-  function createEventRow(event) {
-    var row = document.createElement('tr');
-    row.innerHTML = '<td style="width: 33%">' + event[1] + '</td>' +
-      '<td>' + event[2] + ' - ' + event[3] + '</td>' +
-      '<td style="width: 33%">' + event[0] + '</td>';
-    row.classList.add('event-row', 'hidden'); // Add classes for styling and visibility control
-    return row;
-  }
-
-  function groupDataByDay(data) {
-    var groupedData = {};
-    data.forEach(function (event) {
-      var day = new Date(event[1]).toDateString();
-      if (!groupedData[day]) {
-        groupedData[day] = [];
-      }
-      groupedData[day].push(event);
-    });
-    return groupedData;
-  }
-
-  function createEventRow(event) {
-    var row = document.createElement('tr');
-    row.innerHTML = '<td style="width: 33%">' + event[1] + '</td>' +
-      '<td>' + event[2] + ' - ' + event[3] + '</td>' +
-      '<td style="width: 33%">' + event[0] + '</td>';
-    row.classList.add('hidden'); // Initially hide all event rows
-    return row;
-  }
-
-  function createTableAsCardsOriginal() {
-    var table = document.getElementById('table-data')
-    // Check if the table exists
-    if (table) {
-      // Get all rows in the table except the first one (index 0)
-      var rowsToRemove = Array.from(table.rows)
-
-      // Remove each row
-      rowsToRemove.forEach(function (row) {
-        table.deleteRow(row.rowIndex);
-      });
-    } else {
-      console.error("Table not found");
-    }
-    filteredData.forEach(function (data) {
-      var rowMonth = new Date(data[1]).getMonth();
-      var rowDay = new Date(data[1]);
-      var isOcultarDias = document.querySelector('#ocultarDiasVaciosCheckbox').checked;
-      if (!isOcultarDias) {
-        var diff = (rowDay - currentDay) / 1000 / 24 / 60 / 60
-        if (diff > 1 && currentDay !== 0) {
-          //tbody.append('<tr><td><h3>'+diff+'</h3><p>Día sin actividad</p></td></tr>');
-          for (i = 1; i < diff; i++) {
-            let nextDay = new Date(currentDay.getTime() + i * 24 * 60 * 60 * 1000); // Adding i days
-            rowMonth = nextDay.getMonth();
-            if (currentMonth !== rowMonth) {
-              // Insert a separator row with the name of the month
-              var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="1">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-              tbody.append(monthSeparatorRow);
-
-            }
-            currentMonth = rowMonth; // Update the current month
-            let fD = longDate(nextDay);
-            let dom = '';
-            if (fD.startsWith('D')) { dom = ' style ="color:blue"'; }
-            tbody.append('<tr style="text-align: center;background: linear-gradient(gray, white) content-box;"><td colspan="1"><h4' + dom + '>' + fD + '</h4><p>Día sin actividad</p></td></tr>');
-            if (fD.startsWith('D')) { tbody.append('<tr><td></td></tr>'); };
-          };
-        }
-      }
-
-      currentDay = rowDay
-      if (currentMonth !== rowMonth) {
-        // Insert a separator row with the name of the month
-        var monthSeparatorRow = '<tr style="width: 100%; height: 80px; background-color: rgb(32, 99, 145); color: white;font-weight: bold; font-size: 20px; text-align: center !important;"><td colspan="3">' + getMonthName(rowMonth) + '  ' + new Date(data[1]).getFullYear() + '</td></tr>';
-        tbody.append(monthSeparatorRow);
-        currentMonth = rowMonth; // Update the current month
-      }
-
-      var row = '<tr style="text-align: center; padding: 0px;"';
-
-
-      row += '><td';
-      if (data[6].toLowerCase().includes('ensayo')) {
-        row += ' style="background: linear-gradient(violet, white) content-box;"';
-      }
-      else if (data[8].toLowerCase().startsWith('ensay')) {
-        row += ' style="background: linear-gradient(blue, white) content-box;"';
-      }
-      else if (data[8].includes('Present')) {
-        row += ' style="background: linear-gradient(yellow, white) content-box;"';
-      }
-
-
-      row += '>'
-      let estado;
-      let estadoColor = '';
-
-      if (data[10] == undefined || !esCoordEns) {
-        estado = '';
-      } else {
-        switch (data[10]) {
-          case 'REVISAR':
-            estadoColor = 'red';
-            break;
-          case 'Auto-gestionado':
-            estadoColor = 'blue';
-            break;
-          case 'Confirmado':
-            estadoColor = 'green';
-            break;
-          case 'CANCELADO':
-            estadoColor = 'purple';
-            break;
-          case 'Pedido':
-            estadoColor = 'yellow';
-            break;
-          case 'Estimado':
-            estadoColor = 'orange';
-            break;
-          default:
-            estadoColor = '';
-        }
-
-        estado = estadoColor
-          ? '<span style="background: ' + estadoColor + ';">' + data[10] + '</span>'
-          : '<span>' + data[10] + '</span>';
-      }
-
-      row += '<h4>' + [longDate(data[1]), data[2], estado].filter(Boolean).join(" - ") + '</h4>';
-      row += '<p>' + [data[3], data[4]].filter(Boolean).join(' - ') + '</p>';
-      if (dropdownValue) { cantidadNombres = dropdownValue.split("|") };
-      //console.log(data[8].toLowerCase())
-      if (data[8].toLowerCase().startsWith('ensayo')) {
-        row += '<h3>Ensayo Integrado</h3>'
-      }
-      else if (data[8].toLowerCase().startsWith('present')) {
-        row += '<h3>Presentación</h3>'
-      }
-      else {
-        row += '<h3>' + data[6] + '</h3>';
-      }
-      if (data[0] != "Sin programa asignado") {
-        var progrs = data[0].split(' ♪ ');
-        var drives = data[5].split(' ♪ ');
-        var programColored = "";
-        var planillas = data[11].split(' ♪ ');
-        var planilla = '';
-        // Process each value separately
-        for (var i = 0; i < progrs.length; i++) {
-          var backgroundColor;
-
-          if (progrs[i].startsWith('Sinf')) {
-            backgroundColor = '#5f51db';
-          } else if (progrs[i].startsWith('CFVal')) {
-            backgroundColor = '#E1C16E';
-          } else if (progrs[i].startsWith('CFMon')) {
-            backgroundColor = '#A8A8A8';
-          } else if (progrs[i].startsWith('CFMar')) {
-            backgroundColor = '#89CFF0';
-          } else if (progrs[i].startsWith('CFCuer')) {
-            backgroundColor = '#ffccff';
-          } else {
-            backgroundColor = '#baee29';
-          }
-          if (esCoordEns) {
-            planilla = ' <a href="' + planillas[i] + '" style="background: lightblue; text-decoration: none;" >☁︎</a> ';
-          }
-          programColored += '<br><a href="' + drives[i] + '" style="background: ' + backgroundColor + '"> ' + progrs[i] + ' </a>' + planilla;
-
-        }
-        row += '<p style="line-height: 2  "><i>Progr:</i> ' + programColored + '</p>';
-      }
-      else { row += '<p>Sin programa asignado</p>' }
-
-      var obs = data[8]
-      if (data[8].includes('Integrado')) {
-        obs = data[8].replace('Ensayo Integrado:', '');
-      }
-      if (data[8] != "Presentación" || 1 == 1) {
-        row += '<p><i>Observ: </i>' + obs + '</p>'
-      }
-      else { row += '<p>Partic: ' + data[6] + '</p>' };
-      if (ensParam) {
-        const namesArray = data[7].split('|');
-        let cantidadNombres = dropdownValue.split("|");
-        let namesString = ""
-        // Filter the names based on the matching names in dropdownValue
-        let filteredNames = namesArray.filter(name => dropdownValue.toLowerCase().includes(name.toLowerCase()));
-        if (cantidadNombres.length == filteredNames.length) {
-
-          namesString = `${ensParam} Completo`;
-        }
-        else {
-          var nombresCompletosChecked = document.getElementById('mostrarNombresCheckbox').checked;
-          /*// Shorten each name to the first two characters of each word (initials) plus one additional letter
-          if (nombresCompletosChecked) { }
-          else {
-            filteredNames = filteredNames.map(name => {
-              const initials = name.split(' ').map(word => word.charAt(0) + word.charAt(1).toLowerCase()).join(''); // Get initials of each word
- 
-              return initials;
-            });
-          }*/
-
-          // Join the shortened names back into a string with "|" separator
-          namesString = filteredNames.join('-');
-        }
-
-        // Add the shortened names to the row
-        row += '<p>' + namesString + '</p>';
-      }
-
-
-      row += '</td></tr>';
-      tbody.append(row);
-    });
-  }
 
 
   // Function to determine if the current view is mobile or not

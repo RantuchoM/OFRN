@@ -128,17 +128,28 @@ createButton("Próxima semana", setNextWeek);
 createButton("Próximos 30 días", setNext30Days);
 
 // Function to create the "Completar Días" checkbox
-function createOcultarDiasVaciosCheckbox() {
-  var ocultarDiasVaciosCheckbox = document.createElement('input');
-  ocultarDiasVaciosCheckbox.type = 'checkbox';
-  ocultarDiasVaciosCheckbox.id = 'ocultarDiasVaciosCheckbox';
+function createOcultarDiasVaciosButton() {
+  var ocultarDiasVaciosButton = document.createElement('button');
+  ocultarDiasVaciosButton.textContent = 'Días vacíos';
+  ocultarDiasVaciosButton.id = 'ocultarDiasVaciosButton';
+  ocultarDiasVaciosButton.classList.add('pulsable');
+  const urlParameters = new URLSearchParams(window.location.search);
+  if (!urlParameters.get('dv')) {
+    ocultarDiasVaciosButton.classList.add('active');
+  }
+  // Add click event listener to the button
+  ocultarDiasVaciosButton.addEventListener('click', function () {
+    // Toggle the state (assuming a function called filterData exists)
+    filterData(); // Inverted logic for initial state
 
-  var label = document.createElement('label');
-  label.appendChild(ocultarDiasVaciosCheckbox);
-  label.appendChild(document.createTextNode('Ocultar Días Vacíos'));
+    // Toggle button class for visual feedback (optional)
+    this.classList.toggle('active');
+  });
 
+  // Add the button to the container
   var buttonContainer = document.getElementById('checks');
-  buttonContainer.appendChild(label);
+  buttonContainer.appendChild(ocultarDiasVaciosButton);
+
 }
 
 function createDownloadPDFButton() {
@@ -153,47 +164,74 @@ function createDownloadPDFButton() {
 }
 
 createDownloadPDFButton();
-function createOcultarEnsayosCheckbox() {
-  var ocultarEnsayosCheckbox = document.createElement('input');
-  ocultarEnsayosCheckbox.type = 'checkbox';
-  ocultarEnsayosCheckbox.id = 'ocultarEnsayosCheckbox';
+function createOcultarEnsayos() {
+  var ocultarEnsayosButton = document.createElement('button');
+  ocultarEnsayosButton.textContent = 'Ensayos';
+  ocultarEnsayosButton.id = 'ocultarEnsayosButton';
+  ocultarEnsayosButton.classList.add('pulsable');
+  ocultarEnsayosButton.classList.add('active');
 
-  var label = document.createElement('label');
-  label.appendChild(ocultarEnsayosCheckbox);
-  label.appendChild(document.createTextNode('Ocultar Ensayos'));
+  // Add click event listener to the button
+  ocultarEnsayosButton.addEventListener('click', function () {
+    // Toggle the state (assuming a function called filterData exists)
+    filterData(); // Inverted logic for initial state
 
+    // Toggle button class for visual feedback (optional)
+    this.classList.toggle('active');
+  });
+
+  // Add the button to the container
   var buttonContainer = document.getElementById('checks');
-  buttonContainer.appendChild(label);
+  buttonContainer.appendChild(ocultarEnsayosButton);
+
 }
-function createOcultarEnsGirCheckbox() {
-  var ocultarEnsayosCheckbox = document.createElement('input');
-  ocultarEnsayosCheckbox.type = 'checkbox';
-  ocultarEnsayosCheckbox.id = 'ocultarEnsGirCheckbox';
 
-  var label = document.createElement('label');
-  label.appendChild(ocultarEnsayosCheckbox);
-  label.appendChild(document.createTextNode('Ocultar Ensayos de Gira/Progr.'));
+function createOcultarEnsGirButton() {
 
+  var ocultarEnsayosButton = document.createElement('button');
+  ocultarEnsayosButton.textContent = 'Ensayos Gira';
+  ocultarEnsayosButton.id = 'ocultarEnsGirButton';
+  ocultarEnsayosButton.classList.add('pulsable');
+  ocultarEnsayosButton.classList.add('active');
+
+  // Add click event listener to the button
+  ocultarEnsayosButton.addEventListener('click', function () {
+    // Toggle the state (assuming a function called filterData exists)
+    filterData(); // Inverted logic for initial state
+
+    // Toggle button class for visual feedback (optional)
+    this.classList.toggle('active');
+  });
+
+  // Add the button to the container
   var buttonContainer = document.getElementById('checks');
-  buttonContainer.appendChild(label);
+  buttonContainer.appendChild(ocultarEnsayosButton);
+
 }
 
 
 function downloadPDF() {
   window.print();
 }
-function createMostrarNombresCheckbox() {
-  var ocultarEnsayosCheckbox = document.createElement('input');
-  ocultarEnsayosCheckbox.type = 'checkbox';
-  ocultarEnsayosCheckbox.id = 'mostrarNombresCheckbox';
+function createMostrarNombresButton() {
+  // Create the button element
+  var mostrarNombresButton = document.createElement('button');
+  mostrarNombresButton.textContent = 'Nombres';
+  mostrarNombresButton.id = 'mostrarNombresButton';
+  mostrarNombresButton.classList.add('pulsable');
 
-  var label = document.createElement('label');
-  label.appendChild(ocultarEnsayosCheckbox);
-  label.appendChild(document.createTextNode('Mostrar Nombres Completos'));
+  // Add click event listener to the button
+  mostrarNombresButton.addEventListener('click', function () {
+    // Toggle the state (assuming a function called filterData exists)
+    filterData(!this.classList.contains('active')); // Inverted logic for initial state
 
+    // Toggle button class for visual feedback (optional)
+    this.classList.toggle('active');
+  });
+
+  // Add the button to the container
   var buttonContainer = document.getElementById('checks');
-  buttonContainer.appendChild(label);
-  document.querySelector('#mostrarNombresCheckbox').addEventListener('change', function () { filterData(false); });
+  buttonContainer.appendChild(mostrarNombresButton);
 }
 
 
@@ -235,10 +273,10 @@ fechaDeHoy();
 
 
 // Call the function to create the "Completar Días" checkbox
-createOcultarDiasVaciosCheckbox();
-createOcultarEnsayosCheckbox();
-createOcultarEnsGirCheckbox();
+createOcultarDiasVaciosButton();
+createOcultarEnsayos();
+createOcultarEnsGirButton();
 const urlParams = new URLSearchParams(window.location.search)
 const ensParameter = urlParams.get('ens');
-if(ensParameter){createMostrarNombresCheckbox();}
+if (ensParameter) { createMostrarNombresButton(); }
 
