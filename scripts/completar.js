@@ -98,6 +98,7 @@ function createButton(text, onclickFunction) {
   var button = document.createElement('button');
   button.textContent = text;
   button.onclick = onclickFunction;
+  button.style = "background-color: gray;"
   document.getElementById('fechas').appendChild(button);
 }
 
@@ -142,9 +143,9 @@ function setNext30Days() {
   filterData();
 }
 // Create and append buttons
-createButton("Esta semana", setThisWeek);
-createButton("Próxima semana", setNextWeek);
-createButton("Próximos 30 días", setNext30Days);
+createButton("Esta sem.", setThisWeek);
+createButton("Próx. sem.", setNextWeek);
+createButton("30 días", setNext30Days);
 
 // Function to create the "Completar Días" checkbox
 function createOcultarDiasVaciosButton() {
@@ -175,6 +176,7 @@ function createDownloadPDFButton() {
   downloadPDFButton.id = 'downloadPDFButton';
   downloadPDFButton.textContent = 'Descargar/Imprimir';
   downloadPDFButton.addEventListener('click', downloadPDF);
+  downloadPDFButton.style = "display: none";
 
   var buttonContainer = document.getElementById('filtros');
   buttonContainer.appendChild(downloadPDFButton);
