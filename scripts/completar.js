@@ -98,7 +98,7 @@ function createButton(text, onclickFunction) {
   var button = document.createElement('button');
   button.textContent = text;
   button.onclick = onclickFunction;
-  button.style = "background-color: gray;"
+  button.style = "background-color: gray;font-size: 0.5em;"
   document.getElementById('fechas').appendChild(button);
 }
 
