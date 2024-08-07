@@ -135,6 +135,7 @@ button {
 button.pulsable {
   background-color: rgb(212, 40, 40);
   font-size: 13px;
+  border: rgb(99, 98, 98) 1px solid;
 }
 button.pulsableStr {
   width: 100%;
