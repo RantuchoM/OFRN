@@ -136,8 +136,17 @@ button.pulsable {
   background-color: rgb(212, 40, 40);
   font-size: 13px;
 }
-
-button.active {
+button.pulsableStr {
+  width: 100%;
+  color: black;
+  text-decoration: line-through;  
+  border: red 2.5px solid;
+}
+button.pulsableStr.active {
+  text-decoration: none;
+  border: green 2.5px solid;
+}
+button.pulsable.active {
   background-color: green !important;
 }
 
@@ -175,6 +184,7 @@ button.active {
 
 #filtros,
 #ensembleCheckboxes {
+  margin: 3px auto;
   font-size: 18px;
   text-align: center;
   box-sizing: border-box;
@@ -339,19 +349,18 @@ h2 {
 }
 
 .ensemble-grid {
+  margin: 5px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0px;
   font-size: 20px;
-  border-color: black;
-  border-style: ridge;
-  border-collapse: collapse;
-  border-width: 0.10px;
+
+  
   justify-items: center;
   /* Center horizontally */
   align-items: center;
   /* Center vertically */
-  width: 70%;
+  width: 80%;
   /* Adjust the width as needed */
   margin: 0 auto;
   /* Center the grid horizontally */
@@ -611,7 +620,7 @@ p {
   width: 410px;
   max-width: 80%;
   margin: 0 auto;
-  height: 380px;
+ 
   resize: none;
   background-color: rgb(236, 233, 233);
   border: 1px solid #ccc;
@@ -659,6 +668,7 @@ p {
 .checks {
   display: flex;
   flex-direction: row;
+  justify-content: center;
 }
 
 
@@ -689,7 +699,7 @@ p {
   /* Adjust ensemble grid within floating filters */
   .floating-filtros .ensemble-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
   
   /* Adjust filters within floating filters */

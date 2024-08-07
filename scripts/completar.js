@@ -1,4 +1,5 @@
 function crearCheckboxes() {
+  const urlParams = new URLSearchParams(window.location.search);
 
   var checkboxData = [
     { key: "CFVal", color: "#E1C16E" },
@@ -23,32 +24,50 @@ function crearCheckboxes() {
     { key: "Percusión", color: "" } // Replace with the actual background color
   ];
 
+  var hayParam = false; // Initialize to false
+
+// Loop through checkbox data
+for (const item of checkboxData) {
+  if (urlParams.has(item.key)) {
+    hayParam = true;
+    break; // Exit loop once a match is found
+  }
+}
+
+
   // Reference the ensembleCheckboxes container
   var ensembleCheckboxes = document.getElementById("ensembleCheckboxes");
 
   // Loop through the checkbox data and create checkboxes dynamically
   checkboxData.forEach(function (checkbox) {
-    var checkboxElement = document.createElement("label");
+    var checkboxElement = document.createElement("button");
     checkboxElement.style.backgroundColor = checkbox.color;
+    checkboxElement.classList.add("filter-checkbox");
+    checkboxElement.classList.add("pulsableStr");
+    checkboxElement.textContent = checkbox.key;
+    checkboxElement.value = checkbox.key;
 
-    // Create a checkbox input
-    var checkboxInput = document.createElement("input");
-    checkboxInput.type = "checkbox";
-    checkboxInput.className = "filter-checkbox";
-    checkboxInput.value = checkbox.key;
 
     // Check the checkbox if the corresponding parameter is present in the URL
-    var urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get(checkbox.key) === "true") {
-      checkboxInput.checked = true;
+    
+    if (urlParams.get(checkbox.key) === "true" || !hayParam) {
+      checkboxElement.classList.add("active");
     }
 
+    checkboxElement.addEventListener('click', function () {
+      // Toggle the state (assuming a function called filterData exists)
+      filterData(); // Inverted logic for initial state
+  
+      // Toggle button class for visual feedback (optional)
+      this.classList.toggle('active');
+    });
+
     // Add the checkbox input to the label
-    checkboxElement.appendChild(checkboxInput);
+    //checkboxElement.appendChild(checkboxInput);
 
     // Add the checkbox text after the input
-    var checkboxText = document.createTextNode(` ${checkbox.key}`);
-    checkboxElement.appendChild(checkboxText);
+    //var checkboxText = document.createTextNode(` ${checkbox.key}`);
+    //heckboxElement.appendChild(checkboxText);
 
     // Append the checkbox label to the container
     ensembleCheckboxes.appendChild(checkboxElement);
@@ -140,9 +159,7 @@ function createOcultarDiasVaciosButton() {
   // Add click event listener to the button
   ocultarDiasVaciosButton.addEventListener('click', function () {
     // Toggle the state (assuming a function called filterData exists)
-    filterData(); // Inverted logic for initial state
-
-    // Toggle button class for visual feedback (optional)
+    filterData();
     this.classList.toggle('active');
   });
 

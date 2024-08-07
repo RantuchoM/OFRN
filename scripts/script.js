@@ -350,8 +350,8 @@ try {
     checkbox.addEventListener('change', function () { filterData(false); });
   });
   document.querySelector('#ocultarEnsayosButton').addEventListener('click', function () { filterData(); });
-  document.querySelector('#ocultarEnsGirButton').addEventListener('click', function () { filterData(false); });
-  //document.querySelector('#ocultarDiasVaciosButton').addEventListener('click', function () { filterData(false); });
+  document.querySelector('#ocultarEnsGirButton').addEventListener('click', function () { filterData(); });
+  document.querySelector('#ocultarDiasVaciosButton').addEventListener('click', function () { filterData(); });
 }
 catch { }
 
@@ -763,7 +763,7 @@ async function filterData(completarDias = false) {
   }
 
 
-  var selectedValues = $('.filter-checkbox:checked').map(function () {
+  var selectedValues = $('.filter-checkbox.active').map(function () {
     return $(this).val();
   }).get();
 
@@ -1734,7 +1734,7 @@ function isDateInRange(date, fromDate, untilDate) {
 function checkAll() {
   var checkboxes = document.querySelectorAll('.filter-checkbox');
   checkboxes.forEach(function (checkbox) {
-    checkbox.checked = true;
+    checkbox.classList.add('active');
   });
   filterData();
 }
@@ -1743,7 +1743,7 @@ function checkAll() {
 function uncheckAll() {
   var checkboxes = document.querySelectorAll('.filter-checkbox');
   checkboxes.forEach(function (checkbox) {
-    checkbox.checked = false;
+    checkbox.classList.remove('active');
   });
   filterData();
 }
