@@ -609,6 +609,7 @@ p {
   left: 50%;
   /* Center horizontally */
   width: 410px;
+  max-width: 80%;
   margin: 0 auto;
   height: 450px;
   resize: none;
