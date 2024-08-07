@@ -346,8 +346,8 @@ function extractAllColumnData(doc, columnIndex) {
 }
 try {
   // Attach the event handlers to the checkbox and date input change events
-  document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
-    checkbox.addEventListener('change', function () { filterData(false); });
+  document.querySelectorAll('.filter-checkbox').forEach(function (button) {
+    button.addEventListener('click', function () { filterData(); });
   });
   document.querySelector('#ocultarEnsayosButton').addEventListener('click', function () { filterData(); });
   document.querySelector('#ocultarEnsGirButton').addEventListener('click', function () { filterData(); });
