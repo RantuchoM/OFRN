@@ -360,7 +360,7 @@ h2 {
   /* Center horizontally */
   align-items: center;
   /* Center vertically */
-  width: 80%;
+  width: 100%;
   /* Adjust the width as needed */
   margin: 0 auto;
   /* Center the grid horizontally */
@@ -688,7 +688,7 @@ p {
     
   }
   .header-content *{
-    margin: 0px;
+    margin: 0px auto;
     padding: 0px;
   }
 
