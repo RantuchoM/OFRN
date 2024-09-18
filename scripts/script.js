@@ -960,7 +960,7 @@ async function filterData(completarDias = false) {
     var tbody = table.getElementsByTagName('tbody')[0];
     // Clear existing rows
     tbody.innerHTML = '';
-
+    
     // Object to store detailed rows by date
     var detailedRowsByDate = {};
 
