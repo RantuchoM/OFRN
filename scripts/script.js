@@ -479,24 +479,40 @@ function getDataFromTextFile() {
     }
     );
 }
-function getGirasFromTextFile() {
-  // Replace with the actual URL of your "/backup.txt" file
-  var txtFileUrl = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras2.txt';
-  //setValueTest();
-  return fetch(txtFileUrl)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch text file');
+function getGirasFromTextFiles() {
+  // URLs of the text files
+  var txtFileUrl1 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras2.txt';
+  var txtFileUrl2 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras3.txt';
+
+  // Fetch both text files
+  return Promise.all([fetch(txtFileUrl1), fetch(txtFileUrl2)])
+    .then(responses => {
+      // Check if all responses are OK
+      if (!responses.every(response => response.ok)) {
+        throw new Error('Failed to fetch one or more text files');
       }
-      return response.text();
+      // Read both as text
+      return Promise.all(responses.map(response => response.text()));
     })
-    .then(base64Text => {
-      girasArray = decodeAndRevertText(base64Text);
-      //console.log(dataArray);
-      girasArray = girasArray.filter(row => row[0] != undefined);
-      console.log(girasArray);
+    .then(([base64Text1, base64Text2]) => {
+      // Decode and process both files
+      let girasArray1 = decodeAndRevertText(base64Text1);
+      let girasArray2 = decodeAndRevertText(base64Text2);
+
+      // Filter out undefined rows
+      girasArray1 = girasArray1.filter(row => row[0] !== undefined);
+      girasArray2 = girasArray2.filter(row => row[0] !== undefined);
+
+      // Combine both arrays (e.g., concatenate)
+      let combinedArray = [...girasArray1, ...girasArray2];
+
+      console.log(combinedArray);
     })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
+ 
 
 //getDataFromTextFile();
 // Function to decode Base64 encoded text and revert accent replacements
