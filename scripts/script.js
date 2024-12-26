@@ -108,7 +108,6 @@ function resumenPersonas() {
   var mostrarProduccion = $('#mostrarProduccion');
   var namesResumen;
 
-
   if (!detailsContainer.length) {
     console.error("Container not found");
     return;
@@ -118,11 +117,10 @@ function resumenPersonas() {
 
   if (mostrarProduccion.is(':checked')) {
     namesResumen = names;
-  }
-  else {
+  } else {
     namesResumen = namesWithMus;
   }
-  //console.log(namesResumen)
+
   // Initialize tableHTML with headers
   var tableHTML = '';
   if (!mostrarDetalleCheckbox.is(':checked')) {
@@ -144,25 +142,22 @@ function resumenPersonas() {
   }
 
   namesResumen.forEach(function (name) {
-    // Filtered rows for the current name
     var filteredRows = dataArray.filter(function (data) {
       return data[7].includes(name);
     });
 
-    // Separate rows based on categories
     var sinfRows = filteredRows.filter(function (data) {
-      return data[0].startsWith('Sinf');
+      return data[0].includes('Sinf ');
     });
 
     var cfRows = filteredRows.filter(function (data) {
-      return data[0].startsWith('CF');
+      return data[0].includes('CF ');
     });
 
     var ensambleRows = filteredRows.filter(function (data) {
-      return !data[0].startsWith('Sinf') && !data[0].startsWith('CF');
+      return !data[0].includes('Sinf ') && !data[0].includes('CF ');
     });
 
-    // Counts for different categories
     var countPresentacionesSinf = sinfRows.length - countEnsayos(sinfRows);
     var countPresentacionesCF = cfRows.length - countEnsayos(cfRows);
     var countPresentacionesEnsamble = ensambleRows.length - countEnsayos(ensambleRows);
@@ -200,14 +195,14 @@ function resumenPersonas() {
         var row = '<tr';
         var backgroundColors = {
           'Sinf': '#dabcff',
-          'CFVal': '#E1C16E',
-          'CFMon': '#A8A8A8',
-          'CFMar': '#89CFF0',
+          'CF Val': '#E1C16E',
+          'CF Mon': '#A8A8A8',
+          'CF Mar': '#89CFF0',
           'CFCuer': '#ffccff'
           // Add more entries as needed
         };
 
-        var prefix = Object.keys(backgroundColors).find(key => data[0].startsWith(key));
+        var prefix = Object.keys(backgroundColors).find(key => data[0].includes(key));
 
         if (prefix && backgroundColors[prefix]) {
           row += ' style="background-color: ' + backgroundColors[prefix] + ';"';
@@ -280,12 +275,12 @@ function resumenPersonas() {
 
   function countEnsayos(rows) {
     return rows ? rows.filter(function (data) {
-      return data[6].startsWith('Ensayo');
+      return data[6].includes('Ensayo');
     }).length : 0;
   }
   function countEnsayosSinGiras(rows) {
     return rows ? rows.filter(function (data) {
-      return data[6].startsWith('Ensayo') && !data[6].includes('de Gira');
+      return data[6].includes('Ensayo') && !data[6].includes('de Gira');
     }).length : 0;
   }
 
@@ -384,12 +379,12 @@ function getDataFromTextFiles() {
       let dataArray2 = decodeAndRevertText(base64Text2);
 
       // Merge the headers (assuming the headers are identical)
-      const headers = dataArray1[0];
+      headers = dataArray1[0];
       dataArray1.shift();
       dataArray2.shift();
 
       // Combine the data arrays
-      let dataArray = [...dataArray1, ...dataArray2];
+      dataArray = [...dataArray1, ...dataArray2];
 
       // Filter and process the combined data array
       dataArray = dataArray.filter(row => row[0] !== undefined);
@@ -510,15 +505,15 @@ function getGirasFromTextFiles() {
       girasArray2 = girasArray2.filter(row => row[0] !== undefined);
 
       // Combine both arrays (e.g., concatenate)
-      let combinedArray = [...girasArray1, ...girasArray2];
+      girasArray = [...girasArray1, ...girasArray2];
 
-      console.log(combinedArray);
+      console.log(girasArray);
     })
     .catch(error => {
       console.error('Error:', error);
     });
 }
- 
+
 
 //getDataFromTextFile();
 // Function to decode Base64 encoded text and revert accent replacements
@@ -882,7 +877,8 @@ async function filterData(completarDias = false) {
   })
 
   console.log(filteredGiras);
-  //console.log(filteredData)
+  
+  console.log(filteredData)
   var nombresGiras = filteredGiras.map(n => n[0]);
   var inicioGiras = filteredGiras.map(n => new Date(n[3]));
   console.log(inicioGiras);
@@ -949,7 +945,7 @@ async function filterData(completarDias = false) {
       resizer.parentNode.removeChild(resizer);
     });
   };
-  
+
   function createTableAsCards() {
     var table = document.getElementById('table-data');
     // Check if the table exists
@@ -982,7 +978,7 @@ async function filterData(completarDias = false) {
     var tbody = table.getElementsByTagName('tbody')[0];
     // Clear existing rows
     tbody.innerHTML = '';
-    
+
     // Object to store detailed rows by date
     var detailedRowsByDate = {};
 
@@ -1000,7 +996,7 @@ async function filterData(completarDias = false) {
       //var detailedRow = '<tr class="detailed-row" data-date="' + formattedDate + '" style="text-align: center; display: none">';
       var tipoPres = "";
       var tipoCelda = ""; //Para el detalle en la tercer column
-      if (data[8].toLowerCase().startsWith('presentación')) { tipoPres = " presentacion"; tipoCelda = "Concierto" }
+      if (data[8].toLowerCase().includes('presentación')) { tipoPres = " presentacion"; tipoCelda = "Concierto" }
       else if (data[6].includes('Gira/Progr')) { tipoPres = ' ensayoGira'; tipoCelda = 'Ensayo Gira/CF' }
       else { tipoPres = ' ensayo'; tipoCelda = data[6] }
       var detailedRow = '<tr class="detailed-row' + tipoPres + '" data-date="' + rowDay + '"style="width: 100%; text-align: center; padding: 1px; display: none;';
@@ -1058,19 +1054,19 @@ async function filterData(completarDias = false) {
         for (var i = 0; i < progrs.length; i++) {
           var backgroundColor;
 
-          if (progrs[i].startsWith('Sinf')) {
+          if (progrs[i].includes('Sinf')) {
             backgroundColor = '#5f51db';
             tipo = "Sinf";
-          } else if (progrs[i].startsWith('CFVal')) {
+          } else if (progrs[i].includes('CF Val')) {
             backgroundColor = '#E1C16E';
             tipo = "CFVal";
-          } else if (progrs[i].startsWith('CFMon')) {
+          } else if (progrs[i].includes('CF Mon')) {
             backgroundColor = '#A8A8A8';
             tipo = "CFMon";
-          } else if (progrs[i].startsWith('CFMar')) {
+          } else if (progrs[i].includes('CF Mar')) {
             backgroundColor = '#89CFF0';
             tipo = "CFMar";
-          } else if (progrs[i].startsWith('CFCuer')) {
+          } else if (progrs[i].includes('CFCuer')) {
             backgroundColor = '#ffccff';
             tipo = "CFCuer";
           } else {

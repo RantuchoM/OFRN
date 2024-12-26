@@ -88,15 +88,15 @@ function resumenPersonas() {
       if (data[7].includes(name)) {
         var row = '<tr';
 
-        if (data[6].startsWith('Sinf')) {
+        if (data[6].includes('Sinf')) {
           row += ' style="background-color: #dabcff;"';
-        } else if (data[6].startsWith('CFVal')) {
+        } else if (data[6].includes('CFVal')) {
           row += ' style="background-color: #E1C16E;"';
-        } else if (data[6].startsWith('CFMon')) {
+        } else if (data[6].includes('CFMon')) {
           row += ' style="background-color: #A8A8A8;"';
-        } else if (data[6].startsWith('CFMar')) {
+        } else if (data[6].includes('CFMar')) {
           row += ' style="background-color: #89CFF0;"';
-        } else if (data[6].startsWith('CFCuer')) {
+        } else if (data[6].includes('CFCuer')) {
           row += ' style="background-color: #ffccff;"';
         }
 
