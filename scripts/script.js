@@ -26,11 +26,11 @@ function initClient() {
     apiKey: 'AIzaSyAxQ63EFfI-ackr9PrPOxJepog7DDh5_dE',
     discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
   }).then(() => {
-    getGirasFromTextFile()
+    getGirasFromTextFiles()
   }).then(() => {
     //setValueTest()
     // Call the function to fetch data
-    getDataFromTextFile().then(() => {
+    getDataFromTextFiles().then(() => {
       // Now that the data is loaded, call the function to get names
       getNames();
       getNamesWithMus();
@@ -363,47 +363,58 @@ document.querySelectorAll('.filter-date').forEach(function (dateInput) {
   filterData(true);
 });*/
 //people = getDropdownData();
-function getDataFromTextFile() {
-  // Replace with the actual URL of your "/backup.txt" file
-  var txtFileUrl = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup.txt';
-  //setValueTest();
-  return fetch(txtFileUrl)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch text file');
+function getDataFromTextFiles() {
+  // URLs of the text files
+  const txtFileUrl1 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup.txt';
+  const txtFileUrl2 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup2025.txt';
+
+  // Fetch both text files
+  return Promise.all([fetch(txtFileUrl1), fetch(txtFileUrl2)])
+    .then(responses => {
+      // Check if all responses are OK
+      if (!responses.every(response => response.ok)) {
+        throw new Error('Failed to fetch one or more text files');
       }
-      return response.text();
+      // Read both as text
+      return Promise.all(responses.map(response => response.text()));
     })
-    .then(base64Text => {
-      dataArray = decodeAndRevertText(base64Text);
+    .then(([base64Text1, base64Text2]) => {
+      // Decode and process both files
+      let dataArray1 = decodeAndRevertText(base64Text1);
+      let dataArray2 = decodeAndRevertText(base64Text2);
 
-      headers = dataArray[0];
-      dataArray.shift();
-      //console.log(dataArray);
-      dataArray = dataArray.filter(row => row[0] != undefined);
+      // Merge the headers (assuming the headers are identical)
+      const headers = dataArray1[0];
+      dataArray1.shift();
+      dataArray2.shift();
 
-      for (i = 0; i < dataArray.length; i++) {
+      // Combine the data arrays
+      let dataArray = [...dataArray1, ...dataArray2];
 
-        dataArray[i][1] = new Date(dataArray[i][1])
-        var inputString = dataArray[i][2];
+      // Filter and process the combined data array
+      dataArray = dataArray.filter(row => row[0] !== undefined);
+
+      for (let i = 0; i < dataArray.length; i++) {
+        dataArray[i][1] = new Date(dataArray[i][1]);
+
+        const inputString = dataArray[i][2];
         if (inputString.includes('Sat')) {
-          // Parse the date using Date constructor
           const date = new Date(inputString);
 
           // Extract hours and minutes
-          var hours = date.getHours();
+          let hours = date.getHours();
           const minutes = (date.getMinutes() + 1) % 60;
-          if (minutes == 0) { hours = (hours + 1) % 24 }
+          if (minutes === 0) {
+            hours = (hours + 1) % 24;
+          }
 
           // Format the time as HH:mm
           const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-
           dataArray[i][2] = formattedTime;
         }
       }
-      //console.log(dataArray)
 
-
+      // Floating filters (UI setup)
       let floatingFiltros = document.getElementById('floatingFiltros');
       let offsetX, offsetY;
       let isDragging = false;
@@ -454,31 +465,26 @@ function getDataFromTextFile() {
         isDragging = false;
       }
 
-
-
       filterData(false);
 
-
-      //convert the values to valid dates
-
-      //resolve(dataArray);
-
-
-    }).then(d => {
+      // Show or toggle data based on view
       if (!isMobileView()) {
-        //showData(dataArray, 12, 18);
+        // showData(dataArray, 12, 18);
+      } else {
+        // toggleFiltros();
+      }
 
-      }
-      else {
-        //toggleFiltros();
-      }
       function isMobileView() {
-        // You can adjust the breakpoint value as needed
-        return window.innerWidth <= 768; // Example: consider screen width <= 768px as mobile view
+        return window.innerWidth <= 768;
       }
-    }
-    );
+
+      console.log(dataArray); // Combined and processed data
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
+
 function getGirasFromTextFiles() {
   // URLs of the text files
   var txtFileUrl1 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras2.txt';
