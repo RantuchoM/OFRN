@@ -260,7 +260,7 @@
 
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYZpbc1MZvPLzQiwdgsC46D2uP3XlqbH5AIt7XQ2bsaKOE-hKHlLRojW4NDrD4XeJhLYoVj6jrSIfl/pubhtml?gid=0&single=true";
-
+        let filteredData = [];
         let originalData = [];
         const selectedRows = new Set();
 
@@ -278,8 +278,8 @@
                     .slice(1)
                     .map(row => Array.from(row.querySelectorAll("td")).map(cell => cell.innerText.trim() || ""))
                     .filter(row => row[0]); // Exclude rows with empty Column A
-
-                renderTable(originalData);
+                filteredData = applyFilters();
+                renderTable(filteredData);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 document.getElementById('loading').textContent = 'Error cargando datos. Por favor, verifica la URL.';
@@ -296,16 +296,17 @@
 
             data.forEach((row, rowIndex) => {
                 const tr = document.createElement("tr");
-
-                // Highlight if selected
-                if (selectedRows.has(row)) {
-                    tr.className = "highlight-row";
-                }
-
-                // Add "✔" action column
                 const actionTd = document.createElement("td");
                 actionTd.className = "action-cell";
                 actionTd.textContent = "✔";
+                
+                if ( Array.from(selectedRows).some(selectedRow => selectedRow[0] === row[0])) {
+                    tr.className = "highlight-row";
+                    actionTd.textContent = "❌"; // Change to "❌"
+                }
+
+                // Add "✔" action column
+
                 actionTd.addEventListener("click", () => selectRow(row, tr, actionTd));
                 tr.appendChild(actionTd);
 
@@ -408,7 +409,7 @@
         function deselectRow(row) {
             selectedRows.delete(row);
             updateAuxTable();
-            renderTable(originalData);
+            renderTable(filteredData);
         }
         function clearAllFilters() {
             // Clear all filter inputs
@@ -424,7 +425,7 @@
             });
 
             // Reset the table to show all data
-            renderTable(originalData);
+            applyFilters()
         }
 
         function applyFilters() {
@@ -469,7 +470,7 @@
             console.log("Text Filters:", filters);
 
             // Apply all filters
-            const filteredData = originalData.filter(row => {
+            filteredData = originalData.filter(row => {
                 // Standard text-based filtering
                 const matchesTextFilters = filters.every(filter =>
                     !filter.value || row[filter.colIndex + 1].toLowerCase().includes(filter.value)
@@ -612,7 +613,7 @@
         function clearSelection() {
             selectedRows.clear();
             updateAuxTable();
-            renderTable(originalData);
+            applyFilters();
         }
 
         function copyAllLinks() {
