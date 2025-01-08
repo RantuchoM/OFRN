@@ -17,6 +17,22 @@
             border-collapse: collapse;
         }
 
+        .clear-filters-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-left: 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .clear-filters-button:hover {
+            background-color: #2980b9;
+        }
+
+
         th,
         td {
             border: 1px solid #ddd;
@@ -116,6 +132,12 @@
             align-items: center;
         }
 
+        .input-active {
+            background-color: #191970;
+            color: white;
+            /* Optional: Ensure text is readable on dark background */
+        }
+
 
         #backToTopButton:hover {
             opacity: 1;
@@ -152,7 +174,11 @@
     <button class="copy-button" onclick="copyAllLinks()">Copiar links</button>
     <button class="clear-button" onclick="clearSelection()">Borrar selección</button>
 
-    <h3>Archivo para filtrar</h3>
+    <h3>Archivo para filtrar
+        <button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()">Limpiar
+            filtros</button>
+    </h3>
+
     <div id="loading">Cargando datos...</div>
     <table id="dataTable" style="display:none;">
         <thead>
@@ -175,11 +201,14 @@
                 <!-- Remove filter for the Link column -->
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+                <th> <input class="filter-input" type="text" placeholder="1974-2000" onkeyup="applyFilters()"
+                        id="filter-year"></th>
+
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
-                <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
-                <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+                <th> <input class="filter-input" type="text" placeholder="0:03:00-0:30:00" onkeyup="applyFilters()"
+                        id="filter-duration"></th>
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
             </tr>
         </thead>
@@ -330,12 +359,95 @@
             updateAuxTable();
             renderTable(originalData);
         }
+        function clearAllFilters() {
+            // Clear all filter inputs
+            const inputs = document.querySelectorAll(".filter-input");
+            inputs.forEach(input => {
+                input.value = ""; // Clear the value
+                input.parentElement.classList.remove("input-active"); // Remove background color
+            });
+
+            // Reset the table to show all data
+            renderTable(originalData);
+        }
 
         function applyFilters() {
-            const filters = Array.from(document.querySelectorAll(".filter-input")).map(input => input.value.toLowerCase());
-            const filteredData = originalData.filter(row => filters.every((filter, colIndex) => !filter || row[colIndex].toLowerCase().includes(filter)));
+            const yearFilter = document.getElementById('filter-year').value.trim();
+            const durationFilter = document.getElementById('filter-duration').value.trim();
+
+            // Handle text inputs and exclude year/duration
+            const filters = Array.from(document.querySelectorAll(".filter-input"))
+                .map((input, index) => {
+                    const td = input.parentElement; // Get the parent <td>
+                    if (input.value.trim()) {
+                        td.classList.add("input-active"); // Add background if input has a value
+                    } else {
+                        td.classList.remove("input-active"); // Remove background if input is empty
+                    }
+                    // Exclude year and duration filters
+                    return input.id !== "filter-year" && input.id !== "filter-duration" ? { value: input.value.toLowerCase(), colIndex: index } : null;
+                })
+                .filter(filter => filter !== null);
+
+            // Apply filters
+            const filteredData = originalData.filter(row => {
+                // Standard text-based filtering
+                const matchesTextFilters = filters.every(filter => !filter.value || row[filter.colIndex + 1].toLowerCase().includes(filter.value));
+
+                // Range-based filtering for "Año"
+                const yearMatch = !yearFilter || filterYearRange(row[3], yearFilter);
+
+                // Range-based filtering for "Duración"
+                const durationMatch = !durationFilter || filterDurationRange(row[7], durationFilter);
+
+                return matchesTextFilters && yearMatch && durationMatch;
+            });
+
             renderTable(filteredData);
         }
+
+        function filterYearRange(yearValue, range) {
+            const year = parseInt(yearValue.trim(), 10); // Extract the year as an integer
+            if (isNaN(year)) return false; // Skip invalid data
+
+            const [start, end] = range.split('-').map(val => val.trim());
+            if (range.includes('-')) {
+                const startYear = start ? parseInt(start, 10) : null;
+                const endYear = end ? parseInt(end, 10) : null;
+
+                if (start && end) return year >= startYear && year <= endYear; // Range
+                if (start) return year >= startYear; // From a specific year onward
+                if (end) return year <= endYear; // Up to a specific year
+            }
+
+            // Exact match
+            return year === parseInt(range, 10);
+        }
+
+
+        function filterDurationRange(durationValue, range) {
+            const parseDuration = (time) => {
+                const [h = 0, m = 0, s = 0] = time.split(':').map(Number);
+                return h * 3600 + m * 60 + s;
+            };
+
+            const duration = parseDuration(durationValue.trim());
+            if (isNaN(duration)) return false; // Skip invalid data
+
+            const [start, end] = range.split('-').map(val => val.trim());
+            if (range.includes('-')) {
+                const startDuration = start ? parseDuration(start) : null;
+                const endDuration = end ? parseDuration(end) : null;
+
+                if (start && end) return duration >= startDuration && duration <= endDuration; // Range
+                if (start) return duration >= startDuration; // From a specific duration onward
+                if (end) return duration <= endDuration; // Up to a specific duration
+            }
+
+            // Exact match
+            return duration === parseDuration(range);
+        }
+
 
         function clearSelection() {
             selectedRows.clear();
