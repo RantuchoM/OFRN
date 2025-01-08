@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Archivo General OFRN</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    td a {
+      text-decoration: none;
+      color: blue;
+    }
+    td a.yt {
+      color: red;
+      font-weight: bold;
+    }
+    .filter-input {
+      width: 95%;
+      padding: 5px;
+      margin: 5px 0;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .copy-button, .clear-button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .copy-button {
+      background-color: #4CAF50;
+    }
+    .copy-button:hover {
+      background-color: #45a049;
+    }
+    .clear-button {
+      background-color: #f44336;
+    }
+    .clear-button:hover {
+      background-color: #e53935;
+    }
+    .action-cell {
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .highlight-row {
+      background-color: #32CD32 !important;
+    }
+  </style>
+</head>
+<body>
+  <h3>Obras seleccionadas</h3>
+  <table id="auxTable">
+    <thead>
+      <tr>
+        <th>Acción</th>
+        <th>Link</th>
+        <th>Compositor</th>
+        <th>Arreglador</th>
+        <th>Año</th>
+        <th>Obra</th>
+        <th>Palabras Clave</th>
+        <th>País</th>
+        <th>Duración</th>
+        <th>Ensamble</th>
+        <th>YouTube</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button class="copy-button" onclick="copyAllLinks()">Copiar links</button>
+  <button class="clear-button" onclick="clearSelection()">Borrar selección</button>
+
+  <h3>Archivo para filtrar</h3>
+  <div id="loading">Cargando datos...</div>
+  <table id="dataTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Acción</th>
+        <th>Link</th>
+        <th>Compositor</th>
+        <th>Arreglador</th>
+        <th>Año</th>
+        <th>Obra</th>
+        <th>Palabras Clave</th>
+        <th>País</th>
+        <th>Duración</th>
+        <th>Ensamble</th>
+        <th>YouTube</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+        <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYZpbc1MZvPLzQiwdgsC46D2uP3XlqbH5AIt7XQ2bsaKOE-hKHlLRojW4NDrD4XeJhLYoVj6jrSIfl/pubhtml?gid=0&single=true";
+
+    let originalData = [];
+    const selectedRows = new Set();
+
+    async function fetchSheetData() {
+      try {
+        const response = await fetch(sheetUrl);
+        const html = await response.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const rows = Array.from(doc.querySelectorAll("table tbody tr"));
+
+        originalData = rows
+          .slice(1)
+          .slice(1)  // Skip the first line (headers in source)
+          .map(row => Array.from(row.querySelectorAll("td")).slice(0, 10).map(cell => cell.innerText.trim() || ""))
+          .filter(row => row[0]); // Exclude rows with empty Column A
+
+        renderTable(originalData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        document.getElementById('loading').textContent = 'Error cargando datos. Por favor, verifica la URL.';
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.querySelector("#dataTable tbody");
+      tbody.innerHTML = ""; // Clear existing rows
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('dataTable').style.display = 'table';
+
+      data.forEach((row, rowIndex) => {
+        const tr = document.createElement("tr");
+
+        // Highlight if selected
+        if (selectedRows.has(row)) {
+          tr.className = "highlight-row";
+        }
+
+        // Add "✔" action column
+        const actionTd = document.createElement("td");
+        actionTd.className = "action-cell";
+        actionTd.textContent = "✔";
+        actionTd.addEventListener("click", () => selectRow(row, tr));
+        tr.appendChild(actionTd);
+
+        row.forEach((cell, index) => {
+          const td = document.createElement("td");
+
+          if (index === 0) {
+            const a = document.createElement("a");
+            a.href = cell;
+            a.textContent = "🔗";
+            a.target = "_blank";
+            td.appendChild(a);
+          } else if (index === 9 && cell) {
+            const a = document.createElement("a");
+            a.href = cell;
+            a.textContent = "YT";
+            a.className = "yt";
+            a.target = "_blank";
+            td.appendChild(a);
+          } else {
+            td.textContent = cell;
+          }
+
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function selectRow(row, tr) {
+      selectedRows.add(row);
+      tr.classList.add("highlight-row");
+      updateAuxTable();
+    }
+
+    function updateAuxTable() {
+      const auxTbody = document.querySelector("#auxTable tbody");
+      auxTbody.innerHTML = "";
+
+      Array.from(selectedRows).forEach(row => {
+        const tr = document.createElement("tr");
+
+        const actionTd = document.createElement("td");
+        actionTd.className = "action-cell";
+        actionTd.textContent = "❌";
+        actionTd.addEventListener("click", () => deselectRow(row));
+        tr.appendChild(actionTd);
+
+        row.forEach((cell, index) => {
+          const td = document.createElement("td");
+
+          if (index === 0) {
+            const a = document.createElement("a");
+            a.href = cell;
+            a.textContent = "🔗";
+            a.target = "_blank";
+            td.appendChild(a);
+          } else if (index === 9 && cell) {
+            const a = document.createElement("a");
+            a.href = cell;
+            a.textContent = "YT";
+            a.className = "yt";
+            a.target = "_blank";
+            td.appendChild(a);
+          } else {
+            td.textContent = cell;
+          }
+
+          tr.appendChild(td);
+        });
+
+        auxTbody.appendChild(tr);
+      });
+    }
+
+    function deselectRow(row) {
+      selectedRows.delete(row);
+      updateAuxTable();
+      renderTable(originalData);
+    }
+
+    function applyFilters() {
+      const filters = Array.from(document.querySelectorAll(".filter-input")).map(input => input.value.toLowerCase());
+      const filteredData = originalData.filter(row => filters.every((filter, colIndex) => !filter || row[colIndex].toLowerCase().includes(filter)));
+      renderTable(filteredData);
+    }
+
+    function clearSelection() {
+      selectedRows.clear();
+      updateAuxTable();
+      renderTable(originalData);
+    }
+
+    function copyAllLinks() {
+      const links = Array.from(selectedRows).map(row => row[0]);
+      navigator.clipboard.writeText(links.join("\n")).then(() => alert("Links copiados al portapapeles!"));
+    }
+
+    fetchSheetData();
+  </script>
+</body>
+</html>
