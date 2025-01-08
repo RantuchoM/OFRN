@@ -146,6 +146,32 @@
         #backToTopButton:focus {
             outline: none;
         }
+
+        #instrumentFilters table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        #instrumentFilters th,
+        #instrumentFilters td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        #instrumentFilters input {
+            width: 100%;
+            padding: 3px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        #instrumentFilters th {
+            background-color: #f4f4f4;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
@@ -177,8 +203,22 @@
     <h3>Archivo para filtrar
         <button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()">Limpiar
             filtros</button>
-    </h3>
+        <button id="showInstrumentFiltersButton" class="clear-filters-button"
+            onclick="toggleInstrumentFilters()">Mostrar filtros de instrumentos</button>
 
+
+
+    </h3>
+    <div id="instrumentFilters" style="display: none;">
+        <table>
+            <thead>
+                <tr id="instrumentHeaders"></tr>
+            </thead>
+            <tbody>
+                <tr id="instrumentInputs"></tr>
+            </tbody>
+        </table>
+    </div>
     <div id="loading"></div>
     <table id="dataTable" style="display:none;">
         <thead>
@@ -236,7 +276,7 @@
                 originalData = rows
                     .slice(1) // Skip the first line (headers in source)
                     .slice(1)
-                    .map(row => Array.from(row.querySelectorAll("td")).slice(0, 10).map(cell => cell.innerText.trim() || ""))
+                    .map(row => Array.from(row.querySelectorAll("td")).map(cell => cell.innerText.trim() || ""))
                     .filter(row => row[0]); // Exclude rows with empty Column A
 
                 renderTable(originalData);
@@ -246,7 +286,8 @@
             }
         }
 
-        function renderTable(data) {
+        function renderTable(data0) {
+            const data = data0.map(row => row.slice(0, 10)); // Ensure only the first 10 columns are rendered
             const tbody = document.querySelector("#dataTable tbody");
             tbody.innerHTML = ""; // Clear existing rows
 
@@ -265,7 +306,7 @@
                 const actionTd = document.createElement("td");
                 actionTd.className = "action-cell";
                 actionTd.textContent = "✔";
-                actionTd.addEventListener("click", () => selectRow(row, tr));
+                actionTd.addEventListener("click", () => selectRow(row, tr, actionTd));
                 tr.appendChild(actionTd);
 
                 row.forEach((cell, index) => {
@@ -295,11 +336,21 @@
             });
         }
 
-        function selectRow(row, tr) {
-            selectedRows.add(row);
-            tr.classList.add("highlight-row");
+        function selectRow(row, tr, actionTd) {
+            if (selectedRows.has(row)) {
+                // If the row is already selected, deselect it
+                selectedRows.delete(row);
+                tr.classList.remove("highlight-row");
+                actionTd.textContent = "✔"; // Change back to "✔"
+            } else {
+                // If the row is not selected, select it
+                selectedRows.add(row);
+                tr.classList.add("highlight-row");
+                actionTd.textContent = "❌"; // Change to "❌"
+            }
             updateAuxTable();
         }
+
 
         function updateAuxTable() {
             const auxTbody = document.querySelector("#auxTable tbody");
@@ -366,33 +417,63 @@
                 input.value = ""; // Clear the value
                 input.parentElement.classList.remove("input-active"); // Remove background color
             });
+            const instInputs = document.querySelectorAll(".instrument-filter-input");
+            instInputs.forEach(input => {
+                input.value = ""; // Clear the value
+                input.parentElement.classList.remove("input-active"); // Remove background color
+            });
 
             // Reset the table to show all data
             renderTable(originalData);
         }
 
         function applyFilters() {
+            console.log("Apply filters");
+
+            // Get year and duration filters
             const yearFilter = document.getElementById('filter-year').value.trim();
             const durationFilter = document.getElementById('filter-duration').value.trim();
 
-            // Handle text inputs and exclude year/duration
+            // Instrument filters
+            const instrumentFilters = Array.from(document.querySelectorAll(".instrument-filter-input"))
+                .map((input, index) => {
+                    const td = input.parentElement; // Get the parent <td>
+                    if (input.value.trim()) {
+                        td?.classList.add("input-active"); // Add background if input has a value
+                    } else {
+                        td?.classList.remove("input-active"); // Remove background if input is empty
+                    }
+                    console.log(`Instrument Filter Input [${index}]:`, input.value.trim(), td);
+                    return { value: input.value.trim(), colIndex: index + 15 }; // Adjust index for instrument columns
+                })
+                .filter(filter => filter.value);
+
+
+            console.log("Instrument Filters:", instrumentFilters);
+
+            // Standard text-based filters
             const filters = Array.from(document.querySelectorAll(".filter-input"))
                 .map((input, index) => {
                     const td = input.parentElement; // Get the parent <td>
                     if (input.value.trim()) {
-                        td.classList.add("input-active"); // Add background if input has a value
+                        td?.classList.add("input-active"); // Add background if input has a value
                     } else {
-                        td.classList.remove("input-active"); // Remove background if input is empty
+                        td?.classList.remove("input-active"); // Remove background if input is empty
                     }
-                    // Exclude year and duration filters
-                    return input.id !== "filter-year" && input.id !== "filter-duration" ? { value: input.value.toLowerCase(), colIndex: index } : null;
+                    return input.id !== "filter-year" && input.id !== "filter-duration"
+                        ? { value: input.value.toLowerCase(), colIndex: index }
+                        : null;
                 })
                 .filter(filter => filter !== null);
 
-            // Apply filters
+            console.log("Text Filters:", filters);
+
+            // Apply all filters
             const filteredData = originalData.filter(row => {
                 // Standard text-based filtering
-                const matchesTextFilters = filters.every(filter => !filter.value || row[filter.colIndex + 1].toLowerCase().includes(filter.value));
+                const matchesTextFilters = filters.every(filter =>
+                    !filter.value || row[filter.colIndex + 1].toLowerCase().includes(filter.value)
+                );
 
                 // Range-based filtering for "Año"
                 const yearMatch = !yearFilter || filterYearRange(row[3], yearFilter);
@@ -400,12 +481,91 @@
                 // Range-based filtering for "Duración"
                 const durationMatch = !durationFilter || filterDurationRange(row[7], durationFilter);
 
-                return matchesTextFilters && yearMatch && durationMatch;
+                // Instrument-specific filtering
+                const matchesInstrumentFilters = instrumentFilters.every(filter => {
+                    const value = row[filter.colIndex] || ""; // Handle empty cells gracefully
+
+                    return matchesInstrumentFilter(value, filter.value);
+                });
+
+                return matchesTextFilters && yearMatch && durationMatch && matchesInstrumentFilters;
             });
+
+            console.log("Filtered Data:", filteredData);
 
             renderTable(filteredData);
         }
 
+        function matchesInstrumentFilter(cellValue, filterValue) {
+            // Handle numeric filters like "1", "1-", "1+" or exact text matches
+            if (filterValue.endsWith("-")) {
+                const maxValue = parseInt(filterValue.slice(0, -1), 10);
+                return !isNaN(maxValue) && parseInt(cellValue, 10) <= maxValue;
+            }
+            if (filterValue.endsWith("+")) {
+                const minValue = parseInt(filterValue.slice(0, -1), 10);
+                return !isNaN(minValue) && parseInt(cellValue, 10) >= minValue;
+            }
+            if (!isNaN(filterValue)) {
+                return parseInt(cellValue, 10) === parseInt(filterValue, 10);
+            }
+            return cellValue.toLowerCase().includes(filterValue.toLowerCase());
+        }
+
+        function toggleInstrumentFilters() {
+            const filterDiv = document.getElementById("instrumentFilters");
+            filterDiv.style.display = filterDiv.style.display === "none" ? "block" : "none";
+
+            const button = document.getElementById("showInstrumentFiltersButton");
+            const filtersRow = document.getElementById("instrumentInputs");
+
+            // Toggle visibility of the filters row
+            if (filtersRow.style.display === "none" || !filtersRow.style.display) {
+                filtersRow.style.display = "table-row"; // Show the filters row
+                button.textContent = "Ocultar filtros de instrumentos"; // Update button text
+            } else {
+                filtersRow.style.display = "none"; // Hide the filters row
+                button.textContent = "Mostrar filtros de instrumentos"; // Update button text
+            }
+        }
+
+        function generateInstrumentFilters() {
+            const headers = [
+                "Cuerdas", "Flauta", "Fl", "Oboe", "Ob", "Clarinete", "Clarinete Bajo", "Fagot", "", "Corno", "",
+                "Trompeta", "", "Trombón", "", "Tuba", "", "Percusión", "", "Arpa", "Piano", "Coro", "Guitarra",
+                "Charango", "Órgano", "Añadidos", "Solista", "", "OBSERVACIONES"
+            ];
+
+            const headerRow = document.getElementById("instrumentHeaders");
+            const inputRow = document.getElementById("instrumentInputs");
+
+            headerRow.innerHTML = ""; // Clear existing headers
+            inputRow.innerHTML = "";  // Clear existing inputs
+
+            headers.forEach((header, index) => {
+                // Create header cell
+                const th = document.createElement("th");
+                th.textContent = header.trim();
+                if (!header.trim()) {
+                    th.style.display = "none"; // Hide empty column headers
+                }
+                headerRow.appendChild(th);
+
+                // Create input cell
+                const td = document.createElement("td");
+                const input = document.createElement("input");
+                input.type = "text";
+                input.placeholder = "a,1,1+,1-";
+                input.classList.add("instrument-filter-input");
+                input.dataset.colIndex = index + 15; // Adjust for column offset (P=16)
+                input.onkeyup = applyFilters;
+                if (!header.trim()) {
+                    td.style.display = "none"; // Hide input cells for empty columns
+                }
+                td.appendChild(input);
+                inputRow.appendChild(td);
+            });
+        }
         function filterYearRange(yearValue, range) {
             const year = parseInt(yearValue.trim(), 10); // Extract the year as an integer
             if (isNaN(year)) return false; // Skip invalid data
@@ -424,7 +584,7 @@
             return year === parseInt(range, 10);
         }
 
-
+        generateInstrumentFilters()
         function filterDurationRange(durationValue, range) {
             const parseDuration = (time) => {
                 const [h = 0, m = 0, s = 0] = time.split(':').map(Number);
