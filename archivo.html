@@ -84,7 +84,48 @@
         .highlight-row {
             background-color: #32CD32 !important;
         }
+
+        .drag-handle {
+            cursor: move;
+            color: #888;
+            font-size: 20px;
+            padding: 0 8px;
+        }
+
+        /* Floating back to top button */
+        #backToTopButton {
+            width: 80px;
+            height: 80px;
+            font-size: 40px !important;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0;
+            /* Remove extra padding */
+            font-size: 40px;
+            /* Ensure consistent font size */
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        #backToTopButton:hover {
+            opacity: 1;
+        }
+
+        #backToTopButton:focus {
+            outline: none;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 
 <body>
@@ -92,7 +133,8 @@
     <table id="auxTable">
         <thead>
             <tr>
-                <th>Acción</th>
+                <th>.</th>
+                <th>❌</th>
                 <th>Link</th>
                 <th>Compositor</th>
                 <th>Arreglador</th>
@@ -129,8 +171,8 @@
             </tr>
             <tr>
                 <th></th>
-                <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
-                <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
+                <th></th>
+                <!-- Remove filter for the Link column -->
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
@@ -143,6 +185,9 @@
         </thead>
         <tbody></tbody>
     </table>
+
+    <!-- Floating back to top button -->
+    <button id="backToTopButton" onclick="scrollToTop()">⇧⇧</button>
 
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYZpbc1MZvPLzQiwdgsC46D2uP3XlqbH5AIt7XQ2bsaKOE-hKHlLRojW4NDrD4XeJhLYoVj6jrSIfl/pubhtml?gid=0&single=true";
@@ -160,8 +205,8 @@
                 const rows = Array.from(doc.querySelectorAll("table tbody tr"));
 
                 originalData = rows
+                    .slice(1) // Skip the first line (headers in source)
                     .slice(1)
-                    .slice(1)  // Skip the first line (headers in source)
                     .map(row => Array.from(row.querySelectorAll("td")).slice(0, 10).map(cell => cell.innerText.trim() || ""))
                     .filter(row => row[0]); // Exclude rows with empty Column A
 
@@ -234,6 +279,13 @@
             Array.from(selectedRows).forEach(row => {
                 const tr = document.createElement("tr");
 
+                // Create drag handle with three dots
+                const dragHandleTd = document.createElement("td");
+                dragHandleTd.className = "action-cell";
+                dragHandleTd.innerHTML = "&#x22EE;"; // Three dots (vertical ellipsis)
+                dragHandleTd.setAttribute("draggable", "true");
+                tr.appendChild(dragHandleTd);
+
                 const actionTd = document.createElement("td");
                 actionTd.className = "action-cell";
                 actionTd.textContent = "❌";
@@ -265,6 +317,12 @@
 
                 auxTbody.appendChild(tr);
             });
+
+            // Make the rows sortable
+            new Sortable(auxTbody, {
+                handle: '.action-cell', // This makes only the dots column draggable
+                ghostClass: 'highlight-row',
+            });
         }
 
         function deselectRow(row) {
@@ -286,32 +344,36 @@
         }
 
         function copyAllLinks() {
-            const links = Array.from(selectedRows).map(row => row[0]);
-            const textToCopy = links.join("\n");
+            const auxTableRows = Array.from(document.querySelector("#auxTable tbody").children);
 
-            // Create a temporary <textarea> element
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = textToCopy;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-
-            try {
-                // Try copying the text using the clipboard
-                const successful = document.execCommand("copy");
-                if (successful) {
-                    alert("Links copiados al portapapeles!");
-                } else {
-                    alert("No se pudo copiar los links.");
+            // Get the links from the third column in the aux table (the third column should contain the links)
+            const links = auxTableRows.map((row, index) => {
+                const linkCell = row.querySelector("td:nth-child(3) a"); // Grab the link in the third column
+                if (linkCell) {
+                    return linkCell.href;
                 }
-            } catch (err) {
-                console.error("Error al copiar los links:", err);
-                alert("Error al copiar los links.");
-            }
+                return null;
+            }).filter(link => link !== null); // Filter out any null values
 
-            // Clean up
-            document.body.removeChild(tempTextArea);
+            // Ensure that there's at least one link to copy
+            if (links.length > 0) {
+                navigator.clipboard.writeText(links.join("\n")).then(() => {
+                    alert("Links copiados al portapapeles!");
+                }).catch((error) => {
+                    console.error("Error copying to clipboard: ", error);
+                    alert("Hubo un error al copiar los links. Intenta nuevamente.");
+                });
+            } else {
+                alert("No hay links seleccionados.");
+            }
         }
 
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
 
         fetchSheetData();
     </script>
