@@ -172,6 +172,46 @@
         #instrumentFilters th {
             background-color: #f4f4f4;
         }
+
+        .instrument-filter-select {
+            -webkit-appearance: none;
+            /* For Chrome, Safari, and newer Edge */
+            -moz-appearance: none;
+            /* For Firefox */
+            appearance: none;
+            /* Standard syntax */
+            background: none;
+            /* Removes any default background */
+            padding: 3px;
+            /* Adds padding for better spacing */
+            font-size: 12px;
+            /* Makes the text slightly larger */
+            text-align: center;
+            /* Centers the text inside */
+            border: 1px solid #ccc;
+            /* Adds a border */
+            border-radius: 4px;
+            /* Optional: Adds rounded corners */
+            cursor: pointer;
+            /* Adds a pointer cursor */
+            width: 100%;
+            /* Ensures the dropdown fits its container */
+            box-sizing: border-box;
+            /* Includes padding in width calculation */
+        }
+
+        /* Optional: Add a custom arrow as a background image */
+        .instrument-filter-select::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-top-color: #000;
+            /* Black arrow */
+            pointer-events: none;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
@@ -299,8 +339,8 @@
                 const actionTd = document.createElement("td");
                 actionTd.className = "action-cell";
                 actionTd.textContent = "✔";
-                
-                if ( Array.from(selectedRows).some(selectedRow => selectedRow[0] === row[0])) {
+
+                if (Array.from(selectedRows).some(selectedRow => selectedRow[0] === row[0])) {
                     tr.className = "highlight-row";
                     actionTd.textContent = "❌"; // Change to "❌"
                 }
@@ -435,20 +475,32 @@
             const yearFilter = document.getElementById('filter-year').value.trim();
             const durationFilter = document.getElementById('filter-duration').value.trim();
 
-            // Instrument filters
+            // Instrument filters with dropdown logic
             const instrumentFilters = Array.from(document.querySelectorAll(".instrument-filter-input"))
                 .map((input, index) => {
                     const td = input.parentElement; // Get the parent <td>
-                    if (input.value.trim()) {
+                    const select = td.querySelector(".instrument-filter-select"); // Get the associated dropdown
+                    const filterType = select?.value; // Get the selected filter type
+                    const filterValue = input.value.trim(); // Get the input value
+
+                    if (filterValue) {
                         td?.classList.add("input-active"); // Add background if input has a value
                     } else {
                         td?.classList.remove("input-active"); // Remove background if input is empty
                     }
-                    console.log(`Instrument Filter Input [${index}]:`, input.value.trim(), td);
-                    return { value: input.value.trim(), colIndex: index + 15 }; // Adjust index for instrument columns
-                })
-                .filter(filter => filter.value);
 
+                    console.log(
+                        `Instrument Filter Input [${index}]:`,
+                        `Type: ${filterType}, Value: ${filterValue}`,
+                        td
+                    );
+
+                    // Return filter data if both type and value are provided
+                    return filterValue
+                        ? { type: filterType, value: filterValue, colIndex: index + 15 } // Adjust index for instrument columns
+                        : null;
+                })
+                .filter(filter => filter); // Remove null entries
 
             console.log("Instrument Filters:", instrumentFilters);
 
@@ -486,7 +538,8 @@
                 const matchesInstrumentFilters = instrumentFilters.every(filter => {
                     const value = row[filter.colIndex] || ""; // Handle empty cells gracefully
 
-                    return matchesInstrumentFilter(value, filter.value);
+                    // Pass filter type and value to matchesInstrumentFilter
+                    return matchesInstrumentFilter(value, filter.type, filter.value);
                 });
 
                 return matchesTextFilters && yearMatch && durationMatch && matchesInstrumentFilters;
@@ -497,21 +550,42 @@
             renderTable(filteredData);
         }
 
-        function matchesInstrumentFilter(cellValue, filterValue) {
-            // Handle numeric filters like "1", "1-", "1+" or exact text matches
-            if (filterValue.endsWith("-")) {
-                const maxValue = parseInt(filterValue.slice(0, -1), 10);
-                return !isNaN(maxValue) && parseInt(cellValue, 10) <= maxValue;
+        function matchesInstrumentFilter(cellValue, filterType, filterValue) {
+            const numericValue = parseInt(filterValue, 10);
+            const cellNumericValue = parseInt(cellValue, 10);
+
+            if (!isNaN(filterValue) && !isNaN(cellValue)) {
+                // Numeric comparisons
+                switch (filterType) {
+                    case "none":
+                        return cellValue === "" || cellValue === "0"; // No value or explicitly 0
+                    case "equal":
+                        return cellNumericValue === numericValue;
+                    case "less_than":
+                        return cellNumericValue < numericValue;
+                    case "greater_than":
+                        return cellNumericValue > numericValue;
+                    case "less_equal":
+                        return cellNumericValue <= numericValue;
+                    case "greater_equal":
+                        return cellNumericValue >= numericValue;
+                    default:
+                        return true;
+                }
+            } else {
+                // String comparisons
+                switch (filterType) {
+                    case "none":
+                        return !cellValue; // No value
+                    case "equal":
+                        return cellValue.toLowerCase() === filterValue.toLowerCase();
+                    default:
+                        // Ignore numeric-specific options for strings
+                        return cellValue.toLowerCase().includes(filterValue.toLowerCase());
+                }
             }
-            if (filterValue.endsWith("+")) {
-                const minValue = parseInt(filterValue.slice(0, -1), 10);
-                return !isNaN(minValue) && parseInt(cellValue, 10) >= minValue;
-            }
-            if (!isNaN(filterValue)) {
-                return parseInt(cellValue, 10) === parseInt(filterValue, 10);
-            }
-            return cellValue.toLowerCase().includes(filterValue.toLowerCase());
         }
+
 
         function toggleInstrumentFilters() {
             const filterDiv = document.getElementById("instrumentFilters");
@@ -554,19 +628,161 @@
 
                 // Create input cell
                 const td = document.createElement("td");
+
+                // Create a dropdown for filter options
+                const select = document.createElement("select");
+                select.classList.add("instrument-filter-select");
+                select.style.backgroundColor = "#E5E4E2";
+                select.style.width = "40px"; // Adjust width as needed
+                select.style.textAlign = "center"; // Center the text inside the select
+                select.style.textAlignLast = "center"; // Ensures dropdown text alignment for some browsers
+                select.style.display = "block"; // Ensures block-level alignment for centering
+                select.style.margin = "0 auto"; // Centers the select element within its container
+                select.onchange = function () {
+                    applyFilters();  // Trigger the filter function when selection changes
+                };
+                // Add filter options
+                const options = [
+                    { value: "none", text: "⊘" },   // No value or not containing anything
+                    { value: "equal", text: "=" },  // Equal to
+                    { value: "less_than", text: "<" },  // Less than
+                    { value: "greater_than", text: ">" },  // Greater than
+                    { value: "less_equal", text: "<=" },  // Less than or equal to
+                    { value: "greater_equal", text: ">=" } // Greater than or equal to
+                ];
+
+                const placeholderOption = document.createElement("option");
+                placeholderOption.value = "";
+                placeholderOption.textContent = "";
+                select.appendChild(placeholderOption);
+
+                options.forEach(option => {
+                    const opt = document.createElement("option");
+                    opt.value = option.value;
+                    opt.textContent = option.text;
+                    select.appendChild(opt);
+                });
+                select.addEventListener('change', function () {
+                    applyFilters();  // Trigger the filter function when selection changes
+                });
+                // Add coloring for the options in the dropdown
+                const optionsD = select.querySelectorAll('option');
+                // Add coloring for the options in the dropdown
+
+                optionsD.forEach(option => {
+                    // Reset background and text color for each option
+                    option.style.backgroundColor = "";
+                    option.style.color = "";
+
+                    // Apply the specific logic to each option based on its value
+                    switch (option.value) {
+                        case "none":
+                            option.style.backgroundColor = "black";
+                            option.style.color = "white";
+                            break;
+                        case "equal":
+                            option.style.backgroundColor = "blue";
+                            option.style.color = "white";
+                            break;
+                        case "less_than":
+                            option.style.backgroundColor = "red";
+                            option.style.color = "white";
+                            break;
+                        case "greater_than":
+                            option.style.backgroundColor = "green";
+                            option.style.color = "white";
+                            break;
+                        case "less_equal":
+                            option.style.backgroundColor = "gray"; // Use a solid color instead of a gradient
+                            option.style.color = "white";
+                            break;
+                        case "greater_equal":
+                            option.style.backgroundColor = "purple"; // Use a solid color instead of a gradient
+                            option.style.color = "white";
+                            break;
+                        default:
+                            option.style.backgroundColor = ""; // Reset background if no match
+                            option.style.color = ""; // Reset text color if no match
+                            break;
+                    }
+                });
+
+                // Add styles for dropdown options
+                select.onchange = function () {
+                    // Reset the background and color first to avoid issues with gradients
+                    select.style.backgroundColor = ""; // Reset background color
+                    select.style.background = ""; // Reset gradient background
+                    select.style.color = ""; // Reset text color
+
+                    // Switch case to apply the appropriate color scheme
+                    switch (select.value) {
+                        case "none":
+                            select.style.backgroundColor = "black";
+                            select.style.color = "white";
+                            break;
+                        case "equal":
+                            select.style.backgroundColor = "blue";
+                            select.style.color = "white";
+                            break;
+                        case "less_than":
+                            select.style.backgroundColor = "red";
+                            select.style.color = "white";
+                            break;
+                        case "greater_than":
+                            select.style.backgroundColor = "green";
+                            select.style.color = "white";
+                            break;
+                        case "less_equal":
+                            select.style.background = "linear-gradient(to right, red, blue)";
+                            select.style.color = "white";
+                            break;
+                        case "greater_equal":
+                            select.style.background = "linear-gradient(to right, blue, green)";
+                            select.style.color = "white";
+                            break;
+                        default:
+                            select.style.backgroundColor = ""; // Clear background if no match
+                            select.style.color = ""; // Clear color if no match
+                            break;
+                    }
+                };
+
+
+                // Create an input box for the value
                 const input = document.createElement("input");
-                input.type = "text";
-                input.placeholder = "a,1,1+,1-";
+                input.type = "text"; // Allow both numbers and strings
                 input.classList.add("instrument-filter-input");
-                input.dataset.colIndex = index + 15; // Adjust for column offset (P=16)
-                input.onkeyup = applyFilters;
+                input.placeholder = "...";
+                input.style.width = "30px"; // Set the width in pixels
+                input.style.textAlign = "center"; // Center the text inside the input box
+                input.style.display = "block"; // Ensures block-level alignment for centering
+                input.style.margin = "0 auto"; // Centers the input box within its container
+
+                // Add event listener for changes
+                input.onkeyup = function () {
+                    // Check if input has a value and no option is selected in the dropdown
+                    const selectedOption = select.value;
+                    if (input.value.trim() && !selectedOption) {
+                        select.style.backgroundColor = "green";
+                        select.style.color = "white";
+                        select.value = "equal"; // Set the dropdown to "equal" if input has a value and no option is selected
+                        applyFilters(); // Call applyFilters again after changing the select value
+                    }
+                    // Trigger applyFilters when input value changes
+                    applyFilters();
+
+
+                };
+                // Append elements to the table cell
+                td.appendChild(select);
+                td.appendChild(input);
                 if (!header.trim()) {
                     td.style.display = "none"; // Hide input cells for empty columns
                 }
-                td.appendChild(input);
                 inputRow.appendChild(td);
             });
         }
+
         function filterYearRange(yearValue, range) {
             const year = parseInt(yearValue.trim(), 10); // Extract the year as an integer
             if (isNaN(year)) return false; // Skip invalid data
