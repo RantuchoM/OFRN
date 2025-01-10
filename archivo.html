@@ -463,7 +463,15 @@
                 input.value = ""; // Clear the value
                 input.parentElement.classList.remove("input-active"); // Remove background color
             });
-
+            // Reset all dropdowns (select elements) to empty and gray background
+            const selects = document.querySelectorAll(".instrument-filter-select");
+            selects.forEach(select => {
+                select.style.background = ""; // Reset gradient background
+                select.style.color = ""; // Reset text color
+                select.value = ""; // Reset the value to empty
+                select.style.backgroundColor = "#E5E4E2"; // Set the background to gray
+                select.style.color = ""; // Reset text color
+            });
             // Reset the table to show all data
             applyFilters()
         }
@@ -551,11 +559,12 @@
         }
 
         function matchesInstrumentFilter(cellValue, filterType, filterValue) {
+            // First, check if the filter and cell value are numeric
             const numericValue = parseInt(filterValue, 10);
             const cellNumericValue = parseInt(cellValue, 10);
 
             if (!isNaN(filterValue) && !isNaN(cellValue)) {
-                // Numeric comparisons
+                // Handle numeric comparisons
                 switch (filterType) {
                     case "none":
                         return cellValue === "" || cellValue === "0"; // No value or explicitly 0
@@ -573,18 +582,16 @@
                         return true;
                 }
             } else {
-                // String comparisons
-                switch (filterType) {
-                    case "none":
-                        return !cellValue; // No value
-                    case "equal":
-                        return cellValue.toLowerCase() === filterValue.toLowerCase();
-                    default:
-                        // Ignore numeric-specific options for strings
-                        return cellValue.toLowerCase().includes(filterValue.toLowerCase());
-                }
+                // Handle string comparisons (always using includes with lowercase)
+                const normalizedFilterValue = filterValue.trim().toLowerCase();
+                const normalizedCellValue = cellValue ? cellValue.trim().toLowerCase() : "";
+
+                // Always use "includes" for string comparisons (case-insensitive)
+                return normalizedCellValue.includes(normalizedFilterValue);
             }
         }
+
+
 
 
         function toggleInstrumentFilters() {
@@ -763,7 +770,7 @@
                     // Check if input has a value and no option is selected in the dropdown
                     const selectedOption = select.value;
                     if (input.value.trim() && !selectedOption) {
-                        select.style.backgroundColor = "green";
+                        select.style.backgroundColor = "blue";
                         select.style.color = "white";
                         select.value = "equal"; // Set the dropdown to "equal" if input has a value and no option is selected
                         applyFilters(); // Call applyFilters again after changing the select value
