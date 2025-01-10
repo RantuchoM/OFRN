@@ -238,7 +238,7 @@
     <table id="auxTable">
         <thead>
             <tr>
-                <th>.</th>
+                <th>&#x22EE;</th>
                 <th>❌</th>
                 <th>N°</th>
 
@@ -337,7 +337,9 @@
                     .slice(1)
                     .map(row => Array.from(row.querySelectorAll("td")).map(cell => cell.innerText.trim() || ""))
                     .filter(row => row[0]); // Exclude rows with empty Column A
-                filteredData = applyFilters();
+
+                filteredData = originalData;
+                applyFilters();
                 renderTable(filteredData);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -345,14 +347,44 @@
             }
         }
 
-        function renderTable(data0) {
-            const data = data0.map(row => row.slice(0, 10)); // Ensure only the first 10 columns are rendered
+        function renderTable(data0, sortColumn = null, sortDirection = 'asc') {
+            let data = data0.map(row => row.slice(0, 10)); // Ensure only the first 10 columns are rendered
+            console.log("Sorting column:", sortColumn, "Direction:", sortDirection);
+            console.log("Data before sorting:", data);
+
+            if (sortColumn !== null) {
+                data.sort((a, b) => {
+                    const valA = a[sortColumn] || '';
+                    const valB = b[sortColumn] || '';
+
+                    // Ensure empty values always go to the end
+                    const isEmptyA = valA === '';
+                    const isEmptyB = valB === '';
+
+                    if (isEmptyA && !isEmptyB) return 1; // valA is empty, move it down
+                    if (!isEmptyA && isEmptyB) return -1; // valB is empty, move it down
+
+                    // Compare non-empty values
+                    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+
+                    // Handle tiebreaker (e.g., column 1 as secondary sort)
+                    const tieBreakerA = a[4] || '';
+                    const tieBreakerB = b[4] || '';
+                    if (tieBreakerA < tieBreakerB) return sortDirection === 'asc' ? -1 : 1;
+                    if (tieBreakerA > tieBreakerB) return sortDirection === 'asc' ? 1 : -1;
+
+                    return 0; // Rows are completely equal
+                });
+            }
+
             const tbody = document.querySelector("#dataTable tbody");
             tbody.innerHTML = ""; // Clear existing rows
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('dataTable').style.display = 'table';
 
+            // Update table body
             data.forEach((row, rowIndex) => {
                 const tr = document.createElement("tr");
                 const actionTd = document.createElement("td");
@@ -363,8 +395,6 @@
                     tr.className = "highlight-row";
                     actionTd.textContent = "❌"; // Change to "❌"
                 }
-
-                // Add "✔" action column
 
                 actionTd.addEventListener("click", () => selectRow(row, tr, actionTd));
                 tr.appendChild(actionTd);
@@ -394,9 +424,40 @@
 
                 tbody.appendChild(tr);
             });
+
+            // Update header colors
+            const headers = document.querySelectorAll("#dataTable thead tr:first-child th")
+            const cells = document.querySelectorAll(`#dataTable thead tr:nth-child(2) th`);
+
+            // Apply background color to both header rows
+            headers.forEach((header, index) => {
+                header.style.backgroundColor = '#f4f4f4'; // Default color
+                if (index === (sortColumn + 1)) {
+                    header.style.backgroundColor = sortDirection === 'asc' ? '#d4f8d4' : '#fce4d4';
+                }
+            });
+            cells.forEach((header, index) => {
+                header.style.backgroundColor = '#f4f4f4'; // Default color
+                if (index === (sortColumn + 1)) {
+                    header.style.backgroundColor = sortDirection === 'asc' ? '#d4f8d4' : '#fce4d4';
+                }
+            });
+
             const encabezadoArchivo = document.getElementById("encabezadoArchivo");
             encabezadoArchivo.textContent = `Archivo General (${filteredData.length} / ${originalData.length})`;
         }
+
+        // Add event listeners to headers
+        document.querySelectorAll("#dataTable thead tr:first-child th").forEach((header, index) => {
+            let sortDirection = 'asc'; // Default sorting direction
+            header.addEventListener("click", () => {
+                // Toggle sort direction
+                console.log("Header clicked:", header.textContent);
+                let data = filteredData;
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'; // Toggle sort direction
+                renderTable(data, index - 1, sortDirection); // Sort by the clicked column
+            });
+        });
 
         function selectRow(row, tr, actionTd) {
             // Check if the row is already selected by comparing row[0]
@@ -603,7 +664,7 @@
                 })
                 .filter(filter => filter); // Remove null entries
 
-            console.log("Instrument Filters:", instrumentFilters);
+            //console.log("Instrument Filters:", instrumentFilters);
 
             // Standard text-based filters
             const filters = Array.from(document.querySelectorAll(".filter-input"))
@@ -620,7 +681,7 @@
                 })
                 .filter(filter => filter !== null);
 
-            console.log("Text Filters:", filters);
+            //console.log("Text Filters:", filters);
 
             // Apply all filters
             filteredData = originalData.filter(row => {
@@ -660,11 +721,12 @@
             const numericValue = parseInt(filterValue, 10);
             const cellNumericValue = parseInt(cellValue, 10);
 
-            if (!isNaN(filterValue) && !isNaN(cellValue)) {
+            if ((!isNaN(filterValue) && !isNaN(cellValue)) || filterType === "none") {
                 // Handle numeric comparisons
                 switch (filterType) {
                     case "none":
-                        return cellValue === "" || cellValue === "0"; // No value or explicitly 0
+                        // Check if the cell is empty or explicitly zero
+                        return cellNumericValue === 0;
                     case "equal":
                         return cellNumericValue === numericValue;
                     case "less_than":
@@ -687,7 +749,6 @@
                 return normalizedCellValue.includes(normalizedFilterValue);
             }
         }
-
 
 
 
@@ -742,9 +803,8 @@
                 select.style.textAlignLast = "center"; // Ensures dropdown text alignment for some browsers
                 select.style.display = "block"; // Ensures block-level alignment for centering
                 select.style.margin = "0 auto"; // Centers the select element within its container
-                select.onchange = function () {
-                    applyFilters();  // Trigger the filter function when selection changes
-                };
+
+
                 // Add filter options
                 const options = [
                     { value: "none", text: "⊘" },   // No value or not containing anything
@@ -767,8 +827,22 @@
                     select.appendChild(opt);
                 });
                 select.addEventListener('change', function () {
+
+                    // Check if "none" option is selected
+                    console.log(this.value)
+                    if (this.value === "none") {
+
+                        // Find the associated input element and set its value to "0"
+                        const input = this.closest('td').querySelector('input'); // Find the <input> inside the parent <td>
+                        if (input) {
+                            input.value = "0"; // Set the input value to "0"
+                        }
+                    }
+
                     applyFilters();  // Trigger the filter function when selection changes
-                });
+
+
+                })
                 // Add coloring for the options in the dropdown
                 const optionsD = select.querySelectorAll('option');
                 // Add coloring for the options in the dropdown
