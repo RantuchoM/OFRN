@@ -12,6 +12,14 @@
             width: 100%;
         }
 
+        :host {
+            font-size: 13px;
+        }
+
+        * {
+            font-size: 13px !important;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -33,8 +41,8 @@
         }
 
 
-        th,
-        td {
+        table th,
+        table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
@@ -92,7 +100,7 @@
 
         .action-cell {
             text-align: center;
-            cursor: pointer;
+            cursor: move;
             font-weight: bold;
             font-size: 16px;
         }
@@ -390,11 +398,13 @@
                 actionTd.textContent = "❌"; // Change to "❌"
             }
             updateAuxTable();
+            applyFilters();
         }
 
 
         function updateAuxTable() {
             const auxTbody = document.querySelector("#auxTable tbody");
+
             auxTbody.innerHTML = "";
 
             Array.from(selectedRows).forEach(row => {
@@ -439,17 +449,17 @@
                 auxTbody.appendChild(tr);
             });
 
-            // Make the rows sortable
+            // Make the rows sortable (works for both desktop and mobile)
             new Sortable(auxTbody, {
-                handle: '.action-cell', // This makes only the dots column draggable
-                ghostClass: 'highlight-row',
+                handle: '.action-cell', // Only the drag handle is used for dragging
+                ghostClass: 'highlight-row', // Highlight while dragging
             });
         }
 
         function deselectRow(row) {
             selectedRows.delete(row);
             updateAuxTable();
-            renderTable(filteredData);
+            applyFilters();
         }
         function clearAllFilters() {
             // Clear all filter inputs
