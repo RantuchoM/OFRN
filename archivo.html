@@ -12,13 +12,13 @@
             width: 100%;
         }
 
+
         :host {
             font-size: 13px;
         }
 
-        * {
-            font-size: 13px !important;
-        }
+
+
 
         table {
             width: 100%;
@@ -47,6 +47,15 @@
             padding: 8px;
             text-align: left;
             font-size: 13px;
+        }
+
+        h3 {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 25px;
+            font-weight: bold;
+            text-align: center;
+
+
         }
 
         th {
@@ -231,6 +240,8 @@
             <tr>
                 <th>.</th>
                 <th>❌</th>
+                <th>N°</th>
+
                 <th>Link</th>
                 <th>Compositor</th>
                 <th>Arreglador</th>
@@ -248,15 +259,15 @@
     <button class="copy-button" onclick="copyAllLinks()">Copiar links</button>
     <button class="clear-button" onclick="clearSelection()">Borrar selección</button>
 
-    <h3>Archivo para filtrar
-        <button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()">Limpiar
-            filtros</button>
-        <button id="showInstrumentFiltersButton" class="clear-filters-button"
-            onclick="toggleInstrumentFilters()">Mostrar filtros de instrumentos</button>
+    <h3 id="encabezadoArchivo">Archivo para filtrar </h3>
+    <button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()">Limpiar
+        filtros</button>
+    <button id="showInstrumentFiltersButton" class="clear-filters-button" onclick="toggleInstrumentFilters()">Mostrar
+        filtros de instrumentos</button>
 
 
 
-    </h3>
+
     <div id="instrumentFilters" style="display: none;">
         <table>
             <thead>
@@ -383,12 +394,18 @@
 
                 tbody.appendChild(tr);
             });
+            const encabezadoArchivo = document.getElementById("encabezadoArchivo");
+            encabezadoArchivo.textContent = `Archivo General (${filteredData.length} / ${originalData.length})`;
         }
 
         function selectRow(row, tr, actionTd) {
-            if (selectedRows.has(row)) {
+            // Check if the row is already selected by comparing row[0]
+            const rowToDelete = Array.from(selectedRows).find(selectedRow => selectedRow[0] === row[0]);
+
+            if (rowToDelete) {
                 // If the row is already selected, deselect it
-                selectedRows.delete(row);
+                console.log("Borrar fila");
+                selectedRows.delete(rowToDelete); // Delete the matching row
                 tr.classList.remove("highlight-row");
                 actionTd.textContent = "✔"; // Change back to "✔"
             } else {
@@ -402,12 +419,16 @@
         }
 
 
+
         function updateAuxTable() {
             const auxTbody = document.querySelector("#auxTable tbody");
 
             auxTbody.innerHTML = "";
 
-            Array.from(selectedRows).forEach(row => {
+            // Initialize a variable to sum durations (in seconds)
+            let totalDurationInSeconds = 0;
+
+            Array.from(selectedRows).forEach((row, index) => {
                 const tr = document.createElement("tr");
 
                 // Create drag handle with three dots
@@ -417,22 +438,30 @@
                 dragHandleTd.setAttribute("draggable", "true");
                 tr.appendChild(dragHandleTd);
 
+                // Create the action cell with "❌" button
                 const actionTd = document.createElement("td");
                 actionTd.className = "action-cell";
                 actionTd.textContent = "❌";
                 actionTd.addEventListener("click", () => deselectRow(row));
                 tr.appendChild(actionTd);
 
-                row.forEach((cell, index) => {
+                // Add ordinal number column
+                const ordinalTd = document.createElement("td");
+                ordinalTd.className = "ordinal-cell";
+                ordinalTd.textContent = index + 1; // Ordinal number starts from 1
+                tr.appendChild(ordinalTd);
+
+                // Add the rest of the row's cells
+                row.forEach((cell, cellIndex) => {
                     const td = document.createElement("td");
 
-                    if (index === 0) {
+                    if (cellIndex === 0) {
                         const a = document.createElement("a");
                         a.href = cell;
                         a.textContent = "🔗";
                         a.target = "_blank";
                         td.appendChild(a);
-                    } else if (index === 9 && cell) {
+                    } else if (cellIndex === 9 && cell) {
                         const a = document.createElement("a");
                         a.href = cell;
                         a.textContent = "YT";
@@ -441,6 +470,11 @@
                         td.appendChild(a);
                     } else {
                         td.textContent = cell;
+
+                        // If the cell is in the "Duración" column (index 7), convert to seconds and add to total
+                        if (cellIndex === 7) {
+                            totalDurationInSeconds += durationToSeconds(cell);
+                        }
                     }
 
                     tr.appendChild(td);
@@ -449,11 +483,60 @@
                 auxTbody.appendChild(tr);
             });
 
+            // Add a summary row for total duration
+            const summaryRow = document.createElement("tr");
+            summaryRow.className = "summary-row";
+
+            // Empty cells for columns before "Duración"
+            for (let i = 0; i < 10; i++) { // Adjust loop to leave 7 cells empty before the "Duración" column
+                const emptyTd = document.createElement("td");
+                summaryRow.appendChild(emptyTd);
+            }
+
+            // Total duration cell
+            const totalDurationTd = document.createElement("td");
+            totalDurationTd.textContent = secondsToDuration(totalDurationInSeconds); // Format as HH:MM:SS
+            totalDurationTd.className = "total-duration-cell";
+            summaryRow.appendChild(totalDurationTd);
+
+            // Empty cells for columns after "Duración"
+            for (let i = 0; i < 2; i++) { // Adjust loop to leave remaining cells empty after "Duración"
+                const emptyTd = document.createElement("td");
+                summaryRow.appendChild(emptyTd);
+            }
+
+            auxTbody.appendChild(summaryRow);
+
             // Make the rows sortable (works for both desktop and mobile)
-            new Sortable(auxTbody, {
+            const sortable = new Sortable(auxTbody, {
                 handle: '.action-cell', // Only the drag handle is used for dragging
                 ghostClass: 'highlight-row', // Highlight while dragging
+                onEnd: () => {
+                    // Update ordinal numbers based on the new row order
+                    Array.from(auxTbody.querySelectorAll("tr:not(.summary-row)")).forEach((tr, index) => {
+                        const ordinalCell = tr.querySelector(".ordinal-cell");
+                        ordinalCell.textContent = index + 1; // Update the ordinal number
+                    });
+                }
             });
+        }
+        // Helper function to convert HH:MM:SS to seconds
+        function durationToSeconds(duration) {
+            if (!duration || !duration.includes(":")) {
+                return 0; // Return 0 if duration is empty or does not contain ":"
+            }
+
+            const [hours, minutes, seconds] = duration.split(":").map(Number);
+            return (hours || 0) * 3600 + (minutes || 0) * 60 + (seconds || 0);
+        }
+
+
+        // Helper function to convert seconds to HH:MM:SS
+        function secondsToDuration(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(hours).padStart(1, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         }
 
         function deselectRow(row) {
@@ -507,11 +590,11 @@
                         td?.classList.remove("input-active"); // Remove background if input is empty
                     }
 
-                    console.log(
+                    /*console.log(
                         `Instrument Filter Input [${index}]:`,
                         `Type: ${filterType}, Value: ${filterValue}`,
                         td
-                    );
+                    );*/
 
                     // Return filter data if both type and value are provided
                     return filterValue
@@ -564,8 +647,12 @@
             });
 
             console.log("Filtered Data:", filteredData);
+            // Update the header with the filtered data count
+
 
             renderTable(filteredData);
+            updateAuxTable()
+
         }
 
         function matchesInstrumentFilter(cellValue, filterType, filterValue) {
