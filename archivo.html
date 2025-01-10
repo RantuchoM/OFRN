@@ -941,7 +941,7 @@
 
             // Get the links from the third column in the aux table (the third column should contain the links)
             const links = auxTableRows.map((row, index) => {
-                const linkCell = row.querySelector("td:nth-child(3) a"); // Grab the link in the third column
+                const linkCell = row.querySelector("td:nth-child(4) a"); // Grab the link in the third column
                 if (linkCell) {
                     return linkCell.href;
                 }
