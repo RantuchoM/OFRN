@@ -339,6 +339,16 @@
                     .filter(row => row[0]); // Exclude rows with empty Column A
 
                 filteredData = originalData;
+                loadSelectedRowsFromLocalStorage();
+                // Reapply styles to rows if necessary
+                Array.from(selectedRows).forEach(row => {
+                    const tr = document.querySelector(`[data-row-id="${row[1]}"]`); // Adjust selector to match your row identifier
+                    if (tr) {
+                        tr.classList.add("highlight-row");
+                        const actionTd = tr.querySelector('.action-td'); // Adjust to match your action cell class
+                        actionTd.textContent = "❌";
+                    }
+                });
                 applyFilters();
                 renderTable(filteredData);
             } catch (error) {
@@ -349,8 +359,8 @@
 
         function renderTable(data0, sortColumn = null, sortDirection = 'asc') {
             let data = data0.map(row => row.slice(0, 10)); // Ensure only the first 10 columns are rendered
-            console.log("Sorting column:", sortColumn, "Direction:", sortDirection);
-            console.log("Data before sorting:", data);
+            //console.log("Sorting column:", sortColumn, "Direction:", sortDirection);
+            //console.log("Data before sorting:", data);
 
             if (sortColumn !== null) {
                 data.sort((a, b) => {
@@ -458,23 +468,35 @@
                 renderTable(data, index - 1, sortDirection); // Sort by the clicked column
             });
         });
-
+        function saveSelectedRowsToLocalStorage() {
+            localStorage.setItem('selectedRows', JSON.stringify(Array.from(selectedRows)));
+            console.log("Saved rows to local storage");
+            console.log(localStorage.getItem('selectedRows'));
+        }
+        function loadSelectedRowsFromLocalStorage() {
+            const savedRows = localStorage.getItem('selectedRows');
+            console.log("Loading selected rows")
+            console.log(savedRows)
+            if (savedRows) {
+                const parsedRows = JSON.parse(savedRows);
+                selectedRows.clear(); // Clear any existing rows
+                parsedRows.forEach(row => selectedRows.add(row)); // Restore rows
+            }
+        }
         function selectRow(row, tr, actionTd) {
-            // Check if the row is already selected by comparing row[0]
             const rowToDelete = Array.from(selectedRows).find(selectedRow => selectedRow[0] === row[0]);
 
             if (rowToDelete) {
-                // If the row is already selected, deselect it
                 console.log("Borrar fila");
-                selectedRows.delete(rowToDelete); // Delete the matching row
+                selectedRows.delete(rowToDelete);
                 tr.classList.remove("highlight-row");
-                actionTd.textContent = "✔"; // Change back to "✔"
+                actionTd.textContent = "✔";
             } else {
-                // If the row is not selected, select it
                 selectedRows.add(row);
                 tr.classList.add("highlight-row");
-                actionTd.textContent = "❌"; // Change to "❌"
+                actionTd.textContent = "❌";
             }
+            saveSelectedRowsToLocalStorage(); // Save changes to local storage
             updateAuxTable();
             applyFilters();
         }
@@ -573,13 +595,42 @@
                 handle: '.action-cell', // Only the drag handle is used for dragging
                 ghostClass: 'highlight-row', // Highlight while dragging
                 onEnd: () => {
-                    // Update ordinal numbers based on the new row order
-                    Array.from(auxTbody.querySelectorAll("tr:not(.summary-row)")).forEach((tr, index) => {
-                        const ordinalCell = tr.querySelector(".ordinal-cell");
+                    // Get the reordered rows from the table
+                    const reorderedRows = Array.from(auxTbody.querySelectorAll("tr:not(.summary-row)")).map(tr => {
+                        const cells = Array.from(tr.querySelectorAll("td"));
+                        const rowData = [];
+
+                        cells.forEach((cell, cellIndex) => {
+                            if (cellIndex === 3) {
+                                // Handle the first column (link cell)
+                                const linkElement = cell.querySelector("a");
+                                rowData.push(linkElement ? linkElement.href : null); // Store the actual link
+                            } else if (cellIndex !== 2 && cellIndex !== 0 && cellIndex !== 1) {
+                                // Skip action and ordinal cells
+                                rowData.push(cell.textContent.trim());
+                            }
+                        });
+
+                        return rowData;
+                    });
+
+                    // Clear and update selectedRows with the new order
+                    selectedRows.clear();
+                    reorderedRows.forEach(row => selectedRows.add(row));
+
+                    // Update ordinal numbers
+                    reorderedRows.forEach((row, index) => {
+                        const ordinalCell = auxTbody.querySelectorAll("tr:not(.summary-row)")[index].querySelector(".ordinal-cell");
                         ordinalCell.textContent = index + 1; // Update the ordinal number
                     });
+
+                    // Save the updated order to local storage
+                    saveSelectedRowsToLocalStorage();
                 }
             });
+
+
+
         }
         // Helper function to convert HH:MM:SS to seconds
         function durationToSeconds(duration) {
@@ -601,10 +652,12 @@
         }
 
         function deselectRow(row) {
-            selectedRows.delete(row);
+            selectedRows.delete(row); // Remove the row from the set
+            saveSelectedRowsToLocalStorage(); // Save changes to local storage
             updateAuxTable();
             applyFilters();
         }
+
         function clearAllFilters() {
             // Clear all filter inputs
             const inputs = document.querySelectorAll(".filter-input");
@@ -707,7 +760,7 @@
                 return matchesTextFilters && yearMatch && durationMatch && matchesInstrumentFilters;
             });
 
-            console.log("Filtered Data:", filteredData);
+            //console.log("Filtered Data:", filteredData);
             // Update the header with the filtered data count
 
 
@@ -829,7 +882,7 @@
                 select.addEventListener('change', function () {
 
                     // Check if "none" option is selected
-                    console.log(this.value)
+                    //console.log(this.value)
                     if (this.value === "none") {
 
                         // Find the associated input element and set its value to "0"
@@ -1005,10 +1058,15 @@
 
 
         function clearSelection() {
-            selectedRows.clear();
+            selectedRows.clear(); // Clear all selected rows
+            saveSelectedRowsToLocalStorage(); // Save changes to local storage
             updateAuxTable();
             applyFilters();
         }
+        document.addEventListener('DOMContentLoaded', () => {
+
+        });
+
 
         function copyAllLinks() {
             const auxTableRows = Array.from(document.querySelector("#auxTable tbody").children);
