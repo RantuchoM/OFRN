@@ -335,7 +335,7 @@
                 originalData = rows
                     .slice(1) // Skip the first line (headers in source)
                     .slice(1)
-                    .map(row => Array.from(row.querySelectorAll("td")).map(cell => cell.innerText.trim() || ""))
+                    .map(row => Array.from(row.querySelectorAll("td")).map(cell => cell.innerHTML.trim() || ""))
                     .filter(row => row[0]); // Exclude rows with empty Column A
 
                 filteredData = originalData;
@@ -426,7 +426,7 @@
                         a.target = "_blank";
                         td.appendChild(a);
                     } else {
-                        td.textContent = cell;
+                        td.innerHTML = cell;
                     }
 
                     tr.appendChild(td);
