@@ -334,8 +334,18 @@
 
                 originalData = rows
                     .slice(1) // Skip the first line (headers in source)
-                    .slice(1)
-                    .map(row => Array.from(row.querySelectorAll("td")).map(cell => cell.innerHTML.trim() || ""))
+                    .slice(1) // Skip another line if necessary
+                    .map(row => Array.from(row.querySelectorAll("td")).map((cell, index) => {
+                        if (index === 0 || index === 9) { // Adjust for your link columns
+                            const anchor = cell.querySelector("a"); // Look for the <a> tag
+                            if (anchor) {
+                                const url = new URL(anchor.href);
+                                return url.searchParams.get("q") || anchor.href; // Extract 'q' or fallback to the raw href
+                            }
+                            return "";
+                        }
+                        return cell.innerHTML.trim() || ""; // Keep other cells as raw HTML content
+                    }))
                     .filter(row => row[0]); // Exclude rows with empty Column A
 
                 filteredData = originalData;
@@ -414,20 +424,21 @@
 
                     if (index === 0) {
                         const a = document.createElement("a");
-                        a.href = cell;
+                        a.href = cell; // Use the cleaned URL
                         a.textContent = "🔗";
                         a.target = "_blank";
                         td.appendChild(a);
                     } else if (index === 9 && cell) {
                         const a = document.createElement("a");
-                        a.href = cell;
+                        a.href = cell; // Use the cleaned URL
                         a.textContent = "YT";
                         a.className = "yt";
                         a.target = "_blank";
                         td.appendChild(a);
                     } else {
-                        td.innerHTML = cell;
+                        td.innerHTML = cell; // Render raw HTML content for other cells
                     }
+
 
                     tr.appendChild(td);
                 });
@@ -552,7 +563,7 @@
                         a.target = "_blank";
                         td.appendChild(a);
                     } else {
-                        td.textContent = cell;
+                        td.innerHTML = cell;
 
                         // If the cell is in the "Duración" column (index 7), convert to seconds and add to total
                         if (cellIndex === 7) {
@@ -1065,6 +1076,17 @@
         }
         document.addEventListener('DOMContentLoaded', () => {
 
+        });
+
+        document.addEventListener('keydown', (event) => {
+            // Check if Ctrl+C is pressed
+            if (event.ctrlKey && event.key === 'c') {
+                const selectedText = window.getSelection().toString().trim(); // Get selected text
+                if (!selectedText) { // Only run if no text is selected
+                    event.preventDefault(); // Prevent the default copy behavior
+                    copyAllLinks();
+                }
+            }
         });
 
 
