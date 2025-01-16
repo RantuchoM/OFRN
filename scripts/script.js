@@ -1563,7 +1563,7 @@ function fetchSpreadsheetValue(nombreParam) {
       //console.log(doc);
 
 
-      const dataAB = doc.map(n => n[13]) // Extract data from the 28th column (AB column)
+      const dataAB = doc.map(n => n[20]) // Extract data from the 28th column (AB column)
       console.log(dataAB);
       //console.log(dataAB);
       // Find the corresponding value in column AB
