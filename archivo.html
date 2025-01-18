@@ -1129,7 +1129,7 @@
             const filterValue = getUrlParameter('c'); // Get the value of 'c' parameter
             if (filterValue) {
                 const encodedValue = decodeURIComponent(filterValue); // Decode URL encoding for special characters
-                document.querySelectorAll('.filter-input')[1].value = encodedValue; // Set the value of second input
+                document.querySelectorAll('.filter-input')[0].value = encodedValue; // Set the value of second input
             }
         }
 
