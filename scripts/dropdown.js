@@ -14,23 +14,7 @@ function getDropdownData() {
   return data;
 }
 // Function to extract data from the specified column
-function extractColumnData(doc, columnIndex) {
-  const tableRows = Array.from(doc.querySelectorAll('table tr'));
-  const columnData = [];
 
-  for (let i = 1; i < tableRows.length; i++) {
-    const rowData = tableRows[i].querySelectorAll('td');
-    if (rowData.length > columnIndex) {
-      const cellValue = rowData[columnIndex].textContent.trim();
-      // Check if the cell value is not empty before adding to columnData
-      if (cellValue !== "") {
-        columnData.push(cellValue);
-      }
-    }
-  }
-
-  return columnData;
-}
 
 
 

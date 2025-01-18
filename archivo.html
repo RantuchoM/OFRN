@@ -448,7 +448,7 @@
 
             // Update header colors
             const headers = document.querySelectorAll("#dataTable thead tr:first-child th")
-            const cells = document.querySelectorAll(`#dataTable thead tr:nth-child(2) th`);
+
 
             // Apply background color to both header rows
             headers.forEach((header, index) => {
@@ -457,12 +457,7 @@
                     header.style.backgroundColor = sortDirection === 'asc' ? '#d4f8d4' : '#fce4d4';
                 }
             });
-            cells.forEach((header, index) => {
-                header.style.backgroundColor = '#f4f4f4'; // Default color
-                if (index === (sortColumn + 1)) {
-                    header.style.backgroundColor = sortDirection === 'asc' ? '#d4f8d4' : '#fce4d4';
-                }
-            });
+
 
             const encabezadoArchivo = document.getElementById("encabezadoArchivo");
             encabezadoArchivo.textContent = `Archivo General (${filteredData.length} / ${originalData.length})`;
@@ -1123,6 +1118,25 @@
         }
 
         fetchSheetData();
+        // Function to get URL parameter value
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Set the value of the second filter input with URL parameter c
+        function setFilterFromUrl() {
+            const filterValue = getUrlParameter('c'); // Get the value of 'c' parameter
+            if (filterValue) {
+                const encodedValue = decodeURIComponent(filterValue); // Decode URL encoding for special characters
+                document.querySelectorAll('.filter-input')[1].value = encodedValue; // Set the value of second input
+            }
+        }
+
+        // Call the function on page load
+        window.onload = function () {
+            setFilterFromUrl(); // Apply the URL parameter to the filter input field
+        };
     </script>
 </body>
 

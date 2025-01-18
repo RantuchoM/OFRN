@@ -60,6 +60,23 @@ function getNames() {
       names.sort() // Extract data from the 4th column
       //console.log(names)
       resumenPersonas();
+      return names
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
+}
+function fetchdeMus(colIndex) {
+  //console.log("getDropdownData")
+  const url = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt'; // Replace with the actual URL of the external page
+  return fetch(url)
+    .then(response => response.text())
+    .then(base64Text => {
+      fetchMus = decodeAndRevertGeneral(base64Text);
+
+      let ensamblFetch = fetchMus.map(n => n[colIndex])
+      ensamblFetch.shift()
+
+      return ensamblFetch
     })
     .catch(error => console.error('Error fetching data:', error));
 }
@@ -306,6 +323,8 @@ function toggleDetails(name) {
 // Function to extract data from the specified column
 function extractColumnData(doc, columnIndex) {
   const tableRows = Array.from(doc.querySelectorAll('table tr'));
+  console.log("Extracting data")
+  console.log(tableRows);
   const columnData = [];
 
   for (let i = 1; i < tableRows.length; i++) {
@@ -318,7 +337,7 @@ function extractColumnData(doc, columnIndex) {
       }
     }
   }
-
+  console.log(columnData)
   return columnData;
 }
 
@@ -530,14 +549,14 @@ function decodeAndRevertText(base64Text) {
   var revertedText = revertAccentedVowels(base64Text);
 
   // Split the text into an array based on the specified delimiter ("/")
-  var dataArray = revertedText.split('=/');
+  var dataArrayBase = revertedText.split('=/');
   //console.log(dataArray.length);
 
   // Split each data entry based on the reversed characters ("=/")
-  dataArray = dataArray.map(data => data.split('+/'));
+  dataArrayBase = dataArrayBase.map(data => data.split('+/'));
 
   //console.log(dataArray);
-  return dataArray;
+  return dataArrayBase;
 }
 function decodeAndRevertGeneral(base64Text) {
   // Add padding to the Base64 text if needed
@@ -877,7 +896,7 @@ async function filterData(completarDias = false) {
   })
 
   console.log(filteredGiras);
-  
+
   console.log(filteredData)
   var nombresGiras = filteredGiras.map(n => n[0]);
   var inicioGiras = filteredGiras.map(n => new Date(n[3]));
@@ -1588,7 +1607,7 @@ function fetchSpreadsheetValue(nombreParam) {
     });
 }
 function fetchEnsamble(ens) {
-  const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5m75Pzx8cztbCWoHzjtcXb3CCrP-YfvDnjE__97fYtZjJnNPqEqyytCXGCcPHKRXDsyCDmyzXO5Wj/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
+  const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSRnzV2NWuEUFuMZxaM90GQgXfD4KhO_cCfs2BNRSjxWNNazzLuPFiE0dXqTPi4I4gE6aJA84vX5kda/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
 
 
   return fetch(spreadsheetUrl)
@@ -1596,11 +1615,17 @@ function fetchEnsamble(ens) {
     .then(html => {
 
       const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
+      const docEns = parser.parseFromString(html, 'text/html');
+      //console.log(ens);
+      console.log("Doc Fetch")
+      console.log(docEns)
       console.log(ens);
-      const ensambles = extractColumnData(doc, 2); // Extract data from the 4th column
-      const miembros = extractColumnData(doc, 3); // Extract data from the 3rd column
+      const ensambles = fetchdeMus(13 ); // Extract data from the 4th column
+      const miembros = fetchdeMus(3); // Extract data from the 3rd column
+
+      console.log("Ensambles Fetch")
       console.log(ensambles);
+      console.log("Miembros Fetch")
       console.log(miembros);
 
       // Filter miembros based on the condition that the corresponding ensambles value matches the variable "ens"
@@ -1610,7 +1635,7 @@ function fetchEnsamble(ens) {
       const resultString = `${filteredMiembros.join('|')}`;
 
       // Use resultString for further processing or display
-      //console.log(`Ens: ${resultString}`);
+      console.log(`Ens: ${resultString}`);
 
       // Rest of your code...
       document.querySelector('h1').innerHTML = `${ens} <br> Coordinación`;
