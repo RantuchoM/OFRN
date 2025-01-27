@@ -1610,34 +1610,21 @@ function fetchEnsamble(ens) {
   const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSRnzV2NWuEUFuMZxaM90GQgXfD4KhO_cCfs2BNRSjxWNNazzLuPFiE0dXqTPi4I4gE6aJA84vX5kda/pubhtml?gid=0&single=true'; // Replace with the actual URL of the external page
 
 
-  return fetch(spreadsheetUrl)
-    .then(response => response.text())
-    .then(html => {
+  return Promise.all([fetchdeMus(13), fetchdeMus(3)])
+    .then(([ensamblesResult, miembrosResult]) => {
+      const ensambles = ensamblesResult;
+      const miembros = miembrosResult;
 
-      const parser = new DOMParser();
-      const docEns = parser.parseFromString(html, 'text/html');
-      //console.log(ens);
-      console.log("Doc Fetch")
-      console.log(docEns)
-      console.log(ens);
-      const ensambles = fetchdeMus(13 ); // Extract data from the 4th column
-      const miembros = fetchdeMus(3); // Extract data from the 3rd column
+      console.log("Ensambles Fetch:", ensambles);
+      console.log("Miembros Fetch:", miembros);
 
-      console.log("Ensambles Fetch")
-      console.log(ensambles);
-      console.log("Miembros Fetch")
-      console.log(miembros);
-
-      // Filter miembros based on the condition that the corresponding ensambles value matches the variable "ens"
+      // Now you can safely filter miembros
       const filteredMiembros = miembros.filter((miembro, index) => ensambles[index].includes(ens));
-      //console.log(filteredMiembros);
-      // Create a string by joining the values of filteredMiembros with "|"
       const resultString = `${filteredMiembros.join('|')}`;
 
-      // Use resultString for further processing or display
       console.log(`Ens: ${resultString}`);
 
-      // Rest of your code...
+      // ... (rest of your code)
       document.querySelector('h1').innerHTML = `${ens} <br> Coordinación`;
       document.getElementById("encabezadoImprimir").textContent = `Fechas OFRN de ${ens}`;
       return resultString;
