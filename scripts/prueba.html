@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+</head>
+
+<body>
+  <h3>Selecciona un evento:</h3>
+  <select id="dropdown">
+    <option>(Sin datos disponibles)</option>
+  </select>
+  <br><br>
+  <button onclick="importar()">Importar</button>
+
+  <script>
+    function cargarOpciones() {
+      try{
+        
+      // 1. Fetch the published HTML using UrlFetchApp
+      var url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtxtw4Z4R7-N7e30iaq-vojTW5I7B_Sv4bodQLwVYbWsA2_RBOBjdVQQqozkxH67bgYk7RgBBaDNEf/pubhtml?gid=0&single=true";
+      
+      // Add try...catch for error handling
+      try {
+        var response = UrlFetchApp.fetch(url);
+        var htmlContent = response.getContentText();
+      } catch (error) {
+        console.error("Error fetching spreadsheet:", error);
+        return; // Exit the function if there's an error
+      }
+
+      // 2. Parse the HTML to extract the names
+      var nombres =[];
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(htmlContent, 'text/html');
+      var tableRows = doc.querySelectorAll('table tr'); 
+
+      for (var i = 1; i < tableRows.length; i++) { 
+        var nombre = tableRows[i].querySelector('td:first-child').textContent.trim();
+        nombres.push(nombre);
+      }
+
+      // 3. Populate the dropdown with the extracted names
+      var select = document.getElementById("dropdown");
+      select.innerHTML = ""; 
+
+      nombres.forEach(function(nombre) {
+        var option = document.createElement("option");
+        option.value = nombre;
+        option.textContent = nombre;
+        select.appendChild(option);
+      });
+
+      console.log("Opciones agregadas:", select.innerHTML);
+      } catch (error) {
+    console.error("Error in cargarOpciones:", error);
+  }
+    }
+
+    function importar() {
+      var seleccion = document.getElementById("dropdown").value;
+      if (seleccion && seleccion!== "(Sin datos disponibles)") {
+        google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .functionCaller("importarDatos",seleccion);
+      } else {
+        alert("Por favor, selecciona un evento válido.");
+      }
+    }
+
+    function onSuccess(message) {
+      alert(message);
+      google.script.host.close();
+    }
+
+    function onFailure(error) {
+      alert("Error en la importación: " + error.message);
+    }
+
+    // Call cargarOpciones() to fetch and populate the dropdown
+    cargarOpciones(); 
+  </script>
+</body>
+
+</html>
