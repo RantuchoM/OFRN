@@ -13,6 +13,7 @@
         }
 
 
+
         :host {
             font-size: 13px;
         }
@@ -272,6 +273,45 @@
         #difficultyOptions input[type="checkbox"] {
             margin-right: 5px;
         }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: black;
+            font-size: 15px;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: black transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 0.8;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
@@ -304,14 +344,20 @@
 
     <h3 id="encabezadoArchivo">Archivo para filtrar </h3>
     <div id="filterButtons">
-        <button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()">Limpiar
-            filtros</button>
+
+        <div class="tooltip"><button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()"
+                style="background-color:lightseagreen;">Limpiar filtros</button>
+            <span class="tooltiptext">Limpiar todos los filtros de la tabla</span>
+        </div>
         <button id="showInstrumentFiltersButton" class="clear-filters-button"
             onclick="toggleInstrumentFilters()">Mostrar filtros de instrumentos</button>
 
         <div id="difficultyFilter">
-            <button id="difficultyButton" class="clear-filters-button"
-                onclick="toggleDifficultyOptions()">Dificultad</button>
+            <div class="tooltip"><button id="difficultyButton" class="clear-filters-button"
+                    onclick="toggleDifficultyOptions()">Dificultad</button><span class="tooltiptext">Se pueden elegir
+                    múltiples valores <br>El <b>1</b> es el más sencillo.</span></div>
+
+
             <div id="difficultyOptions">
                 <input type="checkbox" id="difficulty1" value="1" onchange="applyFilters()">
                 <label for="difficulty1">1</label>
@@ -323,10 +369,15 @@
                 <label for="difficultyNone">Sin categoría</label>
             </div>
         </div>
-        <button id="cbrpButton" class="clear-filters-button" onclick="toggleCBRPFilter()">CBRP</button>
-        <select id="predefinedSets" class="clear-filters-button" onchange="applyPredefinedSet()">
-
-        </select>
+        <div class="tooltip"><button id="cbrpButton" class="clear-filters-button"
+                onclick="toggleCBRPFilter()">CBRP</button>
+            <span class="tooltiptext"><i>Caja Básica de Repertorio Pochoclero</i><br>Obras conocidas del repertorio
+                popular universal.</span>
+        </div>
+        <div class="tooltip"><select id="predefinedSets" class="clear-filters-button" onchange="applyPredefinedSet()"></select>
+                <span class="tooltiptext">Al elegir un ensamble, va a mostrar el repertorio para ese ensamble exacto. Si
+                    quisieras modificar la instrumentación, podés presionar <i>"Mostrar filtros de instrumentos".</i></span></div>
+        
     </div>
 
     <div id="instrumentFilters" style="display: none;">
@@ -386,7 +437,7 @@
         let cbrpFilterActive = false; // Flag to track CBRP filter state
 
         const predefinedInstrumentSets = {
-            "VS": {
+            "VS [1111-0000]": {
                 "Cuerdas": "",
                 "Flauta": "1",
                 "Clarinete": "1",
@@ -398,7 +449,7 @@
                 "Tuba": "0",
 
             },
-            "PV": {
+            "PV [1111-1000]": {
                 "Cuerdas": "",
                 "Flauta": "1",
                 "Clarinete": "1",
@@ -410,7 +461,7 @@
                 "Tuba": "0",
 
             },
-            "BRAT": {
+            "BRAT [0000-0111]": {
                 "Cuerdas": "",
                 "Flauta": "0",
                 "Clarinete": "0",
@@ -421,7 +472,7 @@
                 "Trompeta": "1",
                 "Tuba": "1",
             },
-            "ABRON": {
+            "ABRON [0000-1220]": {
                 "Cuerdas": "",
                 "Flauta": "0",
                 "Clarinete": "0",
@@ -443,7 +494,7 @@
                 "Trompeta": "0",
                 "Tuba": "0",
             },
-            "CFMar": {
+            "CFMar [1111-0111-Str]": {
                 "Cuerdas": "Str",
                 "Flauta": "1",
                 "Clarinete": "1",
@@ -454,7 +505,7 @@
                 "Trompeta": "1",
                 "Tuba": "1",
             },
-            "CFVal": {
+            "CFVal [1111-1220-Str]": {
                 "Cuerdas": "Str",
                 "Flauta": "1",
                 "Clarinete": "1",
