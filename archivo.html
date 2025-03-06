@@ -229,6 +229,49 @@
             /* Black arrow */
             pointer-events: none;
         }
+
+        /* Styles for the filter buttons container */
+        #filterButtons {
+            display: flex;
+            align-items: center;
+            background-color: #f9f9f9;
+            /* Light background color for the container */
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        #difficultyFilter {
+            margin-left: 10px;
+            /* Add some space between the buttons and the filter */
+            display: flex;
+            align-items: center;
+            /* Align button and checkboxes */
+            background-color: #f9f9f9;
+            /* Lighter background for the difficulty filter */
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        #difficultyButton {
+            margin-right: 10px;
+            /* Space between button and checkboxes */
+        }
+
+        #difficultyOptions {
+            display: none;
+            flex-wrap: wrap;
+        }
+
+        #difficultyOptions label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        #difficultyOptions input[type="checkbox"] {
+            margin-right: 5px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
@@ -260,13 +303,31 @@
     <button class="clear-button" onclick="clearSelection()">Borrar selección</button>
 
     <h3 id="encabezadoArchivo">Archivo para filtrar </h3>
-    <button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()">Limpiar
-        filtros</button>
-    <button id="showInstrumentFiltersButton" class="clear-filters-button" onclick="toggleInstrumentFilters()">Mostrar
-        filtros de instrumentos</button>
+    <div id="filterButtons">
+        <button id="clearFiltersButton" class="clear-filters-button" onclick="clearAllFilters()">Limpiar
+            filtros</button>
+        <button id="showInstrumentFiltersButton" class="clear-filters-button"
+            onclick="toggleInstrumentFilters()">Mostrar filtros de instrumentos</button>
 
+        <div id="difficultyFilter">
+            <button id="difficultyButton" class="clear-filters-button"
+                onclick="toggleDifficultyOptions()">Dificultad</button>
+            <div id="difficultyOptions">
+                <input type="checkbox" id="difficulty1" value="1" onchange="applyFilters()">
+                <label for="difficulty1">1</label>
+                <input type="checkbox" id="difficulty2" value="2" onchange="applyFilters()">
+                <label for="difficulty2">2</label>
+                <input type="checkbox" id="difficulty3" value="3" onchange="applyFilters()">
+                <label for="difficulty3">3</label>
+                <input type="checkbox" id="difficultyNone" value="" onchange="applyFilters()">
+                <label for="difficultyNone">Sin categoría</label>
+            </div>
+        </div>
+        <button id="cbrpButton" class="clear-filters-button" onclick="toggleCBRPFilter()">CBRP</button>
+        <select id="predefinedSets" class="clear-filters-button" onchange="applyPredefinedSet()">
 
-
+        </select>
+    </div>
 
     <div id="instrumentFilters" style="display: none;">
         <table>
@@ -322,6 +383,68 @@
         let filteredData = [];
         let originalData = [];
         const selectedRows = new Set();
+        let cbrpFilterActive = false; // Flag to track CBRP filter state
+
+        const predefinedInstrumentSets = {
+            "VS": {
+                "Cuerdas": "",
+                "Flauta": "1",
+                "Clarinete": "1",
+                "Fagot": "1",
+                "Oboe": "1",
+                "Corno": "0",
+                "Trombón": "0",
+                "Trompeta": "0",
+                "Tuba": "0",
+
+            },
+            "PV": {
+                "Cuerdas": "",
+                "Flauta": "1",
+                "Clarinete": "1",
+                "Fagot": "1",
+                "Oboe": "1",
+                "Corno": "1",
+                "Trombón": "0",
+                "Trompeta": "0",
+                "Tuba": "0",
+
+            },
+            "BRAT": {
+                "Cuerdas": "",
+                "Flauta": "0",
+                "Clarinete": "0",
+                "Fagot": "0",
+                "Oboe": "0",
+                "Corno": "0",
+                "Trombón": "1",
+                "Trompeta": "1",
+                "Tuba": "1",
+            },
+            "ABRON": {
+                "Cuerdas": "",
+                "Flauta": "0",
+                "Clarinete": "0",
+                "Fagot": "0",
+                "Oboe": "0",
+                "Corno": "1",
+                "Trombón": "2",
+                "Trompeta": "2",
+                "Tuba": "0",
+            },
+            "Cuerdas": {
+                "Cuerdas": "Str",
+                "Flauta": "0",
+                "Clarinete": "0",
+                "Fagot": "0",
+                "Oboe": "0",
+                "Corno": "0",
+                "Trombón": "0",
+                "Trompeta": "0",
+                "Tuba": "0",
+            },
+            // ... more predefined sets
+        };
 
         async function fetchSheetData() {
             try {
@@ -447,16 +570,17 @@
             });
 
             // Update header colors
-            const headers = document.querySelectorAll("#dataTable thead tr:first-child th")
+            const headersT = document.querySelectorAll("#dataTable thead tr:first-child th")
 
 
             // Apply background color to both header rows
-            headers.forEach((header, index) => {
+            headersT.forEach((header, index) => {
                 header.style.backgroundColor = '#f4f4f4'; // Default color
                 if (index === (sortColumn + 1)) {
                     header.style.backgroundColor = sortDirection === 'asc' ? '#d4f8d4' : '#fce4d4';
                 }
             });
+
 
 
             const encabezadoArchivo = document.getElementById("encabezadoArchivo");
@@ -685,9 +809,36 @@
                 select.style.backgroundColor = "#E5E4E2"; // Set the background to gray
                 select.style.color = ""; // Reset text color
             });
+            // Clear difficulty checkboxes
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`difficulty${i}`).checked = false;
+            }
+            document.getElementById('difficultyNone').checked = false;
+            // Clear CBRP filter
+            if (cbrpFilterActive) {
+                const cbrpButton = document.getElementById("cbrpButton");
+                cbrpButton.style.backgroundColor = "#3498db"; // Reset button color
+                cbrpFilterActive = false;
+            }
+            document.getElementById("predefinedSets").value = "Seleccionar Ensamble";
+
             // Reset the table to show all data
             applyFilters()
         }
+
+        function toggleCBRPFilter() {
+            cbrpFilterActive = !cbrpFilterActive; // Toggle the filter state
+            const cbrpButton = document.getElementById("cbrpButton");
+
+            if (cbrpFilterActive) {
+                cbrpButton.style.backgroundColor = "green"; // Change to green when active
+            } else {
+                cbrpButton.style.backgroundColor = "#3498db"; // Back to default color
+            }
+
+            applyFilters(); // Reapply filters
+        }
+
 
         function applyFilters() {
             console.log("Apply filters");
@@ -695,6 +846,19 @@
             // Get year and duration filters
             const yearFilter = document.getElementById('filter-year').value.trim();
             const durationFilter = document.getElementById('filter-duration').value.trim();
+            // Difficulty filter (using checkboxes)
+            const selectedDifficulties = [];
+            for (let i = 1; i <= 3; i++) {
+                const checkbox = document.getElementById(`difficulty${i}`);
+                if (checkbox.checked) {
+                    selectedDifficulties.push(checkbox.value);
+                }
+            }
+            const noCategoryCheckbox = document.getElementById('difficultyNone');
+            if (noCategoryCheckbox.checked) {
+                selectedDifficulties.push(''); // Add empty string for "Sin categoría"
+            }
+
 
             // Instrument filters with dropdown logic
             const instrumentFilters = Array.from(document.querySelectorAll(".instrument-filter-input"))
@@ -704,7 +868,7 @@
                     const filterType = select?.value; // Get the selected filter type
                     const filterValue = input.value.trim(); // Get the input value
 
-                    if (filterValue) {
+                    if (filterType) {
                         td?.classList.add("input-active"); // Add background if input has a value
                     } else {
                         td?.classList.remove("input-active"); // Remove background if input is empty
@@ -717,9 +881,8 @@
                     );*/
 
                     // Return filter data if both type and value are provided
-                    return filterValue
-                        ? { type: filterType, value: filterValue, colIndex: index + 15 } // Adjust index for instrument columns
-                        : null;
+                    return { type: filterType, value: filterValue, colIndex: index + 15 } // Adjust index for instrument columns
+                        ;
                 })
                 .filter(filter => filter); // Remove null entries
 
@@ -762,12 +925,19 @@
                     // Pass filter type and value to matchesInstrumentFilter
                     return matchesInstrumentFilter(value, filter.type, filter.value);
                 });
+                const isCBRP = cbrpFilterActive ? (row[45].toLowerCase().includes("sí")) : true; // Corrected comparison
+                //console.log(row[45])
+                //console.log(isCBRP)
+                // Difficulty filtering
+                const difficultyMatch = selectedDifficulties.length === 0 ||
+                    selectedDifficulties.includes(row[44]) || // Assuming difficulty is in column 45 (index 44)
+                    (row[44] === "" && selectedDifficulties.includes("")); // Check for empty difficulty
 
-                return matchesTextFilters && yearMatch && durationMatch && matchesInstrumentFilters;
+                return matchesTextFilters && yearMatch && durationMatch && matchesInstrumentFilters && difficultyMatch && isCBRP;
             });
-
             //console.log("Filtered Data:", filteredData);
             // Update the header with the filtered data count
+            // Apply CBRP filter if active
 
 
             renderTable(filteredData);
@@ -776,11 +946,21 @@
         }
 
         function matchesInstrumentFilter(cellValue, filterType, filterValue) {
+            // Special handling for "=" with empty filter value
+
+
             // First, check if the filter and cell value are numeric
             const numericValue = parseInt(filterValue, 10);
             const cellNumericValue = parseInt(cellValue, 10);
+            // Special handling for "=" with empty filter value
+            if (filterType === "equal" && filterValue.trim() === "") {
+                const numericCellValue = parseInt(cellValue, 10);
+                return cellValue.trim() === "" || numericCellValue === 0; // Check for empty string or 0
+                console.log("Valor vacío ")
+            }
 
-            if ((!isNaN(filterValue) && !isNaN(cellValue)) || filterType === "none") {
+            else if ((!isNaN(numericValue) && !isNaN(cellNumericValue)) || filterType === "none") {
+
                 // Handle numeric comparisons
                 switch (filterType) {
                     case "none":
@@ -809,8 +989,6 @@
             }
         }
 
-
-
         function toggleInstrumentFilters() {
             const filterDiv = document.getElementById("instrumentFilters");
             filterDiv.style.display = filterDiv.style.display === "none" ? "block" : "none";
@@ -827,13 +1005,13 @@
                 button.textContent = "Mostrar filtros de instrumentos"; // Update button text
             }
         }
-
+        const headers = [
+            "Cuerdas", "Flauta", "Fl", "Oboe", "Ob", "Clarinete", "Clarinete Bajo", "Fagot", "", "Corno", "",
+            "Trompeta", "", "Trombón", "", "Tuba", "", "Percusión", "", "Arpa", "Piano", "Coro", "Guitarra",
+            "Charango", "Órgano", "Añadidos", "Solista", "", "OBSERVACIONES"
+        ];
         function generateInstrumentFilters() {
-            const headers = [
-                "Cuerdas", "Flauta", "Fl", "Oboe", "Ob", "Clarinete", "Clarinete Bajo", "Fagot", "", "Corno", "",
-                "Trompeta", "", "Trombón", "", "Tuba", "", "Percusión", "", "Arpa", "Piano", "Coro", "Guitarra",
-                "Charango", "Órgano", "Añadidos", "Solista", "", "OBSERVACIONES"
-            ];
+
 
             const headerRow = document.getElementById("instrumentHeaders");
             const inputRow = document.getElementById("instrumentInputs");
@@ -1018,6 +1196,20 @@
                 }
                 inputRow.appendChild(td);
             });
+            // Assuming you have your predefinedInstrumentSets object defined somewhere
+
+            const dropdown = document.getElementById("predefinedSets");
+
+            // Clear existing options (optional)
+            dropdown.innerHTML = '<option value="">Seleccionar Ensamble</option>';
+
+            // Add options dynamically
+            for (const setName in predefinedInstrumentSets) {
+                const option = document.createElement("option");
+                option.value = setName;
+                option.textContent = setName;
+                dropdown.appendChild(option);
+            }
         }
 
         function filterYearRange(yearValue, range) {
@@ -1132,11 +1324,54 @@
                 document.querySelectorAll('.filter-input')[0].value = encodedValue; // Set the value of second input
             }
         }
+        function applyPredefinedSet() {
+            const selectedSet = document.getElementById("predefinedSets").value;
+            console.log(selectedSet)
+            if (selectedSet === "") {
+                clearAllFilters()
+            }
+            else {
+                const selectedSetFilters = predefinedInstrumentSets[selectedSet] || {}; // Get filters for selected set
 
-        // Call the function on page load
-        window.onload = function () {
-            setFilterFromUrl(); // Apply the URL parameter to the filter input field
-        };
+                // Update the instrument filter inputs and dropdowns
+                const instrumentInputs = document.querySelectorAll(".instrument-filter-input");
+                const instrumentSelects = document.querySelectorAll(".instrument-filter-select"); // Get the select elements
+
+                instrumentInputs.forEach((input, index) => {
+                    const instrumentName = headers[index].trim(); // Get the instrument name from the header
+
+                    // Only update if the instrument is in the selected set
+                    if (instrumentName in selectedSetFilters) {
+                        const filterValue = selectedSetFilters[instrumentName] || ""; // Get the predefined value or keep it empty
+
+                        input.value = filterValue; // Update the input value
+
+                        // Set the corresponding select element to "=" (equal)
+                        instrumentSelects[index].value = "equal";
+                        instrumentSelects[index].style.backgroundColor = "blue";
+                        instrumentSelects[index].style.color = "white";
+                    }
+                });
+            }
+
+            applyFilters(); // Reapply filters
+        }
+        function toggleDifficultyOptions() {
+            const optionsDiv = document.getElementById("difficultyOptions");
+            const difficultyFilter = document.getElementById("difficultyFilter");
+
+            if (optionsDiv.style.display === "none") {
+                optionsDiv.style.display = "flex";
+                difficultyFilter.style.backgroundColor = "#b2d0f1"; // Change background color when shown
+            } else {
+                optionsDiv.style.display = "none";
+                difficultyFilter.style.backgroundColor = "#f9f9f9"; // Change back to original color when hidden
+                // Call the function on page load
+                window.onload = function () {
+                    setFilterFromUrl(); // Apply the URL parameter to the filter input field
+                };
+            }
+        }
     </script>
 </body>
 
