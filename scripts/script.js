@@ -44,7 +44,7 @@ function initClient() {
 
 function getNames() {
   //console.log("getDropdownData")
-  const url = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt'; // Replace with the actual URL of the external page
+  const url = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/integrantes.txt?' + new Date().getTime(); // Replace with the actual URL of the external page
   return fetch(url)
     .then(response => response.text())
     .then(base64Text => {
@@ -379,8 +379,8 @@ document.querySelectorAll('.filter-date').forEach(function (dateInput) {
 //people = getDropdownData();
 function getDataFromTextFiles() {
   // URLs of the text files
-  const txtFileUrl1 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup.txt';
-  const txtFileUrl2 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup2025.txt';
+  const txtFileUrl1 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup.txt?' + new Date().getTime();
+  const txtFileUrl2 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/backup2025.txt?' + new Date().getTime();
 
   // Fetch both text files
   return Promise.all([fetch(txtFileUrl1), fetch(txtFileUrl2)])
@@ -501,8 +501,8 @@ function getDataFromTextFiles() {
 
 function getGirasFromTextFiles() {
   // URLs of the text files
-  var txtFileUrl1 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras2.txt';
-  var txtFileUrl2 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras3.txt';
+  var txtFileUrl1 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras2.txt?' + new Date().getTime();
+  var txtFileUrl2 = 'https://raw.githubusercontent.com/RantuchoM/OFRN/main/giras3.txt?' + new Date().getTime();
 
   // Fetch both text files
   return Promise.all([fetch(txtFileUrl1), fetch(txtFileUrl2)])
