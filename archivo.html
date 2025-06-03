@@ -411,7 +411,6 @@
             <tr>
                 <th></th>
                 <th></th>
-                <!-- Remove filter for the Link column -->
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
                 <th><input class="filter-input" type="text" placeholder="Inserte valor" onkeyup="applyFilters()"></th>
                 <th> <input class="filter-input" type="text" placeholder="1974-2000" onkeyup="applyFilters()"
@@ -428,7 +427,6 @@
         <tbody></tbody>
     </table>
 
-    <!-- Floating back to top button -->
     <button id="backToTopButton" onclick="scrollToTop()">⇧⇧</button>
 
     <script>
@@ -1501,14 +1499,21 @@
 
                     // Only update if the instrument is in the selected set
                     if (instrumentName in selectedSetFilters) {
-                        const filterValue = selectedSetFilters[instrumentName] || ""; // Get the predefined value or keep it empty
+                        const filterValue = selectedSetFilters[instrumentName]; // Get the predefined value
 
-                        input.value = filterValue; // Update the input value
-
-                        // Set the corresponding select element to "=" (equal)
-                        instrumentSelects[index].value = "equal";
-                        instrumentSelects[index].style.backgroundColor = "blue";
-                        instrumentSelects[index].style.color = "white";
+                        if (filterValue === "") {
+                            // If filterValue is empty, clear the filter for this instrument
+                            input.value = "";
+                            instrumentSelects[index].value = ""; // Set select to empty
+                            instrumentSelects[index].style.backgroundColor = "#E5E4E2"; // Reset to default gray
+                            instrumentSelects[index].style.color = ""; // Reset text color
+                        } else {
+                            // If filterValue is not empty, apply the filter
+                            input.value = filterValue;
+                            instrumentSelects[index].value = "equal"; // Set the corresponding select element to "=" (equal)
+                            instrumentSelects[index].style.backgroundColor = "blue";
+                            instrumentSelects[index].style.color = "white";
+                        }
                     }
                 });
             }
