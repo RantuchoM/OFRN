@@ -430,7 +430,7 @@
     <button id="backToTopButton" onclick="scrollToTop()">⇧⇧</button>
 
     <script>
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYZpbc1MZvPLzQiwdgsC46D2uP3XlqbH5AIt7XQ2bsaKOE-hKHlLRojW4NDrD4XeJhLYoVj6jrSIfl/pubhtml?gid=0&single=true";
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYZpbc1MZvPLzQiwdgsC46D2uP3XlqbH5AIt7XQ2bsaKOE-hKHlLRojW4NDrD4XeJhLYoVj6jrSIfl/pubhtml?gid=0&single=true&" + new Date().getTime();
         let filteredData = [];
         let originalData = [];
         const selectedRows = new Set();
