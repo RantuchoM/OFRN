@@ -430,7 +430,7 @@
     <button id="backToTopButton" onclick="scrollToTop()">⇧⇧</button>
 
     <script>
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYZpbc1MZvPLzQiwdgsC46D2uP3XlqbH5AIt7XQ2bsaKOE-hKHlLRojW4NDrD4XeJhLYoVj6jrSIfl/pubhtml?gid=0&single=true&" + new Date().getTime();
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYZpbc1MZvPLzQiwdgsC46D2uP3XlqbH5AIt7XQ2bsaKOE-hKHlLRojW4NDrD4XeJhLYoVj6jrSIfl/pubhtml/sheet?headers=false&gid=0&" + new Date().getTime();
         let filteredData = [];
         let originalData = [];
         const selectedRows = new Set();
@@ -610,43 +610,52 @@
 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, "text/html");
-                const rows = Array.from(doc.querySelectorAll("table tbody tr"));
+
+                const dataTableElement = doc.querySelector('table');
+
+                if (!dataTableElement) {
+                    document.getElementById('loading').textContent = 'Error: No se encontró la tabla de datos en el archivo.';
+                    return;
+                }
+
+                const rows = Array.from(dataTableElement.querySelectorAll("tbody tr"));
+
+                if (rows.length < 2) {
+                    document.getElementById('loading').textContent = 'Error: La tabla de datos está vacía.';
+                    return;
+                }
 
                 originalData = rows
-                    .slice(1) // Skip the first line (headers in source)
-                    .slice(1) // Skip another line if necessary
-                    .map(row => Array.from(row.querySelectorAll("td")).map((cell, index) => {
-                        if (index === 0 || index === 9) { // Adjust for your link columns
-                            const anchor = cell.querySelector("a"); // Look for the <a> tag
-                            if (anchor) {
-                                const url = new URL(anchor.href);
-                                return url.searchParams.get("q") || anchor.href; // Extract 'q' or fallback to the raw href
+                    .slice(1) // Skip the header row
+                    .map(row => {
+                        const rowData = Array.from(row.querySelectorAll("td")).map((cell, index) => {
+                            if (index === 0 || index === 9) {
+                                const anchor = cell.querySelector("a");
+                                if (anchor) {
+                                    const url = new URL(anchor.href);
+                                    return url.searchParams.get("q") || anchor.href;
+                                }
+                                return "";
                             }
-                            return "";
-                        }
-                        return cell.innerHTML.trim() || ""; // Keep other cells as raw HTML content
-                    }))
-                    .filter(row => row[0]); // Exclude rows with empty Column A
+                            return cell.innerHTML.trim() || "";
+                        });
+
+                        // --- Línea de depuración: Imprime el valor de la primera columna de cada fila ---
+                        //console.log(`Valor de la primera columna para una fila: '${rowData[0]}'`);
+
+                        return rowData;
+                    })
+                    .filter(row => row[0] && row[0].trim() !== "");
 
                 filteredData = originalData;
                 loadSelectedRowsFromLocalStorage();
-                // Reapply styles to rows if necessary
-                Array.from(selectedRows).forEach(row => {
-                    const tr = document.querySelector(`[data-row-id="${row[1]}"]`); // Adjust selector to match your row identifier
-                    if (tr) {
-                        tr.classList.add("highlight-row");
-                        const actionTd = tr.querySelector('.action-td'); // Adjust to match your action cell class
-                        actionTd.textContent = "❌";
-                    }
-                });
                 applyFilters();
                 renderTable(filteredData);
             } catch (error) {
                 console.error("Error fetching data:", error);
-                document.getElementById('loading').textContent = 'Error cargando datos. Por favor, verifica la URL.';
+                document.getElementById('loading').textContent = 'Error cargando datos. Por favor, verifica la URL o la estructura del documento.';
             }
         }
-
         function renderTable(data0, sortColumn = null, sortDirection = 'asc') {
             let data = data0.map(row => row.slice(0, 10)); // Ensure only the first 10 columns are rendered
             //console.log("Sorting column:", sortColumn, "Direction:", sortDirection);
