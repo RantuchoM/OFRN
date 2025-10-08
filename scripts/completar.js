@@ -5,7 +5,7 @@ function crearCheckboxes() {
     { key: "CFVal", color: "#E1C16E" },
     { key: "CFMon", color: "#A8A8A8" },
     { key: "CFMar", color: "#89CFF0" },
-    { key: "CFCuer", color: "#ffccff" },
+    { key: "Jazz", color: "#ffccff" },
     { key: "Sinf", color: "#dabcff" },
     { key: "ECAS", color: "" }, // Replace with the actual background color
     { key: "CAV", color: "" }, // Replace with the actual background color

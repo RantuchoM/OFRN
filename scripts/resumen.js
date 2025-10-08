@@ -96,7 +96,7 @@ function resumenPersonas() {
           row += ' style="background-color: #A8A8A8;"';
         } else if (data[6].includes('CFMar')) {
           row += ' style="background-color: #89CFF0;"';
-        } else if (data[6].includes('CFCuer')) {
+        } else if (data[6].includes('Jazz')) {
           row += ' style="background-color: #ffccff;"';
         }
 

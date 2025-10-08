@@ -215,7 +215,7 @@ function resumenPersonas() {
           'CF Val': '#E1C16E',
           'CF Mon': '#A8A8A8',
           'CF Mar': '#89CFF0',
-          'CFCuer': '#ffccff'
+          'Jazz': '#ffccff'
           // Add more entries as needed
         };
 
@@ -1085,9 +1085,9 @@ async function filterData(completarDias = false) {
           } else if (progrs[i].includes('CF Mar')) {
             backgroundColor = '#89CFF0';
             tipo = "CFMar";
-          } else if (progrs[i].includes('CFCuer')) {
+          } else if (progrs[i].includes('Jazz')) {
             backgroundColor = '#ffccff';
-            tipo = "CFCuer";
+            tipo = "Jazz";
           } else {
             backgroundColor = '#baee29';
             tipo = data[6].replace('Ensayo de ', '').replace('Gira/Progr. ', '');
